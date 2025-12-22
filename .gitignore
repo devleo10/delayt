@@ -2,6 +2,8 @@
 node_modules/
 package-lock.json
 yarn.lock
+client/node_modules/
+client/build/
 
 # Environment variables
 .env
@@ -26,5 +28,3 @@ Thumbs.db
 
 # TypeScript
 *.tsbuildinfo
-
-
