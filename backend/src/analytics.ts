@@ -34,16 +34,36 @@ export function computePercentiles(
 }
 
 /**
- * Gets analytics results for all endpoints
+ * Computes standard deviation
+ */
+export function computeStdDev(data: number[], avg: number): number {
+  if (data.length < 2) return 0;
+  const squareDiffs = data.map(value => Math.pow(value - avg, 2));
+  const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / data.length;
+  return Math.sqrt(avgSquareDiff);
+}
+
+/**
+ * Gets analytics results for all endpoints OR for a specific run
  * Groups by endpoint and method, computes percentiles, ranks by p95
  */
-export async function getEndpointAnalytics(): Promise<AnalyticsResult[]> {
+export async function getEndpointAnalytics(runId?: string): Promise<AnalyticsResult[]> {
   const pool = getPool();
-  const result = await pool.query<RawRequestData>(
-    `SELECT endpoint, method, latency_ms, request_size_bytes, response_size_bytes, status_code
-     FROM api_requests
-     ORDER BY endpoint, method, created_at`
-  );
+  
+  let query = `
+    SELECT endpoint, method, latency_ms, request_size_bytes, response_size_bytes, status_code, error_message
+    FROM api_requests
+  `;
+  const params: string[] = [];
+  
+  if (runId) {
+    query += ` WHERE run_id = $1`;
+    params.push(runId);
+  }
+  
+  query += ` ORDER BY endpoint, method, created_at`;
+  
+  const result = await pool.query<RawRequestData>(query, params);
 
   // Group by endpoint and method
   const grouped = new Map<string, {
@@ -51,6 +71,8 @@ export async function getEndpointAnalytics(): Promise<AnalyticsResult[]> {
     method: string;
     latencies: number[];
     payloadSizes: number[];
+    statusCodes: number[];
+    errorCount: number;
   }>();
 
   for (const row of result.rows) {
@@ -62,12 +84,20 @@ export async function getEndpointAnalytics(): Promise<AnalyticsResult[]> {
         method: row.method,
         latencies: [],
         payloadSizes: [],
+        statusCodes: [],
+        errorCount: 0,
       });
     }
 
     const group = grouped.get(key)!;
     group.latencies.push(Number(row.latency_ms));
     group.payloadSizes.push(row.request_size_bytes);
+    group.statusCodes.push(row.status_code);
+    
+    // Count errors (status 0 = network error, 4xx/5xx = HTTP errors)
+    if (row.status_code === 0 || row.status_code >= 400) {
+      group.errorCount++;
+    }
   }
 
   // Compute analytics for each group
@@ -76,9 +106,22 @@ export async function getEndpointAnalytics(): Promise<AnalyticsResult[]> {
   for (const group of grouped.values()) {
     const percentiles = computePercentiles(group.latencies, [50, 95, 99]);
     
+    // Calculate average and other stats
+    const avg = group.latencies.length > 0
+      ? group.latencies.reduce((a, b) => a + b, 0) / group.latencies.length
+      : 0;
+    
+    const min = group.latencies.length > 0 ? Math.min(...group.latencies) : 0;
+    const max = group.latencies.length > 0 ? Math.max(...group.latencies) : 0;
+    const stdDev = computeStdDev(group.latencies, avg);
+    
     // Calculate average payload size
     const avgPayloadSize = group.payloadSizes.length > 0
       ? group.payloadSizes.reduce((a, b) => a + b, 0) / group.payloadSizes.length
+      : 0;
+    
+    const errorRate = group.latencies.length > 0
+      ? (group.errorCount / group.latencies.length) * 100
       : 0;
 
     analytics.push({
@@ -87,8 +130,15 @@ export async function getEndpointAnalytics(): Promise<AnalyticsResult[]> {
       p50: percentiles[50],
       p95: percentiles[95],
       p99: percentiles[99],
+      min,
+      max,
+      avg,
+      stdDev,
       avg_payload_size: Math.round(avgPayloadSize),
       request_count: group.latencies.length,
+      error_count: group.errorCount,
+      error_rate: Math.round(errorRate * 100) / 100,
+      success_rate: Math.round((100 - errorRate) * 100) / 100,
     });
   }
 
@@ -145,31 +195,87 @@ export async function getPayloadSizeBuckets(endpoint: string): Promise<BucketRes
 }
 
 /**
- * Gets raw request data, optionally filtered by endpoint
+ * Gets raw request data, optionally filtered by endpoint or runId
  */
-export async function getRawRequestData(endpoint?: string): Promise<RawRequestData[]> {
+export async function getRawRequestData(options?: { 
+  endpoint?: string; 
+  runId?: string; 
+  limit?: number;
+}): Promise<RawRequestData[]> {
   const pool = getPool();
+  const { endpoint, runId, limit = 1000 } = options || {};
+  
+  let query = `
+    SELECT id, run_id, endpoint, method, latency_ms, request_size_bytes, 
+           response_size_bytes, status_code, error_message, created_at
+    FROM api_requests
+  `;
+  const conditions: string[] = [];
+  const params: (string | number)[] = [];
+  
+  if (runId) {
+    params.push(runId);
+    conditions.push(`run_id = $${params.length}`);
+  }
   
   if (endpoint) {
-    const result = await pool.query<RawRequestData>(
-      `SELECT id, endpoint, method, latency_ms, request_size_bytes, 
-              response_size_bytes, status_code, created_at
-       FROM api_requests
-       WHERE endpoint = $1
-       ORDER BY created_at DESC`,
-      [endpoint]
-    );
-    return result.rows;
-  } else {
-    const result = await pool.query<RawRequestData>(
-      `SELECT id, endpoint, method, latency_ms, request_size_bytes, 
-              response_size_bytes, status_code, created_at
-       FROM api_requests
-       ORDER BY created_at DESC
-       LIMIT 1000`
-    );
-    return result.rows;
+    params.push(endpoint);
+    conditions.push(`endpoint = $${params.length}`);
   }
+  
+  if (conditions.length > 0) {
+    query += ` WHERE ${conditions.join(' AND ')}`;
+  }
+  
+  query += ` ORDER BY created_at DESC`;
+  
+  if (!runId) {
+    params.push(limit);
+    query += ` LIMIT $${params.length}`;
+  }
+  
+  const result = await pool.query<RawRequestData>(query, params);
+  return result.rows;
+}
+
+/**
+ * Get latency histogram data for visualization
+ */
+export async function getLatencyHistogram(runId?: string): Promise<{ bucket: string; count: number }[]> {
+  const pool = getPool();
+  
+  let query = `
+    SELECT 
+      CASE 
+        WHEN latency_ms < 50 THEN '0-50ms'
+        WHEN latency_ms < 100 THEN '50-100ms'
+        WHEN latency_ms < 200 THEN '100-200ms'
+        WHEN latency_ms < 500 THEN '200-500ms'
+        WHEN latency_ms < 1000 THEN '500ms-1s'
+        ELSE '1s+'
+      END as bucket,
+      COUNT(*) as count
+    FROM api_requests
+  `;
+  
+  const params: string[] = [];
+  if (runId) {
+    query += ` WHERE run_id = $1`;
+    params.push(runId);
+  }
+  
+  query += ` GROUP BY bucket ORDER BY 
+    CASE bucket
+      WHEN '0-50ms' THEN 1
+      WHEN '50-100ms' THEN 2
+      WHEN '100-200ms' THEN 3
+      WHEN '200-500ms' THEN 4
+      WHEN '500ms-1s' THEN 5
+      ELSE 6
+    END`;
+  
+  const result = await pool.query(query, params);
+  return result.rows;
 }
 
 
