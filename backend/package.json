@@ -1,13 +1,31 @@
 {
-  "name": "api-latency-visualizer-backend",
-  "version": "1.0.0",
-  "description": "Backend for API Latency Visualizer MVP",
+  "name": "delayr",
+  "version": "2.0.0",
+  "description": "API Latency Testing with Percentile Analysis - for developers and CI/CD",
   "main": "dist/server.js",
+  "bin": {
+    "delayr": "./dist/cli/index.js"
+  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "cli": "ts-node src/cli/index.ts"
   },
+  "keywords": [
+    "api",
+    "latency",
+    "testing",
+    "performance",
+    "percentile",
+    "p95",
+    "p99",
+    "ci",
+    "cd",
+    "devops"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "pg": "^8.11.3",
@@ -21,7 +39,8 @@
     "@types/express": "^4.17.21",
     "@types/pg": "^8.10.9",
     "@types/cors": "^2.8.17",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "ts-node": "^10.9.2"
   }
 }
 

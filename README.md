@@ -1,272 +1,371 @@
-# API Latency Visualizer
+# ⚡ Delayr
 
-An MVP tool for visualizing API latency using percentile analysis (p50, p95, p99) instead of averages. Built with Node.js, TypeScript, PostgreSQL, and React.
+**API Latency Testing with Percentile Analysis (p50, p95, p99)**
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Node](https://img.shields.io/badge/node-18%2B-green.svg)
-![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)
+Stop measuring averages. Start measuring what matters.
 
-## 🎯 Why Percentiles Matter
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-18%2B-green.svg)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)](https://typescriptlang.org)
+
+<p align="center">
+  <img src="https://via.placeholder.com/800x400/0d1117/58a6ff?text=⚡+Delayr+Dashboard" alt="Delayr Dashboard" />
+</p>
+
+## 🎯 Why Delayr?
 
 **The Problem with Averages:**
-- Averages hide outliers. An API with 99 requests at 10ms and 1 request at 10 seconds has an average of ~200ms, which doesn't reflect the user experience.
-- Real-world latency follows a long-tail distribution where a small percentage of requests take much longer.
 
-**Why p95 and p99 Matter:**
-- **p50 (median)**: Half of your requests are faster than this. Good baseline, but doesn't show worst-case.
-- **p95**: 95% of requests are faster than this. This is what most users experience. Critical for SLA monitoring.
-- **p99**: 99% of requests are faster than this. Shows your worst-case performance for almost all users.
+Your API has an average latency of 50ms. Sounds great, right? But here's the truth:
+- 99 requests at 10ms + 1 request at 10 seconds = 200ms average
+- That 200ms average hides the fact that some users wait 10 seconds
 
-**Example:**
-If your API has:
-- Average: 50ms
-- p95: 500ms
-- p99: 2000ms
+**What Percentiles Tell You:**
 
-This tells you that while most requests are fast (average 50ms), 5% of users experience 500ms+ latency, and 1% experience 2+ seconds. This is critical information that averages hide.
+| Metric | Meaning | Why It Matters |
+|--------|---------|----------------|
+| **p50** | 50% of requests are faster | Your median experience |
+| **p95** | 95% of requests are faster | What most users experience |
+| **p99** | 99% of requests are faster | Your worst-case (almost) |
 
-## 🏗️ Architecture
+If your API shows: `avg: 50ms | p95: 500ms | p99: 2000ms`
 
-Clear separation of concerns:
-- **Runner** (`src/runner.ts`): Sends 50 sequential requests per endpoint, measures latency using high-resolution timers
-- **Storage** (`src/storage.ts`): Saves raw request data to Postgres
-- **Analytics** (`src/analytics.ts`): Computes percentiles and payload bucket analysis
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- PostgreSQL 12+
-- npm or yarn
-
-### Installation
-
-1. **Clone the repository:**
-```bash
-git clone https://github.com/devleo10/delayt.git
-cd delayt
-```
-
-2. **Install backend dependencies:**
-```bash
-npm install
-```
-
-3. **Install frontend dependencies:**
-```bash
-cd client
-npm install
-cd ..
-```
-
-4. **Set up PostgreSQL:**
-```sql
-CREATE DATABASE latency_visualizer;
-```
-
-5. **Configure environment variables (optional):**
-Create a `.env` file in the root directory:
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=latency_visualizer
-DB_USER=postgres
-DB_PASSWORD=postgres
-PORT=3001
-```
-
-6. **Run database migration:**
-```bash
-npm run build
-npm run migrate
-```
-
-### Running the Application
-
-1. **Start the backend server:**
-```bash
-npm run dev
-```
-
-2. **Start the frontend (in a new terminal):**
-```bash
-npm run client
-# or
-cd client && npm start
-```
-
-3. **Open your browser:**
-Navigate to `http://localhost:3000`
-
-## 📖 Usage
-
-1. **Add API endpoints:**
-   - Enter endpoints in the text area, one per line
-   - Format: `METHOD URL [PAYLOAD for POST]`
-   - Examples:
-     ```
-     GET https://api.github.com/users/octocat
-     POST https://jsonplaceholder.typicode.com/posts {"title": "test"}
-     ```
-
-2. **Run tests:**
-   - Click "Run Tests" - this sends exactly 50 sequential requests per endpoint
-   - Results are stored in Postgres
-
-3. **View analytics:**
-   - Table shows: endpoint, method, p50, p95, p99, avg payload size
-   - Endpoints are ranked by p95 (slowest first)
-   - Slow endpoints (p95 > 1000ms) are highlighted
-   - Chart shows payload size vs latency for POST requests
+This means 5% of users experience 500ms+ latency, and 1% wait 2+ seconds. **That's critical information averages hide.**
 
 ## ✨ Features
 
-- ✅ Exactly 50 sequential requests per endpoint
-- ✅ High-resolution latency measurement (nanosecond precision using `process.hrtime.bigint()`)
-- ✅ Records: endpoint, method, latency_ms, request_size_bytes, response_size_bytes, status_code
-- ✅ Percentile analysis (p50, p95, p99) - no averages as primary metric
-- ✅ Payload size bucketing for POST requests
-- ✅ Request timeouts (30 seconds)
-- ✅ No retries (failures are logged and recorded)
-- ✅ Single-page React UI with table and chart visualization
-- ✅ Slow endpoint highlighting
+### 🚀 Core Features
+- **Percentile Analysis** - p50, p95, p99 latency metrics
+- **High-Resolution Timing** - Nanosecond precision with `process.hrtime`
+- **Custom Request Count** - Configure 1-200 requests per endpoint
+- **All HTTP Methods** - GET, POST, PUT, PATCH, DELETE support
+- **Custom Headers** - Test APIs with auth tokens, API keys, etc.
+- **Request Body** - Full JSON payload support for POST/PUT/PATCH
 
-## 🔌 API Endpoints
+### 📊 Visualization
+- **Dark Mode UI** - Beautiful developer-focused design
+- **Scatter Plot** - Payload size vs latency distribution
+- **Latency Histogram** - See your latency distribution
+- **Comparison Chart** - Compare p50/p95/p99 across endpoints
+- **Success Rate Badges** - Instant error rate visibility
 
-### `POST /api/test`
-Submit endpoints to test.
+### 🔗 Sharing & Collaboration
+- **Shareable Links** - Every test run gets a unique URL (`/r/abc123`)
+- **Copy as Markdown** - One-click export for GitHub issues
+- **Run History** - Access past test results
 
-**Request:**
-```json
-{
-  "endpoints": [
-    {"url": "https://api.example.com", "method": "GET"},
-    {"url": "https://api.example.com/data", "method": "POST", "payload": {"key": "value"}}
-  ]
-}
+### 🔧 CI/CD Integration
+- **CLI Tool** - `npx delayr --url https://api.example.com`
+- **Assertions** - Fail builds if p95 exceeds threshold
+- **JSON Output** - Machine-readable results for pipelines
+- **Exit Codes** - 0 = pass, 1 = assertion failed, 2 = error
+
+## 🚀 Quick Start
+
+### Option 1: Web UI
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/delayr.git
+cd delayr
+
+# Start PostgreSQL with Docker
+docker-compose up -d
+
+# Start the backend
+cd backend
+npm install
+npm run dev
+
+# Start the frontend (new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 and start testing!
+
+### Option 2: CLI (No database required)
+
+```bash
+# Install globally
+npm install -g delayr
+
+# Test an API
+delayr https://api.example.com/health
+
+# With assertions (for CI/CD)
+delayr --url https://api.example.com --assert-p95=200
+
+# Multiple endpoints with headers
+delayr -u https://api.example.com/users \
+       -u https://api.example.com/posts \
+       -H "Authorization: Bearer your-token" \
+       --assert-p95=500
+```
+
+## 📖 CLI Usage
+
+```
+⚡ Delayr CLI - API Latency Testing for CI/CD
+
+USAGE:
+  delayr [options] [url]
+  delayr --url <url> [--url <url2>] [options]
+
+OPTIONS:
+  -u, --url <url>        URL to test (can be specified multiple times)
+  -m, --method <method>  HTTP method: GET, POST, PUT, PATCH, DELETE (default: GET)
+  -c, --count <n>        Number of requests per endpoint (default: 50)
+  -H, --header <header>  Add header (format: "Name: Value")
+  -d, --data <json>      Request body for POST/PUT/PATCH
+  -o, --output <format>  Output format: table, json, markdown (default: table)
+  -q, --quiet            Suppress progress output
+  
+ASSERTIONS:
+  --assert-p50=<ms>      Fail if p50 latency exceeds threshold
+  --assert-p95=<ms>      Fail if p95 latency exceeds threshold  
+  --assert-p99=<ms>      Fail if p99 latency exceeds threshold
+
+EXIT CODES:
+  0  All tests passed
+  1  Assertion failed (latency threshold exceeded)
+  2  Error (network, configuration, etc.)
+```
+
+### CI/CD Examples
+
+**GitHub Actions:**
+```yaml
+- name: Check API Latency
+  run: npx delayr -u ${{ secrets.API_URL }} --assert-p95=200 --output json
+```
+
+**GitLab CI:**
+```yaml
+latency-check:
+  script:
+    - npx delayr -u $API_URL --assert-p95=500 --quiet
+  allow_failure: false
+```
+
+## 🔌 API Reference
+
+### `POST /api/run` - Start a test run
+
+```bash
+curl -X POST http://localhost:3001/api/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "endpoints": [
+      {
+        "url": "https://api.example.com/users",
+        "method": "GET",
+        "headers": {"Authorization": "Bearer token"}
+      }
+    ],
+    "requestCount": 50
+  }'
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "message": "Tests completed"
+  "runId": "run_1705276800000_abc123",
+  "slug": "xk9f2m3p",
+  "shareUrl": "http://localhost:3001/r/xk9f2m3p",
+  "message": "Tests started successfully"
 }
 ```
 
-### `GET /api/analytics`
-Get percentile statistics and payload buckets.
+### `GET /api/run/:id` - Get run results
+
+```bash
+curl http://localhost:3001/api/run/xk9f2m3p
+```
 
 **Response:**
 ```json
 {
-  "percentileStats": [
+  "success": true,
+  "run": {
+    "id": "run_1705276800000_abc123",
+    "slug": "xk9f2m3p",
+    "status": "completed",
+    "endpoints": [...],
+    "requestCount": 50
+  },
+  "results": [
     {
-      "endpoint": "https://api.example.com",
+      "endpoint": "https://api.example.com/users",
       "method": "GET",
-      "p50": 45.2,
-      "p95": 120.5,
-      "p99": 250.8,
-      "avg_payload_size": 0
-    }
-  ],
-  "payloadBuckets": [
-    {
-      "bucket_min": 0,
-      "bucket_max": 100,
-      "p95": 85.3,
-      "count": 150
+      "p50": 45.23,
+      "p95": 123.45,
+      "p99": 234.56,
+      "min": 12.34,
+      "max": 456.78,
+      "avg": 67.89,
+      "request_count": 50,
+      "error_rate": 0,
+      "success_rate": 100
     }
   ]
 }
 ```
 
-## 📁 Project Structure
+### `GET /r/:slug` - Shareable result link
+
+Returns same format as `/api/run/:id` with histogram data included.
+
+### `GET /api/runs` - List recent runs
+
+```bash
+curl http://localhost:3001/api/runs?limit=10
+```
+
+### `GET /api/histogram` - Latency histogram
+
+```bash
+curl http://localhost:3001/api/histogram?runId=xk9f2m3p
+```
+
+## 🏗️ Architecture
 
 ```
-.
-├── src/
-│   ├── runner.ts          # Request execution and latency measurement
-│   ├── storage.ts         # Postgres data persistence
-│   ├── analytics.ts       # Percentile and bucket calculations
-│   ├── server.ts          # Express API server
-│   ├── types.ts           # TypeScript type definitions
-│   └── migrations/
-│       └── migrate.ts     # Database schema
-├── client/
+delayr/
+├── backend/           # Express.js API server
 │   ├── src/
-│   │   ├── App.tsx        # React frontend
-│   │   ├── App.css        # Styles
-│   │   └── types.ts       # Frontend type definitions
+│   │   ├── server.ts      # API routes & middleware
+│   │   ├── runner.ts      # Request executor with timing
+│   │   ├── analytics.ts   # Percentile computation
+│   │   ├── cli/           # CLI tool
+│   │   └── db/            # PostgreSQL client & schema
 │   └── package.json
-├── package.json
-├── tsconfig.json
-├── .gitignore
-└── README.md
+├── frontend/          # React + Vite UI
+│   ├── src/
+│   │   ├── App.tsx
+│   │   └── components/
+│   │       ├── EndpointForm.tsx
+│   │       ├── ResultsTable.tsx
+│   │       └── LatencyChart.tsx
+│   └── package.json
+├── packages/
+│   └── shared/        # Shared TypeScript types
+└── docker-compose.yml # PostgreSQL setup
 ```
 
 ## 🛠️ Development
 
-### Build
-```bash
-npm run build
-```
+### Prerequisites
+- Node.js 18+
+- PostgreSQL 12+ (or use Docker)
+- npm or yarn
 
-### Run migrations
-```bash
-npm run migrate
-```
+### Setup
 
-### Development mode
 ```bash
-# Backend (with hot reload)
+# Clone & install
+git clone https://github.com/yourusername/delayr.git
+cd delayr
+
+# Start PostgreSQL
+docker-compose up -d
+
+# Backend
+cd backend
+npm install
+cp .env.example .env  # Configure your database
 npm run dev
 
-# Frontend (with hot reload)
-npm run client
+# Frontend (new terminal)
+cd frontend
+npm install
+npm run dev
 ```
 
-## 📊 Database Schema
+### Environment Variables
 
-```sql
-CREATE TABLE api_requests (
-  id SERIAL PRIMARY KEY,
-  endpoint VARCHAR(500) NOT NULL,
-  method VARCHAR(10) NOT NULL,
-  latency_ms NUMERIC(10, 2) NOT NULL,
-  request_size_bytes INTEGER NOT NULL,
-  response_size_bytes INTEGER NOT NULL,
-  status_code INTEGER NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+**Backend (.env):**
+```env
+PORT=3001
+BASE_URL=http://localhost:3001
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/latency_db
+
+# Or individual variables
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=latency_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+
+# Optional
+REQUEST_TIMEOUT_MS=30000
+DEFAULT_REQUEST_COUNT=50
+RATE_LIMIT_REQUESTS=30
+RATE_LIMIT_WINDOW_MS=3600000
 ```
 
-## ⚠️ Limitations (By Design - MVP Scope)
+**Frontend (.env):**
+```env
+VITE_API_URL=http://localhost:3001
+```
 
-- No authentication
-- No live monitoring
-- No distributed tracing
-- No background agents
-- Sequential requests only (not parallel)
-- Fixed 50 requests per endpoint
-- No historical comparison
+## 🌍 Real-World Use Cases
 
-## 🤝 Contributing
+### 1. **Pre-deployment Validation**
+Test your staging API before promoting to production:
+```bash
+delayr -u https://staging.api.com/health --assert-p95=200
+```
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### 2. **Regression Testing**
+Add to your CI pipeline to catch performance regressions:
+```yaml
+- name: Performance Gate
+  run: |
+    npx delayr -u $API_URL/users -u $API_URL/posts \
+      --assert-p95=300 --output json > latency-report.json
+```
+
+### 3. **Third-Party API Monitoring**
+Measure dependencies before integrating:
+```bash
+delayr -u https://api.stripe.com/v1/tokens \
+       -H "Authorization: Bearer sk_test_xxx" \
+       --count 100
+```
+
+### 4. **Load Testing Baseline**
+Establish baseline metrics before scaling:
+```bash
+delayr -u https://api.example.com/heavy-endpoint \
+       --count 200 --output markdown >> PERFORMANCE.md
+```
+
+### 5. **Competitive Benchmarking**
+Compare your API against competitors:
+```bash
+delayr -u https://yourapi.com/search \
+       -u https://competitor.com/search \
+       --count 100
+```
 
 ## 📝 License
 
-MIT License - see LICENSE file for details
-
-## 👤 Author
-
-**devleo10**
-- GitHub: [@devleo10](https://github.com/devleo10)
+MIT © 2024
 
 ## 🙏 Acknowledgments
 
-- Built with [React](https://reactjs.org/)
-- Charts powered by [Recharts](https://recharts.org/)
-- Backend built with [Express](https://expressjs.com/)
-- Database: [PostgreSQL](https://www.postgresql.org/)
+- Built with ❤️ for indie hackers and API developers
+- Inspired by the need to measure what matters
+- Dark theme inspired by GitHub's design system
+
+---
+
+<p align="center">
+  <strong>Stop measuring averages. Start measuring percentiles.</strong>
+  <br>
+  <a href="https://github.com/yourusername/delayr">⭐ Star on GitHub</a> •
+  <a href="https://twitter.com/yourusername">🐦 Follow on Twitter</a>
+</p>
