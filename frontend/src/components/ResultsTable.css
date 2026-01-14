@@ -1,96 +1,277 @@
+/* ============================================
+   Results Table - Dark Theme
+   ============================================ */
+
 .results-table-container {
   overflow-x: auto;
+  border-radius: var(--radius-md);
 }
 
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-.results-table thead {
-  background-color: #34495e;
-  color: white;
+  font-size: 0.875rem;
 }
 
 .results-table th {
-  padding: 1rem;
-  text-align: left;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
   font-weight: 600;
-}
-
-.results-table tbody tr {
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.results-table tbody tr:hover {
-  background-color: #f9f9f9;
-}
-
-.results-table tbody tr.slow-endpoint {
-  background-color: #ffebee;
-}
-
-.results-table tbody tr.slow-endpoint:hover {
-  background-color: #ffcdd2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .results-table td {
-  padding: 1rem;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  vertical-align: middle;
 }
 
-.endpoint-cell {
-  max-width: 400px;
-  word-break: break-all;
-  font-family: 'Courier New', monospace;
-  font-size: 0.85rem;
+.results-table tbody tr {
+  transition: background-color 0.2s;
 }
+
+.results-table tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.results-table tbody tr.slow-endpoint {
+  background-color: rgba(248, 81, 73, 0.1);
+}
+
+.results-table tbody tr.slow-endpoint:hover {
+  background-color: rgba(248, 81, 73, 0.15);
+}
+
+/* ============================================
+   Endpoint Cell
+   ============================================ */
+
+.endpoint-cell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+}
+
+.endpoint-name {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: inherit;
+  margin-bottom: 2px;
+}
+
+/* ============================================
+   Method Badge
+   ============================================ */
 
 .method-badge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.85rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.method-badge.method-get {
-  background-color: #4caf50;
-  color: white;
+.method-get {
+  background-color: rgba(63, 185, 80, 0.2);
+  color: var(--accent-secondary);
 }
 
-.method-badge.method-post {
-  background-color: #2196f3;
-  color: white;
+.method-post {
+  background-color: rgba(88, 166, 255, 0.2);
+  color: var(--accent-primary);
 }
+
+.method-put {
+  background-color: rgba(210, 153, 34, 0.2);
+  color: var(--accent-warning);
+}
+
+.method-patch {
+  background-color: rgba(163, 113, 247, 0.2);
+  color: var(--accent-purple);
+}
+
+.method-delete {
+  background-color: rgba(248, 81, 73, 0.2);
+  color: var(--accent-danger);
+}
+
+/* ============================================
+   Latency Cells
+   ============================================ */
 
 .latency-cell {
-  font-family: 'Courier New', monospace;
-  text-align: right;
-  font-weight: 500;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.latency-cell.fast {
+  color: var(--accent-secondary);
+}
+
+.latency-cell.medium {
+  color: var(--accent-warning);
+}
+
+.latency-cell.slow {
+  color: var(--accent-danger);
 }
 
 .p95-cell {
   font-weight: 600;
-  color: #2c3e50;
 }
 
+/* ============================================
+   Stats Cells
+   ============================================ */
+
+.stats-cell {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.error-rate-cell {
+  font-weight: 600;
+}
+
+.error-rate-cell.has-errors {
+  color: var(--accent-danger);
+}
+
+.error-rate-cell.no-errors {
+  color: var(--accent-secondary);
+}
+
+/* ============================================
+   Success Badge
+   ============================================ */
+
+.success-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.success-badge.success {
+  background-color: rgba(63, 185, 80, 0.2);
+  color: var(--accent-secondary);
+}
+
+.success-badge.warning {
+  background-color: rgba(210, 153, 34, 0.2);
+  color: var(--accent-warning);
+}
+
+.success-badge.danger {
+  background-color: rgba(248, 81, 73, 0.2);
+  color: var(--accent-danger);
+}
+
+/* ============================================
+   Table Footer
+   ============================================ */
+
 .table-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-  font-size: 0.9rem;
-  color: #666;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .table-footer p {
-  margin: 0.25rem 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.table-footer strong {
+  color: var(--text-primary);
 }
 
 .slow-note {
-  font-style: italic;
-  color: #c33;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--accent-danger);
+  font-size: 0.8rem;
 }
 
+.slow-note::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background-color: rgba(248, 81, 73, 0.3);
+  border-radius: 2px;
+}
 
+/* ============================================
+   Copy Button
+   ============================================ */
+
+.copy-markdown-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.copy-markdown-button:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .results-table {
+    font-size: 0.75rem;
+  }
+  
+  .results-table th,
+  .results-table td {
+    padding: var(--spacing-sm);
+  }
+  
+  .endpoint-cell {
+    max-width: 150px;
+  }
+  
+  .table-footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}

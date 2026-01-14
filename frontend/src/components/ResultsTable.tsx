@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ResultsTable.css';
 
 interface AnalyticsResult {
   endpoint: string;
   method: string;
+  name?: string;
   p50: number;
   p95: number;
   p99: number;
+  min?: number;
+  max?: number;
+  avg?: number;
+  stdDev?: number;
   avg_payload_size: number;
   request_count: number;
+  error_count?: number;
+  error_rate?: number;
+  success_rate?: number;
 }
 
 interface ResultsTableProps {
@@ -16,6 +24,8 @@ interface ResultsTableProps {
 }
 
 const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
+  const [copied, setCopied] = useState(false);
+
   // Calculate average p95 across all endpoints for highlighting
   const avgP95 =
     results.length > 0
@@ -34,6 +44,31 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
     return `${(bytes / (1024 * 1024)).toFixed(2)}MB`;
   };
 
+  const getLatencyClass = (ms: number): string => {
+    if (ms < 100) return 'fast';
+    if (ms < 500) return 'medium';
+    return 'slow';
+  };
+
+  const getSuccessClass = (rate: number): string => {
+    if (rate >= 99) return 'success';
+    if (rate >= 95) return 'warning';
+    return 'danger';
+  };
+
+  const copyAsMarkdown = () => {
+    const header = '| Endpoint | Method | p50 | p95 | p99 | Success Rate | Requests |';
+    const separator = '|----------|--------|-----|-----|-----|--------------|----------|';
+    const rows = results.map(r => 
+      `| ${r.name || r.endpoint} | ${r.method} | ${formatLatency(r.p50)} | ${formatLatency(r.p95)} | ${formatLatency(r.p99)} | ${(r.success_rate ?? 100).toFixed(1)}% | ${r.request_count} |`
+    );
+    
+    const markdown = [header, separator, ...rows].join('\n');
+    navigator.clipboard.writeText(markdown);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="results-table-container">
       <table className="results-table">
@@ -41,44 +76,74 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
           <tr>
             <th>Endpoint</th>
             <th>Method</th>
-            <th>p50 (ms)</th>
-            <th>p95 (ms)</th>
-            <th>p99 (ms)</th>
-            <th>Avg Payload Size</th>
+            <th>p50</th>
+            <th>p95</th>
+            <th>p99</th>
+            {results.some(r => r.min !== undefined) && <th>Min/Max</th>}
+            <th>Success</th>
             <th>Requests</th>
           </tr>
         </thead>
         <tbody>
           {results.map((result, index) => {
             const isSlow = result.p95 > avgP95;
+            const successRate = result.success_rate ?? 100;
+            
             return (
               <tr key={`${result.endpoint}-${result.method}-${index}`} className={isSlow ? 'slow-endpoint' : ''}>
-                <td className="endpoint-cell">{result.endpoint}</td>
+                <td className="endpoint-cell">
+                  {result.name && <span className="endpoint-name">{result.name}</span>}
+                  {result.endpoint}
+                </td>
                 <td>
                   <span className={`method-badge method-${result.method.toLowerCase()}`}>
                     {result.method}
                   </span>
                 </td>
-                <td className="latency-cell">{formatLatency(result.p50)}</td>
-                <td className="latency-cell p95-cell">{formatLatency(result.p95)}</td>
-                <td className="latency-cell">{formatLatency(result.p99)}</td>
-                <td>{formatBytes(result.avg_payload_size)}</td>
+                <td className={`latency-cell ${getLatencyClass(result.p50)}`}>
+                  {formatLatency(result.p50)}
+                </td>
+                <td className={`latency-cell p95-cell ${getLatencyClass(result.p95)}`}>
+                  {formatLatency(result.p95)}
+                </td>
+                <td className={`latency-cell ${getLatencyClass(result.p99)}`}>
+                  {formatLatency(result.p99)}
+                </td>
+                {results.some(r => r.min !== undefined) && (
+                  <td className="stats-cell">
+                    {result.min !== undefined && result.max !== undefined
+                      ? `${formatLatency(result.min)} / ${formatLatency(result.max)}`
+                      : '-'
+                    }
+                  </td>
+                )}
+                <td>
+                  <span className={`success-badge ${getSuccessClass(successRate)}`}>
+                    {successRate.toFixed(1)}%
+                  </span>
+                </td>
                 <td>{result.request_count}</td>
               </tr>
             );
           })}
         </tbody>
       </table>
-      {avgP95 > 0 && (
-        <div className="table-footer">
+      
+      <div className="table-footer">
+        <div>
           <p>
-            Average p95 latency: <strong>{formatLatency(avgP95)}</strong>
+            Average p95: <strong>{formatLatency(avgP95)}</strong>
           </p>
-          <p className="slow-note">
-            Rows highlighted in red have p95 latency above the average
-          </p>
+          {results.some(r => r.p95 > avgP95) && (
+            <p className="slow-note">
+              Rows highlighted have p95 above average
+            </p>
+          )}
         </div>
-      )}
+        <button className="copy-markdown-button" onClick={copyAsMarkdown}>
+          {copied ? 'Copied!' : 'Copy as Markdown'}
+        </button>
+      </div>
     </div>
   );
 };
