@@ -1,34 +1,68 @@
 import React, { useState } from 'react';
 import './EndpointForm.css';
 
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
 interface EndpointConfig {
   url: string;
-  method: 'GET' | 'POST';
+  method: HttpMethod;
   payload?: object;
+  headers?: Record<string, string>;
+  name?: string;
 }
 
 interface EndpointFormProps {
-  onSubmit: (endpoints: EndpointConfig[]) => void;
+  onSubmit: (endpoints: EndpointConfig[], requestCount: number) => void;
   disabled: boolean;
+  initialRequestCount?: number;
+}
+
+interface HeaderItem {
+  key: string;
+  value: string;
 }
 
 interface EndpointItem {
   id: string;
-  method: 'GET' | 'POST';
+  method: HttpMethod;
   url: string;
+  name: string;
   body: string;
+  headers: HeaderItem[];
+  showAdvanced: boolean;
 }
 
-const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
+const EndpointForm: React.FC<EndpointFormProps> = ({ 
+  onSubmit, 
+  disabled, 
+  initialRequestCount = 50 
+}) => {
   const [endpoints, setEndpoints] = useState<EndpointItem[]>([
-    { id: '1', method: 'GET', url: '', body: '' }
+    { 
+      id: '1', 
+      method: 'GET', 
+      url: '', 
+      name: '',
+      body: '', 
+      headers: [],
+      showAdvanced: false 
+    }
   ]);
   const [error, setError] = useState<string | null>(null);
+  const [requestCount, setRequestCount] = useState(initialRequestCount);
 
   const addEndpoint = () => {
     setEndpoints([
       ...endpoints,
-      { id: Date.now().toString(), method: 'GET', url: '', body: '' }
+      { 
+        id: Date.now().toString(), 
+        method: 'GET', 
+        url: '', 
+        name: '',
+        body: '', 
+        headers: [],
+        showAdvanced: false 
+      }
     ]);
   };
 
@@ -38,15 +72,55 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
     }
   };
 
-  const updateEndpoint = (id: string, field: keyof EndpointItem, value: string) => {
+  const updateEndpoint = (id: string, field: keyof EndpointItem, value: any) => {
     setEndpoints(endpoints.map(ep => 
       ep.id === id ? { ...ep, [field]: value } : ep
+    ));
+  };
+
+  const addHeader = (endpointId: string) => {
+    setEndpoints(endpoints.map(ep => 
+      ep.id === endpointId 
+        ? { ...ep, headers: [...ep.headers, { key: '', value: '' }] }
+        : ep
+    ));
+  };
+
+  const updateHeader = (endpointId: string, headerIndex: number, field: 'key' | 'value', value: string) => {
+    setEndpoints(endpoints.map(ep => {
+      if (ep.id === endpointId) {
+        const newHeaders = [...ep.headers];
+        newHeaders[headerIndex] = { ...newHeaders[headerIndex], [field]: value };
+        return { ...ep, headers: newHeaders };
+      }
+      return ep;
+    }));
+  };
+
+  const removeHeader = (endpointId: string, headerIndex: number) => {
+    setEndpoints(endpoints.map(ep => {
+      if (ep.id === endpointId) {
+        const newHeaders = ep.headers.filter((_, i) => i !== headerIndex);
+        return { ...ep, headers: newHeaders };
+      }
+      return ep;
+    }));
+  };
+
+  const toggleAdvanced = (id: string) => {
+    setEndpoints(endpoints.map(ep => 
+      ep.id === id ? { ...ep, showAdvanced: !ep.showAdvanced } : ep
     ));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (requestCount < 1 || requestCount > 200) {
+      setError('Request count must be between 1 and 200');
+      return;
+    }
 
     // Validate all endpoints
     const validatedEndpoints: EndpointConfig[] = [];
@@ -70,14 +144,28 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
         method: ep.method,
       };
 
-      // Parse body for POST requests
-      if (ep.method === 'POST' && ep.body.trim()) {
+      // Add name if provided
+      if (ep.name.trim()) {
+        endpoint.name = ep.name.trim();
+      }
+
+      // Parse body for POST/PUT/PATCH requests
+      if (['POST', 'PUT', 'PATCH'].includes(ep.method) && ep.body.trim()) {
         try {
           endpoint.payload = JSON.parse(ep.body);
         } catch (err) {
-          setError(`Invalid JSON in body for ${ep.url}: ${err instanceof Error ? err.message : 'Invalid JSON'}`);
+          setError(`Invalid JSON in body for ${ep.name || ep.url}: ${err instanceof Error ? err.message : 'Invalid JSON'}`);
           return;
         }
+      }
+
+      // Add headers if any
+      const validHeaders = ep.headers.filter(h => h.key.trim() && h.value.trim());
+      if (validHeaders.length > 0) {
+        endpoint.headers = validHeaders.reduce((acc, h) => {
+          acc[h.key.trim()] = h.value.trim();
+          return acc;
+        }, {} as Record<string, string>);
       }
 
       validatedEndpoints.push(endpoint);
@@ -88,8 +176,10 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
       return;
     }
 
-    onSubmit(validatedEndpoints);
+    onSubmit(validatedEndpoints, requestCount);
   };
+
+  const needsBody = (method: HttpMethod) => ['POST', 'PUT', 'PATCH'].includes(method);
 
   return (
     <form onSubmit={handleSubmit} className="endpoint-form">
@@ -112,11 +202,14 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
             <select
               className="method-select"
               value={endpoint.method}
-              onChange={(e) => updateEndpoint(endpoint.id, 'method', e.target.value)}
+              onChange={(e) => updateEndpoint(endpoint.id, 'method', e.target.value as HttpMethod)}
               disabled={disabled}
             >
               <option value="GET">GET</option>
               <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="PATCH">PATCH</option>
+              <option value="DELETE">DELETE</option>
             </select>
             <input
               type="text"
@@ -124,6 +217,14 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
               placeholder="https://api.example.com/endpoint"
               value={endpoint.url}
               onChange={(e) => updateEndpoint(endpoint.id, 'url', e.target.value)}
+              disabled={disabled}
+            />
+            <input
+              type="text"
+              className="name-input"
+              placeholder="Label (optional)"
+              value={endpoint.name}
+              onChange={(e) => updateEndpoint(endpoint.id, 'name', e.target.value)}
               disabled={disabled}
             />
             {endpoints.length > 1 && (
@@ -139,9 +240,80 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
             )}
           </div>
           
-          {endpoint.method === 'POST' && (
+          <button 
+            type="button" 
+            className="toggle-advanced"
+            onClick={() => toggleAdvanced(endpoint.id)}
+          >
+            {endpoint.showAdvanced ? '▼' : '▶'} Advanced Options
+          </button>
+
+          {endpoint.showAdvanced && (
+            <div className="advanced-section">
+              {/* Headers Section */}
+              <div className="headers-section">
+                <label className="section-label">Headers</label>
+                <div className="headers-list">
+                  {endpoint.headers.map((header, hIndex) => (
+                    <div key={hIndex} className="header-row">
+                      <input
+                        type="text"
+                        className="header-key"
+                        placeholder="Header name"
+                        value={header.key}
+                        onChange={(e) => updateHeader(endpoint.id, hIndex, 'key', e.target.value)}
+                        disabled={disabled}
+                      />
+                      <input
+                        type="text"
+                        className="header-value"
+                        placeholder="Header value"
+                        value={header.value}
+                        onChange={(e) => updateHeader(endpoint.id, hIndex, 'value', e.target.value)}
+                        disabled={disabled}
+                      />
+                      <button
+                        type="button"
+                        className="remove-header-button"
+                        onClick={() => removeHeader(endpoint.id, hIndex)}
+                        disabled={disabled}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="add-header-button"
+                  onClick={() => addHeader(endpoint.id)}
+                  disabled={disabled}
+                >
+                  + Add Header
+                </button>
+              </div>
+
+              {/* Body Section for POST/PUT/PATCH */}
+              {needsBody(endpoint.method) && (
+                <div className="body-section">
+                  <label className="body-label">Request Body (JSON)</label>
+                  <textarea
+                    className="body-textarea"
+                    placeholder='{"key": "value"}'
+                    value={endpoint.body}
+                    onChange={(e) => updateEndpoint(endpoint.id, 'body', e.target.value)}
+                    disabled={disabled}
+                    rows={4}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Show body section outside advanced for POST methods by default */}
+          {!endpoint.showAdvanced && needsBody(endpoint.method) && (
             <div className="body-section">
-              <label className="body-label">Body (JSON)</label>
+              <label className="body-label">Request Body (JSON)</label>
               <textarea
                 className="body-textarea"
                 placeholder='{"key": "value"}'
@@ -157,9 +329,23 @@ const EndpointForm: React.FC<EndpointFormProps> = ({ onSubmit, disabled }) => {
 
       {error && <div className="form-error">{error}</div>}
 
-      <button type="submit" className="submit-button" disabled={disabled}>
-        {disabled ? 'Running Tests...' : 'Run Tests (50 requests per endpoint)'}
-      </button>
+      <div className="form-footer">
+        <div className="request-count-section">
+          <label className="request-count-label">Requests per endpoint:</label>
+          <input
+            type="number"
+            className="request-count-input"
+            min="1"
+            max="200"
+            value={requestCount}
+            onChange={(e) => setRequestCount(parseInt(e.target.value) || 50)}
+            disabled={disabled}
+          />
+        </div>
+        <button type="submit" className="submit-button" disabled={disabled}>
+          {disabled ? 'Running Tests...' : `Run Tests`}
+        </button>
+      </div>
     </form>
   );
 };
