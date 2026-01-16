@@ -12,8 +12,25 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
+// Basic process safety handlers
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
 // Middleware
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.BASE_URL || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.length === 0) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('CORS policy: Origin not allowed'));
+  }
+}));
 app.use(express.json());
 
 // Rate limiting (simple in-memory implementation)
@@ -286,5 +303,13 @@ app.listen(PORT, () => {
   console.log(`🚀 Delayr API server running on port ${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/health`);
   console.log(`   API docs: http://localhost:${PORT}/api`);
+});
+
+// Global error handler
+app.use((err: any, req: Request, res: Response, next: Function) => {
+  console.error('Unhandled error:', err && err.stack ? err.stack : err);
+  if (res.headersSent) return next(err);
+  const status = err && err.status ? err.status : 500;
+  res.status(status).json({ error: err && err.message ? err.message : 'Internal server error' });
 });
 
