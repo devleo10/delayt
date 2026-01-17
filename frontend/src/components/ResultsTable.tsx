@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './ResultsTable.css';
 
 interface AnalyticsResult {
@@ -38,11 +38,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
     return `${(ms / 1000).toFixed(2)}s`;
   };
 
-  const formatBytes = (bytes: number) => {
-    if (bytes < 1024) return `${bytes}B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)}KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)}MB`;
-  };
+  // `formatBytes` removed because it was unused; keep `formatLatency` for display.
 
   const getLatencyClass = (ms: number): string => {
     if (ms < 100) return 'fast';

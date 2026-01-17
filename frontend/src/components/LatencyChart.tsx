@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ScatterChart,
   Scatter,
@@ -305,7 +305,7 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
               <XAxis 
                 dataKey="name" 
                 stroke="#8b949e"
-                tick={{ fill: '#8b949e', angle: -45, textAnchor: 'end' }}
+                tick={{ fill: '#8b949e', transform: 'rotate(-45)', textAnchor: 'end' }}
                 height={80}
               />
               <YAxis 
