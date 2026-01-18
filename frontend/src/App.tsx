@@ -134,7 +134,9 @@ function App() {
     if (!currentRun) return;
     
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/run/${currentRun.id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/run/${currentRun.id}`, {
+        timeout: 10000 // 10 second timeout
+      });
       const { run, results: runResults } = response.data;
       
       setResults(runResults);
@@ -146,6 +148,12 @@ function App() {
       }
     } catch (err) {
       console.error('Error polling results:', err);
+      // Only stop polling on 404 (run not found)
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setPolling(false);
+        setLoading(false);
+        setError('Test run not found. The run may have expired.');
+      }
     }
   }, [currentRun]);
 

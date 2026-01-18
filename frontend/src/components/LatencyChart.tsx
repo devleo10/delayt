@@ -61,10 +61,12 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
   const [histogramData, setHistogramData] = useState<HistogramData[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'scatter' | 'histogram' | 'comparison'>('scatter');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchChartData = async () => {
       setLoading(true);
+      setError(null);
       const dataPoints: ChartDataPoint[] = [];
 
       try {
@@ -78,8 +80,8 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
         const rawUrl = runId 
           ? `${API_BASE_URL}/api/raw?runId=${runId}`
           : `${API_BASE_URL}/api/raw`;
-        const response = await axios.get(rawUrl);
-        const allRawData = response.data.data;
+        const response = await axios.get(rawUrl, { timeout: 10000 });
+        const allRawData = response.data.data || [];
 
         // Create a map of endpoint+method to analytics for quick lookup
         const analyticsMap = new Map<string, AnalyticsResult>();
@@ -112,10 +114,11 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
         const histogramUrl = runId 
           ? `${API_BASE_URL}/api/histogram?runId=${runId}`
           : `${API_BASE_URL}/api/histogram`;
-        const histResponse = await axios.get(histogramUrl);
+        const histResponse = await axios.get(histogramUrl, { timeout: 10000 });
         setHistogramData(histResponse.data.histogram || []);
       } catch (error) {
         console.error('Error fetching chart data:', error);
+        setError('Failed to load chart data. Some visualizations may be unavailable.');
       }
 
       setChartData(dataPoints);
@@ -128,6 +131,7 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
       setChartData([]);
       setHistogramData([]);
       setLoading(false);
+      setError(null);
     }
   }, [results, runId]);
 
@@ -163,6 +167,14 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
 
   if (loading) {
     return <div className="chart-loading">Loading chart data...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="chart-error">
+        <p>⚠️ {error}</p>
+      </div>
+    );
   }
 
   if (chartData.length === 0 && histogramData.length === 0) {
