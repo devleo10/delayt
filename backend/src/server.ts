@@ -23,11 +23,18 @@ process.on('uncaughtException', (err) => {
 
 // Middleware
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.BASE_URL || '').split(',').map(s => s.trim()).filter(Boolean);
+// Always allow localhost for development
+const corsOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  ...allowedOrigins
+];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+    if (corsOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('CORS policy: Origin not allowed'));
   }
 }));
@@ -60,6 +67,16 @@ function rateLimit(req: Request, res: Response, next: Function) {
   record.count++;
   return next();
 }
+
+// Clean up expired rate limit entries every 10 minutes to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of requestCounts.entries()) {
+    if (now > record.resetTime) {
+      requestCounts.delete(ip);
+    }
+  }
+}, 600000);
 
 // Initialize database schema on startup
 initializeSchema().catch((error) => {
@@ -158,6 +175,10 @@ app.post('/api/run', rateLimit, async (req: Request, res: Response) => {
 app.get('/api/run/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    
+    if (!id || typeof id !== 'string') {
+      return res.status(400).json({ error: 'Invalid request', message: 'ID must be a valid string' });
+    }
     
     // Try to find by slug first, then by ID
     let run = await getTestRunBySlug(id);
