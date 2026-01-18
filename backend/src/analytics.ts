@@ -196,6 +196,7 @@ export async function getPayloadSizeBuckets(endpoint: string): Promise<BucketRes
 
 /**
  * Gets raw request data, optionally filtered by endpoint or runId
+ * Always paginates for safety to prevent memory overflow
  */
 export async function getRawRequestData(options?: { 
   endpoint?: string; 
@@ -203,7 +204,10 @@ export async function getRawRequestData(options?: {
   limit?: number;
 }): Promise<RawRequestData[]> {
   const pool = getPool();
-  const { endpoint, runId, limit = 1000 } = options || {};
+  const { endpoint, runId, limit = 5000 } = options || {};
+  
+  // Validate limit to prevent memory issues
+  const safeLimit = Math.min(Math.max(limit, 10), 10000);
   
   let query = `
     SELECT id, run_id, endpoint, method, latency_ms, request_size_bytes, 
@@ -214,11 +218,17 @@ export async function getRawRequestData(options?: {
   const params: (string | number)[] = [];
   
   if (runId) {
+    if (!runId || typeof runId !== 'string' || runId.trim().length === 0) {
+      throw new Error('Invalid runId provided');
+    }
     params.push(runId);
     conditions.push(`run_id = $${params.length}`);
   }
   
   if (endpoint) {
+    if (!endpoint || typeof endpoint !== 'string' || endpoint.trim().length === 0) {
+      throw new Error('Invalid endpoint provided');
+    }
     params.push(endpoint);
     conditions.push(`endpoint = $${params.length}`);
   }
@@ -227,12 +237,8 @@ export async function getRawRequestData(options?: {
     query += ` WHERE ${conditions.join(' AND ')}`;
   }
   
-  query += ` ORDER BY created_at DESC`;
-  
-  if (!runId) {
-    params.push(limit);
-    query += ` LIMIT $${params.length}`;
-  }
+  query += ` ORDER BY created_at DESC LIMIT $${params.length + 1}`;
+  params.push(safeLimit);
   
   const result = await pool.query<RawRequestData>(query, params);
   return result.rows;

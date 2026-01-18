@@ -109,6 +109,9 @@ export async function updateTestRunStatus(
 }
 
 export async function getTestRunBySlug(slug: string): Promise<any | null> {
+  if (!slug || typeof slug !== 'string' || slug.trim().length === 0) {
+    throw new Error('Invalid slug provided');
+  }
   const pool = getPool();
   const result = await pool.query(
     `SELECT * FROM test_runs WHERE slug = $1`,
@@ -118,6 +121,9 @@ export async function getTestRunBySlug(slug: string): Promise<any | null> {
 }
 
 export async function getTestRunById(id: string): Promise<any | null> {
+  if (!id || typeof id !== 'string' || id.trim().length === 0) {
+    throw new Error('Invalid id provided');
+  }
   const pool = getPool();
   const result = await pool.query(
     `SELECT * FROM test_runs WHERE id = $1`,
