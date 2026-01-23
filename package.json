@@ -9,7 +9,21 @@
     "start": "node dist/server.js",
     "migrate": "node dist/migrations/migrate.js",
     "client": "cd client && npm start",
-    "client:build": "cd client && npm run build"
+    "client:build": "cd client && npm run build",
+    "dev:all": "concurrently \"npm run dev:shared\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:shared": "cd packages/shared && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:all": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "build:shared": "cd packages/shared && npm run build",
+    "build:backend": "cd backend && npm run build", 
+    "build:frontend": "cd frontend && npm run build",
+    "test:all": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "typecheck": "npm run typecheck:backend && npm run typecheck:frontend",
+    "typecheck:backend": "cd backend && npx tsc --noEmit",
+    "typecheck:frontend": "cd frontend && npx tsc --noEmit"
   },
   "keywords": ["api", "latency", "visualization"],
   "author": "",
@@ -26,7 +40,8 @@
     "@types/cors": "^2.8.17",
     "@types/pg": "^8.10.9",
     "typescript": "^5.3.3",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "concurrently": "^8.2.2"
   }
 }
 

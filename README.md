@@ -7,6 +7,7 @@ Stop measuring averages. Start measuring what matters.
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-18%2B-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)](https://typescriptlang.org)
+[![CI](https://img.shields.io/github/workflow/status/your-org/delayr/CI)](https://github.com/your-org/delayr/actions)
 
 <p align="center">
   <img src="https://via.placeholder.com/800x400/0d1117/58a6ff?text=⚡+Delayr+Dashboard" alt="Delayr Dashboard" />
@@ -32,6 +33,23 @@ If your API shows: `avg: 50ms | p95: 500ms | p99: 2000ms`
 
 This means 5% of users experience 500ms+ latency, and 1% wait 2+ seconds. **That's critical information averages hide.**
 
+## 🚀 Quick Start
+
+```bash
+# Clone and setup
+git clone https://github.com/your-org/delayr.git
+cd delayr
+
+# Start PostgreSQL (using Docker)
+docker-compose up -d postgres
+
+# Install dependencies and start development
+npm install
+npm run dev:all
+
+# Open browser to http://localhost:3000
+```
+
 ## ✨ Features
 
 ### 🚀 Core Features
@@ -48,6 +66,13 @@ This means 5% of users experience 500ms+ latency, and 1% wait 2+ seconds. **That
 - **Latency Histogram** - See your latency distribution
 - **Comparison Chart** - Compare p50/p95/p99 across endpoints
 - **Success Rate Badges** - Instant error rate visibility
+
+### 💻 Developer Experience
+- **TypeScript** - Full type safety across frontend and backend
+- **Error Boundaries** - Graceful error handling with retry options
+- **Accessibility** - ARIA labels, keyboard navigation, screen reader support
+- **Responsive Design** - Works great on mobile and desktop
+- **Progress Indicators** - Real-time feedback for long-running tests
 
 ### 🔗 Sharing & Collaboration
 - **Shareable Links** - Every test run gets a unique URL (`/r/abc123`)
