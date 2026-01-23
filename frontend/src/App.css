@@ -297,6 +297,12 @@ body {
   transform: scale(0.98);
 }
 
+.share-error {
+  color: var(--accent-danger);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-xs);
+}
+
 /* ============================================
    Stats Summary
    ============================================ */

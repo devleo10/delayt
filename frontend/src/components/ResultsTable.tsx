@@ -1,23 +1,6 @@
 import { useState } from 'react';
 import './ResultsTable.css';
-
-interface AnalyticsResult {
-  endpoint: string;
-  method: string;
-  name?: string;
-  p50: number;
-  p95: number;
-  p99: number;
-  min?: number;
-  max?: number;
-  avg?: number;
-  stdDev?: number;
-  avg_payload_size: number;
-  request_count: number;
-  error_count?: number;
-  error_rate?: number;
-  success_rate?: number;
-}
+import { AnalyticsResult, formatLatency } from '../../../packages/shared/src';
 
 interface ResultsTableProps {
   results: AnalyticsResult[];
@@ -25,6 +8,7 @@ interface ResultsTableProps {
 
 const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   // Calculate average p95 across all endpoints for highlighting
   const avgP95 =
@@ -32,11 +16,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
       ? results.reduce((sum, r) => sum + r.p95, 0) / results.length
       : 0;
 
-  const formatLatency = (ms: number) => {
-    if (ms < 1) return `${ms.toFixed(3)}ms`;
-    if (ms < 1000) return `${ms.toFixed(2)}ms`;
-    return `${(ms / 1000).toFixed(2)}s`;
-  };
+  // Use shared formatLatency from packages/shared for consistent formatting
 
   // `formatBytes` removed because it was unused; keep `formatLatency` for display.
 
@@ -52,17 +32,24 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
     return 'danger';
   };
 
-  const copyAsMarkdown = () => {
+  const copyAsMarkdown = async () => {
+    setCopyError(null);
     const header = '| Endpoint | Method | p50 | p95 | p99 | Success Rate | Requests |';
     const separator = '|----------|--------|-----|-----|-----|--------------|----------|';
-    const rows = results.map(r => 
+    const rows = results.map(r =>
       `| ${r.name || r.endpoint} | ${r.method} | ${formatLatency(r.p50)} | ${formatLatency(r.p95)} | ${formatLatency(r.p99)} | ${(r.success_rate ?? 100).toFixed(1)}% | ${r.request_count} |`
     );
-    
+
     const markdown = [header, separator, ...rows].join('\n');
-    navigator.clipboard.writeText(markdown);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(markdown);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      setCopyError((err as Error)?.message || 'Failed to copy to clipboard');
+      setCopied(false);
+      setTimeout(() => setCopyError(null), 4000);
+    }
   };
 
   return (
@@ -136,9 +123,12 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
             </p>
           )}
         </div>
-        <button className="copy-markdown-button" onClick={copyAsMarkdown}>
-          {copied ? 'Copied!' : 'Copy as Markdown'}
-        </button>
+        <div>
+          <button className="copy-markdown-button" onClick={copyAsMarkdown}>
+            {copied ? 'Copied!' : 'Copy as Markdown'}
+          </button>
+          {copyError && <div className="copy-error" role="status">Copy failed: {copyError}</div>}
+        </div>
       </div>
     </div>
   );

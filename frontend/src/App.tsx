@@ -1,44 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { EndpointConfig, AnalyticsResult, TestRun } from '../../packages/shared/src';
 import EndpointForm from './components/EndpointForm';
 import ResultsTable from './components/ResultsTable';
 import LatencyChart from './components/LatencyChart';
+import ErrorBoundary from './components/ErrorBoundary';
+import './components/ErrorBoundary.css';
 import './App.css';
-
-interface EndpointConfig {
-  url: string;
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  payload?: object;
-  headers?: Record<string, string>;
-  name?: string;
-}
-
-interface AnalyticsResult {
-  endpoint: string;
-  method: string;
-  name?: string;
-  p50: number;
-  p95: number;
-  p99: number;
-  min: number;
-  max: number;
-  avg: number;
-  stdDev: number;
-  avg_payload_size: number;
-  request_count: number;
-  error_count: number;
-  error_rate: number;
-  success_rate: number;
-}
-
-interface TestRun {
-  id: string;
-  slug: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  requestCount: number;
-  startedAt?: string;
-  completedAt?: string;
-}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -51,6 +19,7 @@ function App() {
   const [currentRun, setCurrentRun] = useState<TestRun | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [clipboardError, setClipboardError] = useState<string | null>(null);
   const [requestCount, setRequestCount] = useState(50);
 
   // Check for shared run in URL
@@ -164,11 +133,18 @@ function App() {
     return () => clearInterval(pollInterval);
   }, [polling, pollResults]);
 
-  const copyShareUrl = () => {
+  const copyShareUrl = async () => {
     if (shareUrl) {
-      navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setClipboardError(null);
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        setClipboardError((err as Error)?.message || 'Failed to copy to clipboard');
+        setCopied(false);
+        setTimeout(() => setClipboardError(null), 4000);
+      }
     }
   };
 
@@ -180,12 +156,13 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Delayr</h1>
-        <p>API latency testing with percentile analysis (p50, p95, p99)</p>
-        <span className="header-badge">v2.0</span>
-      </header>
+    <ErrorBoundary>
+      <div className="app">
+        <header className="app-header">
+          <h1>Delayr</h1>
+          <p>API latency testing with percentile analysis (p50, p95, p99)</p>
+          <span className="header-badge">v2.0</span>
+        </header>
 
       <main className="app-main">
         <section className="form-section">
@@ -211,6 +188,11 @@ function App() {
               <button className="share-box-button" onClick={copyShareUrl}>
                 {copied ? 'Copied!' : 'Copy Link'}
               </button>
+              {clipboardError && (
+                <div className="share-error" role="status">
+                  Copy failed: {clipboardError}
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -263,6 +245,7 @@ function App() {
         )}
       </main>
     </div>
+    </ErrorBoundary>
   );
 }
 

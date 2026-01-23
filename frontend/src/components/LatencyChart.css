@@ -102,6 +102,80 @@
   font-size: 0.875rem;
 }
 
+.chart-loading {
+  flex-direction: column;
+  height: 400px;
+}
+
+.chart-loading-skeleton {
+  width: 100%;
+  max-width: 800px;
+  animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+.chart-tabs-skeleton {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab-skeleton {
+  height: 36px;
+  width: 120px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.chart-area-skeleton {
+  height: 400px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.chart-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
+  color: var(--accent-danger);
+  gap: var(--spacing-md);
+}
+
+.chart-retry-button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chart-retry-button:hover {
+  background: #4393e4;
+  transform: translateY(-1px);
+}
+
 .chart-loading::before {
   content: '';
   width: 20px;
