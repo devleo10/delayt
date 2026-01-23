@@ -5,7 +5,9 @@ import EndpointForm from './components/EndpointForm';
 import ResultsTable from './components/ResultsTable';
 import LatencyChart from './components/LatencyChart';
 import ErrorBoundary from './components/ErrorBoundary';
+import ProgressIndicator from './components/ProgressIndicator';
 import './components/ErrorBoundary.css';
+import './components/ProgressIndicator.css';
 import './App.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -178,10 +180,14 @@ function App() {
           {error && <div className="error-message">{error}</div>}
           
           {loading && currentRun && (
-            <div className="loading-message">
-              Running tests ({getProgressPercentage()}% complete)... 
-              {currentRun.status === 'running' && ' Results will appear below.'}
-            </div>
+            <ProgressIndicator
+              percentage={getProgressPercentage()}
+              message={`Running tests on ${endpoints.length} endpoint${endpoints.length > 1 ? 's' : ''}...`}
+              status={currentRun.status === 'failed' ? 'failed' : 'running'}
+              showSteps={true}
+              currentStep={results.length}
+              totalSteps={endpoints.length}
+            />
           )}
           
           {shareUrl && (
