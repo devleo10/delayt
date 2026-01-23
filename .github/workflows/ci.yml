@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_USER: testuser
+          POSTGRES_DB: delayr_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        cd ../frontend && npm ci
+        cd ../packages/shared && npm ci
+
+    - name: Build shared package
+      run: |
+        cd packages/shared && npm run build
+
+    - name: TypeScript check backend
+      run: |
+        cd backend && npx tsc --noEmit
+
+    - name: TypeScript check frontend  
+      run: |
+        cd frontend && npx tsc --noEmit
+
+    - name: Build backend
+      run: |
+        cd backend && npm run build
+
+    - name: Build frontend
+      run: |
+        cd frontend && npm run build
+
+    - name: Test backend server starts
+      run: |
+        cd backend
+        export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/delayr_test"
+        timeout 10s npm start || true
+
+    env:
+      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/delayr_test

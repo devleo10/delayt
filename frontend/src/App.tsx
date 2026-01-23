@@ -74,8 +74,11 @@ function App() {
       setCurrentRun({
         id: runId,
         slug,
+        endpoints: endpointList,
         status: 'running',
         requestCount: reqCount,
+        startedAt: new Date(),
+        createdAt: new Date(),
       });
       setShareUrl(url);
       
