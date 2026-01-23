@@ -12,17 +12,8 @@ import {
   Bar,
 } from 'recharts';
 import axios from 'axios';
+import { AnalyticsResult, formatLatency } from '../../../packages/shared/src';
 import './LatencyChart.css';
-
-interface AnalyticsResult {
-  endpoint: string;
-  method: string;
-  p50: number;
-  p95: number;
-  p99: number;
-  avg_payload_size: number;
-  request_count: number;
-}
 
 interface LatencyChartProps {
   results: AnalyticsResult[];
@@ -143,9 +134,9 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
           <p className="tooltip-endpoint">{data.endpoint}</p>
           <p className="tooltip-method">Method: {data.method}</p>
           <p>Payload: {data.payloadSize} bytes</p>
-          <p>Latency: {data.latency.toFixed(2)}ms</p>
+          <p>Latency: {formatLatency(data.latency)}</p>
           <p className="tooltip-stats">
-            p50: {data.p50.toFixed(2)}ms | p95: {data.p95.toFixed(2)}ms | p99: {data.p99.toFixed(2)}ms
+            p50: {formatLatency(data.p50)} | p95: {formatLatency(data.p95)} | p99: {formatLatency(data.p99)}
           </p>
         </div>
       );
@@ -166,13 +157,94 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
   };
 
   if (loading) {
-    return <div className="chart-loading">Loading chart data...</div>;
+    return (
+      <div className="chart-loading" aria-live="polite" role="status">
+        <div className="chart-loading-skeleton">
+          <div className="chart-tabs-skeleton">
+            <div className="tab-skeleton"></div>
+            <div className="tab-skeleton"></div>
+            <div className="tab-skeleton"></div>
+          </div>
+          <div className="chart-area-skeleton"></div>
+        </div>
+        <span className="sr-only">Loading chart data...</span>
+      </div>
+    );
   }
 
   if (error) {
     return (
       <div className="chart-error">
         <p>⚠️ {error}</p>
+        <button 
+          className="chart-retry-button" 
+          onClick={() => {
+            if (results.length > 0) {
+              setError(null);
+              setLoading(true);
+              // Re-trigger the useEffect by forcing a state update
+              const fetchChartData = async () => {
+                setLoading(true);
+                setError(null);
+                const dataPoints: ChartDataPoint[] = [];
+
+                try {
+                  const endpointSet = new Set<string>();
+                  results.forEach(r => {
+                    endpointSet.add(`${r.endpoint}::${r.method}`);
+                  });
+
+                  const rawUrl = runId 
+                    ? `${API_BASE_URL}/api/raw?runId=${runId}`
+                    : `${API_BASE_URL}/api/raw`;
+                  const response = await axios.get(rawUrl, { timeout: 10000 });
+                  const allRawData = response.data.data || [];
+
+                  const analyticsMap = new Map<string, AnalyticsResult>();
+                  results.forEach(r => {
+                    analyticsMap.set(`${r.endpoint}::${r.method}`, r);
+                  });
+
+                  for (const point of allRawData) {
+                    const key = `${point.endpoint}::${point.method}`;
+                    
+                    if (endpointSet.has(key)) {
+                      const analytics = analyticsMap.get(key);
+                      
+                      if (analytics) {
+                        dataPoints.push({
+                          endpoint: point.endpoint,
+                          method: point.method,
+                          payloadSize: point.request_size_bytes,
+                          latency: Number(point.latency_ms),
+                          p50: analytics.p50,
+                          p95: analytics.p95,
+                          p99: analytics.p99,
+                        });
+                      }
+                    }
+                  }
+
+                  const histogramUrl = runId 
+                    ? `${API_BASE_URL}/api/histogram?runId=${runId}`
+                    : `${API_BASE_URL}/api/histogram`;
+                  const histResponse = await axios.get(histogramUrl, { timeout: 10000 });
+                  setHistogramData(histResponse.data.histogram || []);
+                } catch (error) {
+                  console.error('Error fetching chart data:', error);
+                  setError('Failed to load chart data. Some visualizations may be unavailable.');
+                }
+
+                setChartData(dataPoints);
+                setLoading(false);
+              };
+              fetchChartData();
+            }
+          }}
+          aria-label="Retry loading chart data"
+        >
+          Retry
+        </button>
       </div>
     );
   }
