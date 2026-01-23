@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
+import { HttpMethod, EndpointConfig } from '../../../packages/shared/src';
 import './EndpointForm.css';
-
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-interface EndpointConfig {
-  url: string;
-  method: HttpMethod;
-  payload?: object;
-  headers?: Record<string, string>;
-  name?: string;
-}
 
 interface EndpointFormProps {
   onSubmit: (endpoints: EndpointConfig[], requestCount: number) => void;
