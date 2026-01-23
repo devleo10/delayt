@@ -252,6 +252,33 @@
   color: var(--accent-primary);
 }
 
+.copy-error {
+  color: var(--accent-danger);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: rgba(248, 81, 73, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent-danger);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.endpoint-url {
+  display: block;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
 /* ============================================
    Responsive
    ============================================ */

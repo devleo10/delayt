@@ -54,17 +54,20 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
 
   return (
     <div className="results-table-container">
-      <table className="results-table">
+      <table className="results-table" role="table" aria-label="API latency test results">
+        <caption className="sr-only">
+          Performance metrics for {results.length} API endpoints showing latency percentiles and success rates
+        </caption>
         <thead>
           <tr>
-            <th>Endpoint</th>
-            <th>Method</th>
-            <th>p50</th>
-            <th>p95</th>
-            <th>p99</th>
-            {results.some(r => r.min !== undefined) && <th>Min/Max</th>}
-            <th>Success</th>
-            <th>Requests</th>
+            <th scope="col">Endpoint</th>
+            <th scope="col">Method</th>
+            <th scope="col">p50 (median)</th>
+            <th scope="col">p95</th>
+            <th scope="col">p99</th>
+            {results.some(r => r.min !== undefined) && <th scope="col">Min/Max</th>}
+            <th scope="col">Success Rate</th>
+            <th scope="col">Total Requests</th>
           </tr>
         </thead>
         <tbody>
@@ -73,24 +76,43 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
             const successRate = result.success_rate ?? 100;
             
             return (
-              <tr key={`${result.endpoint}-${result.method}-${index}`} className={isSlow ? 'slow-endpoint' : ''}>
-                <td className="endpoint-cell">
-                  {result.name && <span className="endpoint-name">{result.name}</span>}
-                  {result.endpoint}
+              <tr 
+                key={`${result.endpoint}-${result.method}-${index}`} 
+                className={isSlow ? 'slow-endpoint' : ''}
+                aria-describedby={isSlow ? 'slow-note' : undefined}
+              >
+                <td className="endpoint-cell" role="gridcell">
+                  {result.name && (
+                    <span className="endpoint-name" aria-label="Endpoint name">
+                      {result.name}
+                    </span>
+                  )}
+                  <span className="endpoint-url" aria-label="Endpoint URL">
+                    {result.endpoint}
+                  </span>
                 </td>
-                <td>
-                  <span className={`method-badge method-${result.method.toLowerCase()}`}>
+                <td role="gridcell">
+                  <span 
+                    className={`method-badge method-${result.method.toLowerCase()}`}
+                    aria-label={`HTTP ${result.method} method`}
+                  >
                     {result.method}
                   </span>
                 </td>
-                <td className={`latency-cell ${getLatencyClass(result.p50)}`}>
-                  {formatLatency(result.p50)}
+                <td className={`latency-cell ${getLatencyClass(result.p50)}`} role="gridcell">
+                  <span aria-label={`p50 latency: ${formatLatency(result.p50)}`}>
+                    {formatLatency(result.p50)}
+                  </span>
                 </td>
-                <td className={`latency-cell p95-cell ${getLatencyClass(result.p95)}`}>
-                  {formatLatency(result.p95)}
+                <td className={`latency-cell p95-cell ${getLatencyClass(result.p95)}`} role="gridcell">
+                  <span aria-label={`p95 latency: ${formatLatency(result.p95)}`}>
+                    {formatLatency(result.p95)}
+                  </span>
                 </td>
-                <td className={`latency-cell ${getLatencyClass(result.p99)}`}>
-                  {formatLatency(result.p99)}
+                <td className={`latency-cell ${getLatencyClass(result.p99)}`} role="gridcell">
+                  <span aria-label={`p99 latency: ${formatLatency(result.p99)}`}>
+                    {formatLatency(result.p99)}
+                  </span>
                 </td>
                 {results.some(r => r.min !== undefined) && (
                   <td className="stats-cell">
@@ -118,16 +140,30 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
             Average p95: <strong>{formatLatency(avgP95)}</strong>
           </p>
           {results.some(r => r.p95 > avgP95) && (
-            <p className="slow-note">
+            <p className="slow-note" id="slow-note">
               Rows highlighted have p95 above average
             </p>
           )}
         </div>
         <div>
-          <button className="copy-markdown-button" onClick={copyAsMarkdown}>
+          <button 
+            className="copy-markdown-button" 
+            onClick={copyAsMarkdown}
+            aria-label="Copy results table as markdown to clipboard"
+            aria-describedby="copy-status"
+          >
             {copied ? 'Copied!' : 'Copy as Markdown'}
           </button>
-          {copyError && <div className="copy-error" role="status">Copy failed: {copyError}</div>}
+          <div id="copy-status" aria-live="polite">
+            {copyError && (
+              <div className="copy-error" role="alert">
+                Copy failed: {copyError}
+              </div>
+            )}
+            {copied && (
+              <span className="sr-only">Table copied to clipboard successfully</span>
+            )}
+          </div>
         </div>
       </div>
     </div>
