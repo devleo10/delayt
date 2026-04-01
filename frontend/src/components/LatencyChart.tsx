@@ -12,7 +12,7 @@ import {
   Bar,
 } from 'recharts';
 import axios from 'axios';
-import { AnalyticsResult, formatLatency } from '../../../packages/shared/src';
+import { AnalyticsResult, formatLatency } from '@delayr/shared';
 import './LatencyChart.css';
 
 interface LatencyChartProps {

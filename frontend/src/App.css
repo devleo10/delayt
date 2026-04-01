@@ -168,6 +168,16 @@ body {
   gap: var(--spacing-sm);
 }
 
+.sharing-section,
+.cli-section {
+  background: var(--bg-secondary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
 /* ============================================
    Messages
    ============================================ */
@@ -367,7 +377,9 @@ body {
   
   .form-section,
   .results-section,
-  .chart-section {
+  .chart-section,
+  .sharing-section,
+  .cli-section {
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-md);
   }
@@ -408,7 +420,9 @@ body {
   
   .form-section,
   .results-section,
-  .chart-section {
+  .chart-section,
+  .sharing-section,
+  .cli-section {
     padding: var(--spacing-sm);
   }
   

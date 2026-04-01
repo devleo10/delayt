@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Shared types and utilities for Delayr",
   "main": "dist/index.js",
+  "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",

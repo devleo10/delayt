@@ -6,6 +6,12 @@ import ResultsTable from './components/ResultsTable';
 import LatencyChart from './components/LatencyChart';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProgressIndicator from './components/ProgressIndicator';
+import WelcomeModal from './components/WelcomeModal';
+import CliExport from './components/CliExport';
+import ShareCard from './components/ShareCard';
+import PerformanceInsights from './components/PerformanceInsights';
+import ComparisonMode from './components/ComparisonMode';
+import EducationalModal from './components/EducationalModal';
 import './components/ErrorBoundary.css';
 import './components/ProgressIndicator.css';
 import './App.css';
@@ -23,6 +29,8 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [clipboardError, setClipboardError] = useState<string | null>(null);
   const [requestCount, setRequestCount] = useState(50);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showEducational, setShowEducational] = useState(false);
 
   // Check for shared run in URL
   useEffect(() => {
@@ -30,6 +38,13 @@ function App() {
     const match = path.match(/\/r\/([a-z0-9]+)/);
     if (match) {
       loadSharedRun(match[1]);
+    } else {
+      // Show welcome modal on first visit (no shared run, no previous welcome)
+      const hasSeenWelcome = localStorage.getItem('delayr_seen_welcome');
+      if (!hasSeenWelcome) {
+        setShowWelcome(true);
+        localStorage.setItem('delayr_seen_welcome', 'true');
+      }
     }
   }, []);
 
@@ -138,6 +153,28 @@ function App() {
     return () => clearInterval(pollInterval);
   }, [polling, pollResults]);
 
+  // Show educational modal on first successful test
+  useEffect(() => {
+    if (results.length > 0 && !loading) {
+      const hasSeenEducational = localStorage.getItem('delayr_seen_educational');
+      if (!hasSeenEducational) {
+        setShowEducational(true);
+        localStorage.setItem('delayr_seen_educational', 'true');
+      }
+    }
+  }, [results.length, loading]);
+
+  const loadExample = () => {
+    const exampleEndpoints: EndpointConfig[] = [
+      {
+        url: 'https://httpbin.org/delay/0.1',
+        method: 'GET',
+        name: 'HTTPBin Example (Public API)',
+      }
+    ];
+    handleSubmit(exampleEndpoints, 50);
+  };
+
   const copyShareUrl = async () => {
     if (shareUrl) {
       setClipboardError(null);
@@ -169,12 +206,27 @@ function App() {
           <span className="header-badge">v2.0</span>
         </header>
 
+        {showWelcome && (
+          <WelcomeModal
+            onClose={() => setShowWelcome(false)}
+            onLoadExample={() => {
+              setShowWelcome(false);
+              loadExample();
+            }}
+          />
+        )}
+
+        {showEducational && results.length > 0 && (
+          <EducationalModal results={results} onClose={() => setShowEducational(false)} />
+        )}
+
       <main className="app-main">
         <section className="form-section">
-          <EndpointForm 
-            onSubmit={handleSubmit} 
+          <EndpointForm
+            onSubmit={handleSubmit}
             disabled={loading}
             initialRequestCount={requestCount}
+            onLoadExample={loadExample}
           />
           
           {error && <div className="error-message">{error}</div>}
@@ -218,7 +270,7 @@ function App() {
               </div>
               <div className="stat-card">
                 <div className={`stat-card-value ${
-                  Math.max(...results.map(r => r.p95)) < 200 ? 'success' : 
+                  Math.max(...results.map(r => r.p95)) < 200 ? 'success' :
                   Math.max(...results.map(r => r.p95)) < 500 ? 'warning' : 'danger'
                 }`}>
                   {Math.max(...results.map(r => r.p95)).toFixed(0)}ms
@@ -246,9 +298,23 @@ function App() {
               <ResultsTable results={results} />
             </section>
 
+            <ComparisonMode currentResults={results} />
+
+            <PerformanceInsights results={results} />
+
             <section className="chart-section">
-                <h2>Latency Distribution</h2>
+              <h2>Latency Distribution</h2>
               <LatencyChart results={results} runId={currentRun?.id} />
+            </section>
+
+            {shareUrl && (
+              <section className="sharing-section">
+                <ShareCard results={results} runId={currentRun?.id || ''} shareUrl={shareUrl} />
+              </section>
+            )}
+
+            <section className="cli-section">
+              <CliExport endpoints={endpoints} requestCount={requestCount} />
             </section>
           </>
         )}

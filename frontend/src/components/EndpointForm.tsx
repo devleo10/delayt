@@ -6,6 +6,7 @@ interface EndpointFormProps {
   onSubmit: (endpoints: EndpointConfig[], requestCount: number) => void;
   disabled: boolean;
   initialRequestCount?: number;
+  onLoadExample?: () => void;
 }
 
 interface HeaderItem {
@@ -23,10 +24,11 @@ interface EndpointItem {
   showAdvanced: boolean;
 }
 
-const EndpointForm: React.FC<EndpointFormProps> = ({ 
-  onSubmit, 
-  disabled, 
-  initialRequestCount = 50 
+const EndpointForm: React.FC<EndpointFormProps> = ({
+  onSubmit,
+  disabled,
+  initialRequestCount = 50,
+  onLoadExample
 }) => {
   const [endpoints, setEndpoints] = useState<EndpointItem[]>([
     { 
@@ -176,17 +178,31 @@ const EndpointForm: React.FC<EndpointFormProps> = ({
     <form onSubmit={handleSubmit} className="endpoint-form" role="form" aria-labelledby="form-title">
       <div className="form-header">
         <h3 id="form-title">API Endpoints</h3>
-        <button
-          type="button"
-          className="add-endpoint-button"
-          onClick={addEndpoint}
-          disabled={disabled}
-          aria-label="Add new endpoint configuration"
-          accessKey="a"
-          title="Add Endpoint (Alt+A)"
-        >
-          + Add Endpoint
-        </button>
+        <div className="form-header-actions">
+          {onLoadExample && (
+            <button
+              type="button"
+              className="load-example-button"
+              onClick={onLoadExample}
+              disabled={disabled}
+              aria-label="Load example with httpbin.org"
+              title="Try with a public test API to see how Delayr works"
+            >
+              📚 Load Example
+            </button>
+          )}
+          <button
+            type="button"
+            className="add-endpoint-button"
+            onClick={addEndpoint}
+            disabled={disabled}
+            aria-label="Add new endpoint configuration"
+            accessKey="a"
+            title="Add Endpoint (Alt+A)"
+          >
+            + Add Endpoint
+          </button>
+        </div>
       </div>
 
       {endpoints.map((endpoint, index) => (

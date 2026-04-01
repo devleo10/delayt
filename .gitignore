@@ -29,5 +29,33 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-# Private developer notes
-DEV_NOTES.md
+# Ignore all markdown files by default
+*.md
+# Allow specific public-facing docs
+!README.md
+!CHANGELOG.md
+!CONTRIBUTING.md
+!LICENSE
+
+# Lock files (can generate from package.json)
+package-lock.json
+yarn.lock
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temp files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Backend temp
+backend/dist/
+backend/node_modules/
+
+# Frontend temp
+frontend/dist/
+frontend/node_modules/
+frontend/build/

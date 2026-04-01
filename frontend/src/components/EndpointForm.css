@@ -13,6 +13,14 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.form-header-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
 }
 
 .form-header h3 {
@@ -43,6 +51,29 @@
 }
 
 .add-endpoint-button:disabled {
+  background-color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.load-example-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.load-example-button:hover:not(:disabled) {
+  background-color: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.load-example-button:disabled {
   background-color: var(--text-muted);
   cursor: not-allowed;
 }

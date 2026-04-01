@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './ResultsTable.css';
-import { AnalyticsResult, formatLatency } from '../../../packages/shared/src';
+import { AnalyticsResult, formatLatency } from '@delayr/shared';
+import Tooltip from './Tooltip';
 
 interface ResultsTableProps {
   results: AnalyticsResult[];
@@ -62,9 +63,27 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
           <tr>
             <th scope="col">Endpoint</th>
             <th scope="col">Method</th>
-            <th scope="col">p50 (median)</th>
-            <th scope="col">p95</th>
-            <th scope="col">p99</th>
+            <th scope="col">
+              <Tooltip content="50% of requests are this fast or faster. Your median experience." position="bottom">
+                <span style={{ borderBottom: '1px dotted #9ca3af', cursor: 'help' }}>
+                  p50 (median)
+                </span>
+              </Tooltip>
+            </th>
+            <th scope="col">
+              <Tooltip content="95% of requests are this fast or faster. Most important metric. Where your users live." position="bottom">
+                <span style={{ borderBottom: '1px dotted #9ca3af', cursor: 'help' }}>
+                  p95
+                </span>
+              </Tooltip>
+            </th>
+            <th scope="col">
+              <Tooltip content="99% of requests are this fast or faster. Worst-case scenario. Only 1% of users wait longer." position="bottom">
+                <span style={{ borderBottom: '1px dotted #9ca3af', cursor: 'help' }}>
+                  p99
+                </span>
+              </Tooltip>
+            </th>
             {results.some(r => r.min !== undefined) && <th scope="col">Min/Max</th>}
             <th scope="col">Success Rate</th>
             <th scope="col">Total Requests</th>

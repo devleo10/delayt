@@ -1,0 +1,146 @@
+.cli-export {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.cli-export-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #f3f4f6;
+  font-weight: 600;
+}
+
+.cli-export-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.cli-command-section {
+  margin: 16px 0;
+}
+
+.cli-label {
+  font-size: 12px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.cli-code {
+  position: relative;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.cli-code code {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #4ade80;
+  line-height: 1.5;
+  display: block;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.copy-cli-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 6px 12px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-cli-button:hover {
+  background-color: #2563eb;
+}
+
+.copy-cli-button:active {
+  transform: scale(0.98);
+}
+
+.cli-help {
+  background-color: #111827;
+  border-left: 3px solid #3b82f6;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 16px;
+}
+
+.cli-help strong {
+  color: #e5e7eb;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cli-help ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.cli-help li {
+  color: #d1d5db;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 4px 0;
+  position: relative;
+  padding-left: 8px;
+}
+
+.cli-help li::before {
+  content: '→';
+  position: absolute;
+  left: -8px;
+}
+
+.cli-help code {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #4ade80;
+  background-color: #1f2937;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.copy-error {
+  background-color: #7f1d1d;
+  color: #f87171;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-top: 12px;
+  border-left: 3px solid #ef4444;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .cli-export {
+    padding: 16px;
+  }
+
+  .cli-code code {
+    font-size: 11px;
+  }
+
+  .copy-cli-button {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+  }
+}
