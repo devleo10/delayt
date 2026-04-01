@@ -1,22 +1,23 @@
 .performance-insights {
-  background-color: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(30, 34, 54, 0.95), rgba(20, 24, 37, 0.97));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   padding: 20px;
   margin: 20px 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .insights-header h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #f3f4f6;
-  font-weight: 600;
+  margin: 0 0 8px;
+  font-size: 1.06rem;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .insights-header p {
   margin: 0;
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
 .insights-list {
@@ -29,32 +30,33 @@
   display: flex;
   gap: 12px;
   padding: 12px;
-  border-radius: 6px;
-  border-left: 3px solid #374151;
+  border-radius: 12px;
+  border-left: 4px solid rgba(143, 153, 176, 0.45);
+  background: rgba(14, 18, 29, 0.62);
 }
 
 .insight-card.insight-good {
-  background-color: rgba(16, 185, 129, 0.1);
-  border-left-color: #10b981;
+  background-color: rgba(112, 240, 164, 0.12);
+  border-left-color: var(--accent-secondary);
 }
 
 .insight-card.insight-warning {
-  background-color: rgba(251, 191, 36, 0.1);
-  border-left-color: #fbbf24;
+  background-color: rgba(255, 204, 102, 0.14);
+  border-left-color: var(--accent-warning);
 }
 
 .insight-card.insight-critical {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-left-color: #ef4444;
+  background-color: rgba(255, 126, 135, 0.14);
+  border-left-color: var(--accent-danger);
 }
 
 .insight-card.insight-tip {
-  background-color: rgba(59, 130, 246, 0.1);
-  border-left-color: #3b82f6;
+  background-color: rgba(78, 205, 196, 0.14);
+  border-left-color: var(--accent-primary);
 }
 
 .insight-icon {
-  font-size: 20px;
+  font-size: 19px;
   min-width: 24px;
   text-align: center;
 }
@@ -64,51 +66,52 @@
 }
 
 .insight-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f3f4f6;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 .insight-message {
-  font-size: 12px;
-  color: #d1d5db;
-  line-height: 1.4;
+  font-size: 0.77rem;
+  color: #dce3f1;
+  line-height: 1.45;
   margin-bottom: 6px;
 }
 
 .insight-recommendation {
-  font-size: 11px;
-  color: #9ca3af;
-  background-color: rgba(0, 0, 0, 0.2);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  background-color: rgba(0, 0, 0, 0.24);
   padding: 6px 8px;
-  border-radius: 4px;
+  border-radius: 8px;
   margin-top: 4px;
+  border: 1px solid rgba(143, 153, 176, 0.25);
 }
 
 .insight-recommendation strong {
-  color: #d1d5db;
+  color: var(--text-primary);
 }
 
 .insights-footer {
-  background-color: #111827;
-  border-radius: 6px;
+  background-color: rgba(15, 18, 30, 0.86);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
   padding: 12px;
   margin-top: 16px;
 }
 
 .insights-footer p {
   margin: 0;
-  font-size: 12px;
-  color: #d1d5db;
+  font-size: 0.76rem;
+  color: #dce3f1;
   line-height: 1.5;
 }
 
 .insights-footer strong {
-  color: #f3f4f6;
+  color: var(--text-primary);
 }
 
-/* Mobile responsive */
 @media (max-width: 640px) {
   .performance-insights {
     padding: 16px;
@@ -119,6 +122,6 @@
   }
 
   .insight-icon {
-    font-size: 18px;
+    font-size: 17px;
   }
 }

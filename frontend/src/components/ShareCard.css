@@ -1,35 +1,34 @@
 .share-card-container {
-  background-color: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(31, 35, 56, 0.95), rgba(20, 23, 37, 0.97));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   padding: 20px;
   margin: 20px 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .share-card-header h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #f3f4f6;
-  font-weight: 600;
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .share-card-header p {
   margin: 0;
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
-/* The Shareable Card */
 .share-card {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  border: 2px solid #374151;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #1f2a45 0%, #21233b 42%, #321f3f 100%);
+  border: 1px solid rgba(184, 198, 224, 0.36);
+  border-radius: 16px;
   padding: 24px;
-  margin: 20px 0;
+  margin: 20px auto;
   max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Sora', sans-serif;
+  box-shadow: 0 16px 36px rgba(7, 9, 17, 0.45);
 }
 
 .card-header {
@@ -41,26 +40,28 @@
 
 .card-logo {
   font-size: 18px;
-  font-weight: 700;
-  color: #60a5fa;
-  letter-spacing: -0.5px;
+  font-weight: 800;
+  color: #9ef8f0;
+  letter-spacing: -0.02em;
 }
 
 .card-status {
-  font-size: 28px;
+  font-size: 25px;
 }
 
 .card-title {
   font-size: 20px;
-  font-weight: 700;
-  color: #f3f4f6;
+  font-weight: 800;
+  color: #f7f9fd;
   margin-bottom: 16px;
   text-align: center;
+  letter-spacing: -0.02em;
 }
 
 .card-metrics {
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
+  background-color: rgba(5, 8, 16, 0.34);
+  border: 1px solid rgba(184, 198, 224, 0.23);
+  border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
 }
@@ -74,12 +75,12 @@
 }
 
 .metric-endpoint {
-  font-size: 12px;
-  color: #9ca3af;
+  font-size: 11px;
+  color: #c3ccdf;
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
 }
 
 .metric-values {
@@ -95,20 +96,20 @@
 
 .value-label {
   font-size: 10px;
-  color: #6b7280;
+  color: #97a1bb;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
   margin-bottom: 2px;
 }
 
 .value {
   font-size: 16px;
-  font-weight: 700;
-  color: #d1d5db;
+  font-weight: 800;
+  color: #ecf0fa;
 }
 
 .value.highlight {
-  color: #fbbf24;
+  color: var(--accent-warning);
   font-size: 18px;
 }
 
@@ -120,57 +121,55 @@
 }
 
 .stat {
-  background-color: rgba(59, 130, 246, 0.1);
-  border: 1px solid #3b82f6;
-  border-radius: 6px;
+  background-color: rgba(78, 205, 196, 0.16);
+  border: 1px solid rgba(78, 205, 196, 0.5);
+  border-radius: 10px;
   padding: 12px;
   text-align: center;
 }
 
 .stat-value {
   font-size: 20px;
-  font-weight: 700;
-  color: #60a5fa;
+  font-weight: 800;
+  color: #a9fff9;
   line-height: 1;
   margin-bottom: 4px;
 }
 
 .stat-label {
-  font-size: 11px;
-  color: #9ca3af;
+  font-size: 10px;
+  color: #d1d9ea;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
 }
 
 .card-footer {
-  border-top: 1px solid #374151;
+  border-top: 1px solid rgba(184, 198, 224, 0.25);
   padding-top: 16px;
   text-align: center;
 }
 
 .card-tagline {
   font-size: 13px;
-  color: #d1d5db;
-  font-style: italic;
+  color: #f1f5ff;
   margin-bottom: 8px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .card-url {
-  font-size: 11px;
-  color: #60a5fa;
-  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #95fff6;
+  font-family: 'IBM Plex Mono', monospace;
   margin-bottom: 8px;
   word-break: break-all;
 }
 
 .card-powered {
-  font-size: 11px;
-  color: #9ca3af;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+  color: #c1cae0;
+  letter-spacing: 0.06em;
 }
 
-/* Share Actions */
 .share-actions {
   display: flex;
   gap: 12px;
@@ -182,45 +181,36 @@
 .share-button {
   padding: 10px 16px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.2s ease, filter 0.2s ease;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .share-button.twitter {
-  background-color: #1da1f2;
-  color: white;
-}
-
-.share-button.twitter:hover {
-  background-color: #1a91da;
-  transform: translateY(-2px);
+  background: linear-gradient(140deg, #57c1ff, #22a6f1);
+  color: #06141f;
 }
 
 .share-button.download {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.share-button.download:hover {
-  background-color: #2563eb;
-  transform: translateY(-2px);
+  background: linear-gradient(140deg, #a997ff, #8d7bf9);
+  color: #111024;
 }
 
 .share-button.copy {
-  background-color: #10b981;
-  color: white;
+  background: linear-gradient(140deg, #68e7ad, #55d49d);
+  color: #06180f;
 }
 
-.share-button.copy:hover {
-  background-color: #059669;
-  transform: translateY(-2px);
+.share-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
-/* Mobile responsive */
 @media (max-width: 640px) {
   .share-card {
     padding: 16px;

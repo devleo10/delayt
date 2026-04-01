@@ -1,22 +1,23 @@
 .cli-export {
-  background-color: #1f2937;
-  border: 1px solid #374151;
-  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(30, 34, 54, 0.96), rgba(20, 23, 37, 0.98));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   padding: 20px;
   margin: 20px 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .cli-export-header h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #f3f4f6;
-  font-weight: 600;
+  margin: 0 0 8px;
+  font-size: 1.06rem;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .cli-export-header p {
   margin: 0;
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
 }
 
 .cli-command-section {
@@ -24,27 +25,27 @@
 }
 
 .cli-label {
-  font-size: 12px;
-  color: #9ca3af;
+  font-size: 0.68rem;
+  color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
   margin-bottom: 8px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cli-code {
   position: relative;
-  background-color: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 6px;
+  background-color: rgba(9, 12, 20, 0.92);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
   padding: 12px;
   overflow-x: auto;
 }
 
 .cli-code code {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: #4ade80;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.76rem;
+  color: #95fff6;
   line-height: 1.5;
   display: block;
   word-break: break-all;
@@ -56,18 +57,21 @@
   top: 8px;
   right: 8px;
   padding: 6px 12px;
-  background-color: #3b82f6;
-  color: white;
+  background: linear-gradient(140deg, #5bd8cf, #47c7bf);
+  color: #081317;
   border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .copy-cli-button:hover {
-  background-color: #2563eb;
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .copy-cli-button:active {
@@ -75,17 +79,19 @@
 }
 
 .cli-help {
-  background-color: #111827;
-  border-left: 3px solid #3b82f6;
+  background-color: rgba(13, 16, 27, 0.75);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent-primary);
   padding: 12px;
-  border-radius: 4px;
+  border-radius: 10px;
   margin-top: 16px;
 }
 
 .cli-help strong {
-  color: #e5e7eb;
+  color: var(--text-primary);
   display: block;
   margin-bottom: 8px;
+  font-size: 0.8rem;
 }
 
 .cli-help ul {
@@ -95,8 +101,8 @@
 }
 
 .cli-help li {
-  color: #d1d5db;
-  font-size: 13px;
+  color: #dce4f4;
+  font-size: 0.78rem;
   line-height: 1.5;
   margin: 4px 0;
   position: relative;
@@ -104,38 +110,38 @@
 }
 
 .cli-help li::before {
-  content: '→';
+  content: '->';
   position: absolute;
-  left: -8px;
+  left: -10px;
+  color: var(--accent-primary);
 }
 
 .cli-help code {
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: #4ade80;
-  background-color: #1f2937;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  color: #95fff6;
+  background-color: rgba(29, 34, 54, 0.9);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: 6px;
 }
 
 .copy-error {
-  background-color: #7f1d1d;
-  color: #f87171;
+  background-color: rgba(255, 126, 135, 0.14);
+  color: var(--accent-danger);
   padding: 10px 12px;
-  border-radius: 4px;
-  font-size: 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   margin-top: 12px;
-  border-left: 3px solid #ef4444;
+  border: 1px solid var(--accent-danger);
 }
 
-/* Mobile responsive */
 @media (max-width: 640px) {
   .cli-export {
     padding: 16px;
   }
 
   .cli-code code {
-    font-size: 11px;
+    font-size: 0.72rem;
   }
 
   .copy-cli-button {

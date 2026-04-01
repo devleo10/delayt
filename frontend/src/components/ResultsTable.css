@@ -1,34 +1,36 @@
 /* ============================================
-   Results Table - Dark Theme
+   Results Table - Editorial Neon Theme
    ============================================ */
 
 .results-table-container {
   overflow-x: auto;
   border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(13, 16, 27, 0.52);
 }
 
 .results-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
 }
 
 .results-table th {
-  background-color: var(--bg-tertiary);
+  background: rgba(29, 34, 54, 0.95);
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.75rem;
-  padding: var(--spacing-md);
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  padding: 0.85rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 
 .results-table td {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--border-color);
+  padding: 0.82rem 0.85rem;
+  border-bottom: 1px solid rgba(143, 153, 176, 0.2);
   color: var(--text-primary);
   vertical-align: middle;
 }
@@ -38,85 +40,78 @@
 }
 
 .results-table tbody tr:hover {
-  background-color: var(--bg-tertiary);
+  background-color: rgba(74, 85, 120, 0.18);
 }
 
 .results-table tbody tr.slow-endpoint {
-  background-color: rgba(248, 81, 73, 0.1);
+  background-color: rgba(255, 126, 135, 0.12);
 }
 
 .results-table tbody tr.slow-endpoint:hover {
-  background-color: rgba(248, 81, 73, 0.15);
+  background-color: rgba(255, 126, 135, 0.19);
 }
-
-/* ============================================
-   Endpoint Cell
-   ============================================ */
 
 .endpoint-cell {
   max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.8rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.76rem;
   color: var(--accent-primary);
 }
 
 .endpoint-name {
   display: block;
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 700;
   font-family: inherit;
   margin-bottom: 2px;
 }
 
-/* ============================================
-   Method Badge
-   ============================================ */
-
 .method-badge {
   display: inline-block;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: 0.7rem;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.64rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .method-get {
-  background-color: rgba(63, 185, 80, 0.2);
+  background-color: rgba(112, 240, 164, 0.2);
   color: var(--accent-secondary);
 }
 
 .method-post {
-  background-color: rgba(88, 166, 255, 0.2);
+  background-color: rgba(78, 205, 196, 0.18);
   color: var(--accent-primary);
 }
 
 .method-put {
-  background-color: rgba(210, 153, 34, 0.2);
+  background-color: rgba(255, 204, 102, 0.2);
   color: var(--accent-warning);
 }
 
 .method-patch {
-  background-color: rgba(163, 113, 247, 0.2);
+  background-color: rgba(157, 143, 255, 0.2);
   color: var(--accent-purple);
 }
 
 .method-delete {
-  background-color: rgba(248, 81, 73, 0.2);
+  background-color: rgba(255, 126, 135, 0.2);
   color: var(--accent-danger);
 }
 
-/* ============================================
-   Latency Cells
-   ============================================ */
+.latency-cell,
+.stats-cell,
+.endpoint-url {
+  font-family: 'IBM Plex Mono', monospace;
+}
 
 .latency-cell {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   white-space: nowrap;
 }
 
@@ -132,22 +127,14 @@
   color: var(--accent-danger);
 }
 
-.p95-cell {
-  font-weight: 600;
+.p95-cell,
+.error-rate-cell {
+  font-weight: 700;
 }
-
-/* ============================================
-   Stats Cells
-   ============================================ */
 
 .stats-cell {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
-}
-
-.error-rate-cell {
-  font-weight: 600;
 }
 
 .error-rate-cell.has-errors {
@@ -158,44 +145,37 @@
   color: var(--accent-secondary);
 }
 
-/* ============================================
-   Success Badge
-   ============================================ */
-
 .success-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
 .success-badge.success {
-  background-color: rgba(63, 185, 80, 0.2);
+  background-color: rgba(112, 240, 164, 0.2);
   color: var(--accent-secondary);
 }
 
 .success-badge.warning {
-  background-color: rgba(210, 153, 34, 0.2);
+  background-color: rgba(255, 204, 102, 0.2);
   color: var(--accent-warning);
 }
 
 .success-badge.danger {
-  background-color: rgba(248, 81, 73, 0.2);
+  background-color: rgba(255, 126, 135, 0.2);
   color: var(--accent-danger);
 }
-
-/* ============================================
-   Table Footer
-   ============================================ */
 
 .table-footer {
   margin-top: var(--spacing-md);
   padding: var(--spacing-md);
-  background-color: var(--bg-tertiary);
+  background: rgba(24, 28, 44, 0.92);
   border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -206,7 +186,7 @@
 .table-footer p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
 }
 
 .table-footer strong {
@@ -218,33 +198,32 @@
   align-items: center;
   gap: var(--spacing-xs);
   color: var(--accent-danger);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 .slow-note::before {
   content: '';
-  width: 12px;
-  height: 12px;
-  background-color: rgba(248, 81, 73, 0.3);
+  width: 10px;
+  height: 10px;
+  background-color: rgba(255, 126, 135, 0.34);
   border-radius: 2px;
 }
 
-/* ============================================
-   Copy Button
-   ============================================ */
-
 .copy-markdown-button {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.48rem 0.85rem;
   background: transparent;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .copy-markdown-button:hover {
@@ -254,10 +233,10 @@
 
 .copy-error {
   color: var(--accent-danger);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   margin-top: var(--spacing-xs);
   padding: var(--spacing-xs);
-  background: rgba(248, 81, 73, 0.1);
+  background: rgba(255, 126, 135, 0.14);
   border-radius: var(--radius-sm);
   border: 1px solid var(--accent-danger);
 }
@@ -276,27 +255,22 @@
 
 .endpoint-url {
   display: block;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
-
-/* ============================================
-   Responsive
-   ============================================ */
 
 @media (max-width: 768px) {
   .results-table {
     font-size: 0.75rem;
   }
-  
+
   .results-table th,
   .results-table td {
-    padding: var(--spacing-sm);
+    padding: 0.6rem;
   }
-  
+
   .endpoint-cell {
     max-width: 150px;
   }
-  
+
   .table-footer {
     flex-direction: column;
     text-align: center;

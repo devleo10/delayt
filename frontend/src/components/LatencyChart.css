@@ -1,5 +1,5 @@
 /* ============================================
-   Latency Chart - Dark Theme
+   Latency Chart - Editorial Neon Theme
    ============================================ */
 
 .latency-chart-container {
@@ -15,55 +15,51 @@
 }
 
 .chart-tab {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.45rem 0.8rem;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
   color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
 .chart-tab:hover {
   color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 .chart-tab.active {
-  color: var(--accent-primary);
-  border-bottom-color: var(--accent-primary);
+  color: #0d1a1f;
+  background: linear-gradient(140deg, #5bd8cf, #47c7bf);
+  border-color: transparent;
 }
 
-/* ============================================
-   Chart Wrapper
-   ============================================ */
-
 .chart-wrapper {
-  background: var(--bg-tertiary);
+  background: linear-gradient(145deg, rgba(30, 34, 54, 0.95), rgba(19, 22, 36, 0.97));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
 }
 
-/* ============================================
-   Tooltip
-   ============================================ */
-
 .chart-tooltip {
-  background: var(--bg-secondary);
+  background: rgba(17, 20, 33, 0.97);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   padding: var(--spacing-md);
   box-shadow: var(--shadow-lg);
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   max-width: 300px;
 }
 
 .tooltip-endpoint {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.8rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.74rem;
   color: var(--accent-primary);
   margin: 0 0 var(--spacing-xs) 0;
   word-break: break-all;
@@ -72,7 +68,7 @@
 .tooltip-method {
   color: var(--text-secondary);
   margin: 0 0 var(--spacing-sm) 0;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
 }
 
 .chart-tooltip p {
@@ -84,13 +80,9 @@
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-sm);
   border-top: 1px solid var(--border-color);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
 }
-
-/* ============================================
-   Loading / Empty States
-   ============================================ */
 
 .chart-loading,
 .chart-empty {
@@ -99,7 +91,7 @@
   justify-content: center;
   min-height: 300px;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.82rem;
 }
 
 .chart-loading {
@@ -120,10 +112,10 @@
 }
 
 .tab-skeleton {
-  height: 36px;
-  width: 120px;
+  height: 34px;
+  width: 110px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
 }
 
 .chart-area-skeleton {
@@ -161,19 +153,22 @@
 }
 
 .chart-retry-button {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: var(--accent-primary);
-  color: white;
+  padding: 0.55rem 1.1rem;
+  background: linear-gradient(140deg, #5bd8cf, #47c7bf);
+  color: #081317;
   border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  border-radius: 999px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
 }
 
 .chart-retry-button:hover {
-  background: #4393e4;
   transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .chart-loading::before {
@@ -191,10 +186,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* ============================================
-   Legend
-   ============================================ */
-
 .chart-legend {
   display: flex;
   justify-content: center;
@@ -207,7 +198,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   color: var(--text-secondary);
 }
 
@@ -237,33 +228,25 @@
   background-color: var(--accent-danger);
 }
 
-/* ============================================
-   Recharts Customization (Override defaults)
-   ============================================ */
-
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line {
-  stroke: var(--border-color);
+  stroke: rgba(143, 153, 176, 0.26);
 }
 
 .recharts-text {
   fill: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 .recharts-legend-item-text {
   color: var(--text-primary) !important;
 }
 
-/* ============================================
-   Responsive
-   ============================================ */
-
 @media (max-width: 768px) {
   .chart-wrapper {
     padding: var(--spacing-md);
   }
-  
+
   .chart-tabs {
     overflow-x: auto;
   }
