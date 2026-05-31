@@ -1,5 +1,5 @@
 import { getPool } from './db/client';
-import { AnalyticsResult, BucketResult, RawRequestData } from './types';
+import { AnalyticsResult, RawRequestData } from '@delayt/shared';
 
 /**
  * Computes percentiles from a sorted array of numbers
@@ -149,52 +149,6 @@ export async function getEndpointAnalytics(runId?: string): Promise<AnalyticsRes
 }
 
 /**
- * Gets payload size buckets and computes p95 latency per bucket for a specific endpoint
- * Buckets: 0-100, 100-500, 500-1000, 1000-5000, 5000+ bytes
- */
-export async function getPayloadSizeBuckets(endpoint: string): Promise<BucketResult[]> {
-  const pool = getPool();
-  const result = await pool.query<RawRequestData>(
-    `SELECT latency_ms, request_size_bytes
-     FROM api_requests
-     WHERE endpoint = $1 AND method = 'POST'
-     ORDER BY request_size_bytes`,
-    [endpoint]
-  );
-
-  // Define buckets
-  const buckets = [
-    { name: '0-100', min: 0, max: 100 },
-    { name: '100-500', min: 100, max: 500 },
-    { name: '500-1000', min: 500, max: 1000 },
-    { name: '1000-5000', min: 1000, max: 5000 },
-    { name: '5000+', min: 5000, max: Infinity },
-  ];
-
-  const bucketResults: BucketResult[] = [];
-
-  for (const bucket of buckets) {
-    const latencies = result.rows
-      .filter(row => {
-        const size = row.request_size_bytes;
-        return size >= bucket.min && size < bucket.max;
-      })
-      .map(row => Number(row.latency_ms));
-
-    if (latencies.length > 0) {
-      const percentiles = computePercentiles(latencies, [95]);
-      bucketResults.push({
-        bucket: bucket.name,
-        p95: percentiles[95],
-        request_count: latencies.length,
-      });
-    }
-  }
-
-  return bucketResults;
-}
-
-/**
  * Gets raw request data, optionally filtered by endpoint or runId
  * Always paginates for safety to prevent memory overflow
  */
@@ -250,38 +204,44 @@ export async function getRawRequestData(options?: {
 export async function getLatencyHistogram(runId?: string): Promise<{ bucket: string; count: number }[]> {
   const pool = getPool();
   
-  let query = `
-    SELECT 
-      CASE 
-        WHEN latency_ms < 50 THEN '0-50ms'
-        WHEN latency_ms < 100 THEN '50-100ms'
-        WHEN latency_ms < 200 THEN '100-200ms'
-        WHEN latency_ms < 500 THEN '200-500ms'
-        WHEN latency_ms < 1000 THEN '500ms-1s'
-        ELSE '1s+'
-      END as bucket,
-      COUNT(*) as count
-    FROM api_requests
+  // Bucket assignment is done in a subquery so the outer query can GROUP/ORDER
+  // by real columns (`bucket`, `sort_order`) instead of a SELECT alias, which
+  // Postgres does not allow inside expressions like `ORDER BY CASE bucket ...`.
+  const whereClause = runId ? 'WHERE run_id = $1' : '';
+  const query = `
+    SELECT bucket, COUNT(*)::int as count
+    FROM (
+      SELECT
+        CASE
+          WHEN latency_ms < 50 THEN '0-50ms'
+          WHEN latency_ms < 100 THEN '50-100ms'
+          WHEN latency_ms < 200 THEN '100-200ms'
+          WHEN latency_ms < 500 THEN '200-500ms'
+          WHEN latency_ms < 1000 THEN '500ms-1s'
+          ELSE '1s+'
+        END AS bucket,
+        CASE
+          WHEN latency_ms < 50 THEN 1
+          WHEN latency_ms < 100 THEN 2
+          WHEN latency_ms < 200 THEN 3
+          WHEN latency_ms < 500 THEN 4
+          WHEN latency_ms < 1000 THEN 5
+          ELSE 6
+        END AS sort_order
+      FROM api_requests
+      ${whereClause}
+    ) buckets
+    GROUP BY bucket, sort_order
+    ORDER BY sort_order
   `;
-  
+
   const params: string[] = [];
   if (runId) {
-    query += ` WHERE run_id = $1`;
     params.push(runId);
   }
-  
-  query += ` GROUP BY bucket ORDER BY 
-    CASE bucket
-      WHEN '0-50ms' THEN 1
-      WHEN '50-100ms' THEN 2
-      WHEN '100-200ms' THEN 3
-      WHEN '200-500ms' THEN 4
-      WHEN '500ms-1s' THEN 5
-      ELSE 6
-    END`;
-  
+
   const result = await pool.query(query, params);
-  return result.rows;
+  return result.rows.map((row) => ({ bucket: row.bucket, count: Number(row.count) }));
 }
 
 

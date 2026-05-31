@@ -141,6 +141,19 @@ export async function getRecentTestRuns(limit: number = 10): Promise<any[]> {
   return result.rows;
 }
 
+export async function getTestRunsBySlugs(slugs: string[]): Promise<any[]> {
+  if (slugs.length === 0) return [];
+
+  const pool = getPool();
+  const result = await pool.query(
+    `SELECT * FROM test_runs WHERE slug = ANY($1::text[])`,
+    [slugs]
+  );
+
+  const bySlug = new Map(result.rows.map((row) => [row.slug, row]));
+  return slugs.map((slug) => bySlug.get(slug)).filter(Boolean);
+}
+
 // ============================================
 // Request Operations
 // ============================================

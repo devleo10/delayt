@@ -1,5 +1,5 @@
 // ============================================
-// DELAYR - Shared Types & Utilities
+// DELAYT - Shared Types & Utilities
 // ============================================
 
 // HTTP Methods supported

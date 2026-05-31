@@ -1,10 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
-import { EndpointConfig, RequestResult, generateSlug } from './types';
-import { 
-  insertRequestResult, 
-  createTestRun, 
+import { EndpointConfig, RequestResult, generateSlug } from '@delayt/shared';
+import {
+  insertRequestResult,
+  createTestRun,
   updateTestRunStatus,
-  getRequestCountForRun
 } from './db/schema';
 
 const REQUEST_TIMEOUT_MS = parseInt(process.env.REQUEST_TIMEOUT_MS || '30000', 10);

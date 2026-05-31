@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Delayr CLI - API Latency Testing for CI/CD
+ * Delayt CLI - API Latency Testing for CI/CD
  * 
  * Usage:
- *   npx delayr --url https://api.example.com/endpoint
- *   npx delayr --url https://api1.com --url https://api2.com --assert-p95=200
- *   npx delayr --config delayr.json
+ *   npx delayt --url https://api.example.com/endpoint
+ *   npx delayt --url https://api1.com --url https://api2.com --assert-p95=200
+ *   npx delayt --config delayt.json
  * 
  * Exit codes:
  *   0 - All tests passed
@@ -14,15 +14,14 @@
  */
 
 import axios, { AxiosRequestConfig } from 'axios';
-import { 
-  EndpointConfig, 
-  AnalyticsResult, 
-  HttpMethod, 
+import {
+  EndpointConfig,
+  AnalyticsResult,
+  HttpMethod,
   formatLatency,
   CLIOptions,
-  CLIResult,
-  AssertionResult
-} from '../types';
+  AssertionResult,
+} from '@delayt/shared';
 
 // ANSI colors for terminal output
 const colors = {
@@ -90,7 +89,7 @@ function parseArgs(args: string[]): CLIOptions {
       printHelp();
       process.exit(0);
     } else if (arg === '--version' || arg === '-v') {
-      console.log('delayr v2.0.0');
+      console.log('delayt v2.0.0');
       process.exit(0);
     }
   }
@@ -105,11 +104,11 @@ function parseArgs(args: string[]): CLIOptions {
 
 function printHelp() {
   console.log(`
-${colors.bold}${colors.cyan}⚡ Delayr CLI${colors.reset} - API Latency Testing for CI/CD
+${colors.bold}${colors.cyan}⚡ Delayt CLI${colors.reset} - API Latency Testing for CI/CD
 
 ${colors.bold}USAGE:${colors.reset}
-  delayr [options] [url]
-  delayr --url <url> [--url <url2>] [options]
+  delayt [options] [url]
+  delayt --url <url> [--url <url2>] [options]
 
 ${colors.bold}OPTIONS:${colors.reset}
   -u, --url <url>        URL to test (can be specified multiple times)
@@ -127,18 +126,18 @@ ${colors.bold}ASSERTIONS:${colors.reset}
 
 ${colors.bold}EXAMPLES:${colors.reset}
   ${colors.gray}# Basic usage${colors.reset}
-  delayr https://api.example.com/health
+  delayt https://api.example.com/health
 
   ${colors.gray}# Multiple endpoints with assertion${colors.reset}
-  delayr -u https://api1.com -u https://api2.com --assert-p95=200
+  delayt -u https://api1.com -u https://api2.com --assert-p95=200
 
   ${colors.gray}# POST with headers and body${colors.reset}
-  delayr -u https://api.example.com/data -m POST \\
+  delayt -u https://api.example.com/data -m POST \\
     -H "Authorization: Bearer token" \\
     -d '{"key": "value"}'
 
   ${colors.gray}# CI/CD pipeline usage${colors.reset}
-  delayr -u https://staging.api.com --assert-p95=500 --output json
+  delayt -u https://staging.api.com --assert-p95=500 --output json
 
 ${colors.bold}EXIT CODES:${colors.reset}
   0  All tests passed (or no assertions specified)
@@ -397,7 +396,7 @@ async function main(): Promise<void> {
   }));
 
   if (!options.quiet) {
-    console.log(`\n${colors.bold}${colors.cyan}⚡ Delayr${colors.reset} - Running ${options.count} requests per endpoint\n`);
+    console.log(`\n${colors.bold}${colors.cyan}⚡ Delayt${colors.reset} - Running ${options.count} requests per endpoint\n`);
   }
 
   // Run tests
