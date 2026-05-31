@@ -1,0 +1,72 @@
+.metric-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metric-card {
+  position: relative;
+  padding: 1.4rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--text-faint);
+}
+
+.metric-card.tone-good::before {
+  background: var(--green);
+}
+.metric-card.tone-warn::before {
+  background: var(--amber);
+}
+.metric-card.tone-bad::before {
+  background: var(--red);
+}
+
+.metric-card-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.55rem;
+}
+
+.metric-card-value {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.metric-card.tone-warn .metric-card-value {
+  color: var(--amber);
+}
+.metric-card.tone-bad .metric-card-value {
+  color: var(--red);
+}
+
+.metric-card-unit {
+  font-size: 0.4em;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-left: 0.2rem;
+}
+
+.metric-card-desc {
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}

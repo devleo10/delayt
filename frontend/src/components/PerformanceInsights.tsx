@@ -1,5 +1,5 @@
 import React from 'react';
-import { AnalyticsResult, formatLatency } from '@delayr/shared';
+import { AnalyticsResult, formatLatency } from '@delayt/shared';
 import './PerformanceInsights.css';
 
 interface PerformanceInsightsProps {

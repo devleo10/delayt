@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EndpointConfig } from '@delayr/shared';
+import { EndpointConfig } from '@delayt/shared';
 import './CliExport.css';
 
 interface CliExportProps {
@@ -12,7 +12,7 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
   const [copyError, setCopyError] = useState<string | null>(null);
 
   const generateCliCommand = (includeAuth: boolean = false) => {
-    const lines: string[] = ['delayr \\'];
+    const lines: string[] = ['delayt \\'];
 
     // Add URLs
     endpoints.forEach((ep) => {
@@ -97,7 +97,7 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
         <ul>
           <li>Paste into your CI/CD pipeline (GitHub Actions, GitLab CI, etc.)</li>
           <li>Tests will fail if p95 {'>'} 500ms or p99 {'>'} 1000ms</li>
-          <li>Check documentation for more options: <code>delayr --help</code></li>
+          <li>Check documentation for more options: <code>delayt --help</code></li>
         </ul>
       </div>
 

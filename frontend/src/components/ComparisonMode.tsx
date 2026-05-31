@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { AnalyticsResult, formatLatency } from '@delayr/shared';
+import { AnalyticsResult, formatLatency } from '@delayt/shared';
+import { API_BASE_URL } from '../config';
 import './ComparisonMode.css';
+
+function endpointKey(r: AnalyticsResult): string {
+  return `${r.endpoint}::${r.method}`;
+}
 
 interface ComparisonModeProps {
   currentResults: AnalyticsResult[];
@@ -36,7 +41,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
         slug = match[1];
       }
 
-      const response = await fetch(`${window.location.origin}/r/${slug}`);
+      const response = await fetch(`${API_BASE_URL}/r/${slug}`);
       if (!response.ok) throw new Error('Failed to load results');
 
       const data = await response.json();
@@ -114,14 +119,19 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
               <div className="col improvement">Improvement</div>
             </div>
 
-            {previousResults.results.map((prevResult, idx) => {
-              const currResult = currentResults[idx];
+            {previousResults.results.map((prevResult) => {
+              const currResult = currentResults.find(
+                (r) => endpointKey(r) === endpointKey(prevResult)
+              );
               if (!currResult) return null;
 
-              const { p50Improvement, p95Improvement, p99Improvement } = compareEndpoint(prevResult, currResult);
+              const { p50Improvement, p95Improvement, p99Improvement } = compareEndpoint(
+                prevResult,
+                currResult
+              );
 
               return (
-                <React.Fragment key={idx}>
+                <React.Fragment key={endpointKey(prevResult)}>
                   <div className="comparison-row main">
                     <div className="col endpoint">{prevResult.name || prevResult.endpoint}</div>
                     <div className="col metric">p50</div>

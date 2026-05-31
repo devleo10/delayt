@@ -12,12 +12,15 @@ import {
   Bar,
 } from 'recharts';
 import axios from 'axios';
-import { AnalyticsResult, formatLatency } from '@delayr/shared';
+import { AnalyticsResult, formatLatency } from '@delayt/shared';
+import { API_BASE_URL } from '../config';
 import './LatencyChart.css';
 
 interface LatencyChartProps {
   results: AnalyticsResult[];
   runId?: string;
+  view?: 'scatter' | 'histogram' | 'comparison';
+  hideTabs?: boolean;
 }
 
 interface ChartDataPoint {
@@ -35,8 +38,6 @@ interface HistogramData {
   count: number;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
 // Dark theme colors
 const COLORS = {
   GET: '#3fb950',
@@ -47,12 +48,15 @@ const COLORS = {
   bar: '#667eea',
 };
 
-const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
+const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId, view, hideTabs }) => {
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [histogramData, setHistogramData] = useState<HistogramData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'scatter' | 'histogram' | 'comparison'>('scatter');
+  const [internalTab, setInternalTab] = useState<'scatter' | 'histogram' | 'comparison'>('scatter');
   const [error, setError] = useState<string | null>(null);
+
+  const activeTab = view ?? internalTab;
+  const setActiveTab = setInternalTab;
 
   useEffect(() => {
     const fetchChartData = async () => {
@@ -284,27 +288,28 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId }) => {
 
   return (
     <div className="latency-chart-container">
-      {/* Tabs */}
-      <div className="chart-tabs">
-        <button 
-          className={`chart-tab ${activeTab === 'scatter' ? 'active' : ''}`}
-          onClick={() => setActiveTab('scatter')}
-        >
-          📍 Scatter Plot
-        </button>
-        <button 
-          className={`chart-tab ${activeTab === 'histogram' ? 'active' : ''}`}
-          onClick={() => setActiveTab('histogram')}
-        >
-          Histogram
-        </button>
-        <button 
-          className={`chart-tab ${activeTab === 'comparison' ? 'active' : ''}`}
-          onClick={() => setActiveTab('comparison')}
-        >
-          Comparison
-        </button>
-      </div>
+      {!hideTabs && (
+        <div className="chart-tabs">
+          <button
+            className={`chart-tab ${activeTab === 'scatter' ? 'active' : ''}`}
+            onClick={() => setActiveTab('scatter')}
+          >
+            📍 Scatter Plot
+          </button>
+          <button
+            className={`chart-tab ${activeTab === 'histogram' ? 'active' : ''}`}
+            onClick={() => setActiveTab('histogram')}
+          >
+            Histogram
+          </button>
+          <button
+            className={`chart-tab ${activeTab === 'comparison' ? 'active' : ''}`}
+            onClick={() => setActiveTab('comparison')}
+          >
+            Comparison
+          </button>
+        </div>
+      )}
 
       <div className="chart-wrapper">
         {activeTab === 'scatter' && (

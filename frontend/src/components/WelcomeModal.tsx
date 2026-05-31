@@ -65,7 +65,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
         <div className="welcome-step">
           <p>CLI for developers:</p>
           <div className="code-block">
-            delayr https://api.example.com/users
+            delayt https://api.example.com/users
           </div>
           <p>Or use this beautiful UI to:</p>
           <ul className="feature-list">

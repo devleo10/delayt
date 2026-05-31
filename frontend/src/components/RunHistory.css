@@ -1,0 +1,128 @@
+.sidebar {
+  position: sticky;
+  top: 52px;
+  align-self: start;
+  height: calc(100vh - 52px);
+  overflow-y: auto;
+  padding: 1.1rem 0.85rem;
+  border-right: 1px solid var(--border);
+  background: #090b0d;
+}
+
+.sidebar-heading {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-hint {
+  font-size: 0.68rem;
+  color: var(--text-faint);
+  padding: 0 0.5rem;
+  margin: 0 0 0.7rem;
+}
+
+.sidebar-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.55rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-item.active {
+  background: rgba(63, 220, 151, 0.08);
+  border-color: rgba(63, 220, 151, 0.32);
+}
+
+.sidebar-item-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.sidebar-status {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.sidebar-status.status-completed {
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(63, 220, 151, 0.7);
+}
+
+.sidebar-status.status-running,
+.sidebar-status.status-pending {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(245, 185, 66, 0.7);
+}
+
+.sidebar-status.status-failed {
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(243, 104, 95, 0.7);
+}
+
+.sidebar-muted {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+  padding: 0 0.5rem;
+}
+
+.sidebar-error {
+  color: var(--red);
+  font-size: 0.78rem;
+  padding: 0 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .sidebar-item {
+    width: auto;
+    flex: 1 1 200px;
+  }
+}

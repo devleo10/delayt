@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { AnalyticsResult, formatLatency } from '@delayr/shared';
+import { AnalyticsResult, formatLatency } from '@delayt/shared';
 import './ShareCard.css';
 
 interface ShareCardProps {
@@ -37,7 +37,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
 
         const link = document.createElement('a');
         link.href = canvas.toDataURL('image/png');
-        link.download = `delayr-report-${runId}.png`;
+        link.download = `delayt-report-${runId}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -52,7 +52,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
   };
 
   const shareOnTwitter = () => {
-    const text = `Just tested my API with @delayr_app ⚡
+    const text = `Just tested my API with @delayt_app ⚡
 
 p50: ${formatLatency(results[0].p50)}
 p95: ${formatLatency(worstP95)}
@@ -74,7 +74,7 @@ Stop measuring averages. Start measuring percentiles 📊
 
       <div className="share-card" ref={cardRef}>
         <div className="card-header">
-          <div className="card-logo">⚡ Delayr</div>
+          <div className="card-logo">⚡ Delayt</div>
           <div className="card-status">{getStatusEmoji()}</div>
         </div>
 
@@ -122,7 +122,7 @@ Stop measuring averages. Start measuring percentiles 📊
         <div className="card-footer">
           <div className="card-tagline">Stop measuring averages. Start measuring percentiles.</div>
           <div className="card-url">{shareUrl}</div>
-          <div className="card-powered">Tested with Delayr ⚡</div>
+          <div className="card-powered">Tested with Delayt ⚡</div>
         </div>
       </div>
 

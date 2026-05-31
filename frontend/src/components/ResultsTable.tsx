@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './ResultsTable.css';
-import { AnalyticsResult, formatLatency } from '@delayr/shared';
+import { AnalyticsResult, formatLatency } from '@delayt/shared';
 import Tooltip from './Tooltip';
 
 interface ResultsTableProps {

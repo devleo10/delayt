@@ -16,10 +16,8 @@ body {
   font-family: 'Sora', 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: radial-gradient(circle at 18% 14%, #233459 0%, rgba(35, 52, 89, 0) 34%),
-    radial-gradient(circle at 84% 2%, #4f3a2c 0%, rgba(79, 58, 44, 0) 30%),
-    linear-gradient(155deg, #0f1018 0%, #131729 50%, #151422 100%);
-  color: #eef1f5;
+  background: #07090b;
+  color: #e8edf0;
   line-height: 1.5;
 }
 
@@ -35,4 +33,6 @@ pre {
   font-family: 'IBM Plex Mono', Consolas, monospace;
 }
 
-
+::selection {
+  background: rgba(63, 220, 151, 0.28);
+}

@@ -1,0 +1,124 @@
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 1.1rem;
+  background: rgba(8, 10, 12, 0.86);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+
+.topnav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topnav-brand-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  transition: opacity 0.15s ease;
+}
+
+.topnav-brand-btn:hover {
+  opacity: 0.85;
+}
+
+.topnav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 12px var(--green);
+}
+
+.topnav-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.topnav-version {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.66rem;
+  color: var(--text-faint);
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  padding: 0.08rem 0.32rem;
+}
+
+.topnav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.topnav-link {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.4rem 0.7rem;
+  border-radius: 7px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.topnav-link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.topnav-link-active {
+  color: var(--green);
+  cursor: default;
+}
+
+.topnav-link-active:hover {
+  color: var(--green);
+  background: rgba(63, 220, 151, 0.06);
+}
+
+.topnav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: 0.4rem;
+  background: var(--green);
+  color: #04130c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.42rem 0.85rem;
+  border-radius: 7px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.topnav-cta:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .topnav-link {
+    display: none;
+  }
+  .topnav-cta {
+    margin-left: 0;
+  }
+}

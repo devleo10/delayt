@@ -40,7 +40,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       {showSteps && totalSteps > 0 && (
         <div className="progress-steps">
           <span className="steps-text">
-            Step {currentStep} of {totalSteps}
+            {currentStep} of {totalSteps} requests completed
           </span>
         </div>
       )}
