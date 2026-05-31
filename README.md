@@ -1,4 +1,4 @@
-# ⚡ Delayr
+# ⚡ Delayt
 
 **API Latency Testing with Percentile Analysis (p50, p95, p99)**
 
@@ -7,13 +7,11 @@ Stop measuring averages. Start measuring what matters.
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-18%2B-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.3-blue.svg)](https://typescriptlang.org)
-[![CI](https://img.shields.io/github/workflow/status/your-org/delayr/CI)](https://github.com/your-org/delayr/actions)
-
 <p align="center">
-  <img src="https://via.placeholder.com/800x400/0d1117/58a6ff?text=⚡+Delayr+Dashboard" alt="Delayr Dashboard" />
+  <img src="https://via.placeholder.com/800x400/0d1117/58a6ff?text=⚡+Delayt+Dashboard" alt="Delayt Dashboard" />
 </p>
 
-## 🎯 Why Delayr?
+## 🎯 Why Delayt?
 
 **The Problem with Averages:**
 
@@ -32,23 +30,6 @@ Your API has an average latency of 50ms. Sounds great, right? But here's the tru
 If your API shows: `avg: 50ms | p95: 500ms | p99: 2000ms`
 
 This means 5% of users experience 500ms+ latency, and 1% wait 2+ seconds. **That's critical information averages hide.**
-
-## 🚀 Quick Start
-
-```bash
-# Clone and setup
-git clone https://github.com/your-org/delayr.git
-cd delayr
-
-# Start PostgreSQL (using Docker)
-docker-compose up -d postgres
-
-# Install dependencies and start development
-npm install
-npm run dev:all
-
-# Open browser to http://localhost:3000
-```
 
 ## ✨ Features
 
@@ -77,66 +58,55 @@ npm run dev:all
 ### 🔗 Sharing & Collaboration
 - **Shareable Links** - Every test run gets a unique URL (`/r/abc123`)
 - **Copy as Markdown** - One-click export for GitHub issues
-- **Run History** - Access past test results
+- **Run History** - Recent runs panel in the UI (`GET /api/runs`)
 
 ### 🔧 CI/CD Integration
-- **CLI Tool** - `npx delayr --url https://api.example.com`
+- **CLI Tool** - Local `delayt` binary (see CLI section; not yet on npm)
 - **Assertions** - Fail builds if p95 exceeds threshold
 - **JSON Output** - Machine-readable results for pipelines
 - **Exit Codes** - 0 = pass, 1 = assertion failed, 2 = error
 
-## 🚀 Quick Start
-
-### Option 1: Web UI
+## Quick Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/yourusername/delayr.git
-cd delayr
+git clone <your-repo-url>
+cd delayt
 
-# Start PostgreSQL with Docker
 docker-compose up -d
 
-# Start the backend
-cd backend
 npm install
-npm run dev
+cd packages/shared && npm install && npm run build
+cd ../../backend && npm install && cp .env.example .env
+cd ../frontend && npm install && cp .env.example .env
 
-# Start the frontend (new terminal)
-cd frontend
-npm install
-npm run dev
+# From repo root — backend + frontend + shared watch
+cd ..
+npm run dev:all
 ```
 
-Open http://localhost:5173 and start testing!
+Open **http://localhost:3000** (Vite dev server). API runs on **http://localhost:3001**.
 
-### Option 2: CLI (No database required)
+### CLI (no database required)
+
+The CLI is included in the repo but **not published to npm** yet. From the repo:
 
 ```bash
-# Install globally
-npm install -g delayr
+cd backend
+npm run build
+npm run cli -- -u https://httpbin.org/delay/0.1 -c 10 --assert-p95=5000
 
-# Test an API
-delayr https://api.example.com/health
-
-# With assertions (for CI/CD)
-delayr --url https://api.example.com --assert-p95=200
-
-# Multiple endpoints with headers
-delayr -u https://api.example.com/users \
-       -u https://api.example.com/posts \
-       -H "Authorization: Bearer your-token" \
-       --assert-p95=500
+# Or after build:
+node dist/cli/index.js -u https://api.example.com/health --assert-p95=200
 ```
 
 ## 📖 CLI Usage
 
 ```
-⚡ Delayr CLI - API Latency Testing for CI/CD
+⚡ Delayt CLI - API Latency Testing for CI/CD
 
 USAGE:
-  delayr [options] [url]
-  delayr --url <url> [--url <url2>] [options]
+  delayt [options] [url]
+  delayt --url <url> [--url <url2>] [options]
 
 OPTIONS:
   -u, --url <url>        URL to test (can be specified multiple times)
@@ -160,18 +130,10 @@ EXIT CODES:
 
 ### CI/CD Examples
 
-**GitHub Actions:**
+**GitHub Actions (local CLI from repo):**
 ```yaml
 - name: Check API Latency
-  run: npx delayr -u ${{ secrets.API_URL }} --assert-p95=200 --output json
-```
-
-**GitLab CI:**
-```yaml
-latency-check:
-  script:
-    - npx delayr -u $API_URL --assert-p95=500 --quiet
-  allow_failure: false
+  run: node backend/dist/cli/index.js -u ${{ secrets.API_URL }} --assert-p95=200 --output json
 ```
 
 ## 🔌 API Reference
@@ -199,7 +161,7 @@ curl -X POST http://localhost:3001/api/run \
   "success": true,
   "runId": "run_1705276800000_abc123",
   "slug": "xk9f2m3p",
-  "shareUrl": "http://localhost:3001/r/xk9f2m3p",
+  "shareUrl": "http://localhost:3000/r/xk9f2m3p",
   "message": "Tests started successfully"
 }
 ```
@@ -258,7 +220,7 @@ curl http://localhost:3001/api/histogram?runId=xk9f2m3p
 ## 🏗️ Architecture
 
 ```
-delayr/
+delayt/
 ├── backend/           # Express.js API server
 │   ├── src/
 │   │   ├── server.ts      # API routes & middleware
@@ -287,61 +249,34 @@ delayr/
 - PostgreSQL 12+ (or use Docker)
 - npm or yarn
 
-### Setup
-
-```bash
-# Clone & install
-git clone https://github.com/yourusername/delayr.git
-cd delayr
-
-# Start PostgreSQL
-docker-compose up -d
-
-# Backend
-cd backend
-npm install
-cp .env.example .env  # Configure your database
-npm run dev
-
-# Frontend (new terminal)
-cd frontend
-npm install
-npm run dev
-```
-
 ### Environment Variables
 
-**Backend (.env):**
+**Backend (`backend/.env`):**
 ```env
 PORT=3001
 BASE_URL=http://localhost:3001
+FRONTEND_URL=http://localhost:3000
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/latency_db
-
-# Or individual variables
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=latency_db
-DB_USER=postgres
-DB_PASSWORD=postgres
-
-# Optional
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 REQUEST_TIMEOUT_MS=30000
 DEFAULT_REQUEST_COUNT=50
 RATE_LIMIT_REQUESTS=30
 RATE_LIMIT_WINDOW_MS=3600000
 ```
 
-**Frontend (.env):**
+**Frontend (`frontend/.env`):**
 ```env
 VITE_API_URL=http://localhost:3001
 ```
+
+`FRONTEND_URL` is used for share links returned by the API. The UI displays links using the browser origin (`/r/{slug}`).
 
 ## 🌍 Real-World Use Cases
 
 ### 1. **Pre-deployment Validation**
 Test your staging API before promoting to production:
 ```bash
-delayr -u https://staging.api.com/health --assert-p95=200
+delayt -u https://staging.api.com/health --assert-p95=200
 ```
 
 ### 2. **Regression Testing**
@@ -349,14 +284,14 @@ Add to your CI pipeline to catch performance regressions:
 ```yaml
 - name: Performance Gate
   run: |
-    npx delayr -u $API_URL/users -u $API_URL/posts \
+    node backend/dist/cli/index.js -u $API_URL/users -u $API_URL/posts \
       --assert-p95=300 --output json > latency-report.json
 ```
 
 ### 3. **Third-Party API Monitoring**
 Measure dependencies before integrating:
 ```bash
-delayr -u https://api.stripe.com/v1/tokens \
+delayt -u https://api.stripe.com/v1/tokens \
        -H "Authorization: Bearer sk_test_xxx" \
        --count 100
 ```
@@ -364,14 +299,14 @@ delayr -u https://api.stripe.com/v1/tokens \
 ### 4. **Load Testing Baseline**
 Establish baseline metrics before scaling:
 ```bash
-delayr -u https://api.example.com/heavy-endpoint \
+delayt -u https://api.example.com/heavy-endpoint \
        --count 200 --output markdown >> PERFORMANCE.md
 ```
 
 ### 5. **Competitive Benchmarking**
 Compare your API against competitors:
 ```bash
-delayr -u https://yourapi.com/search \
+delayt -u https://yourapi.com/search \
        -u https://competitor.com/search \
        --count 100
 ```
@@ -391,6 +326,6 @@ MIT © 2024
 <p align="center">
   <strong>Stop measuring averages. Start measuring percentiles.</strong>
   <br>
-  <a href="https://github.com/yourusername/delayr">⭐ Star on GitHub</a> •
+  <a href="https://github.com/yourusername/delayt">⭐ Star on GitHub</a> •
   <a href="https://twitter.com/yourusername">🐦 Follow on Twitter</a>
 </p>
