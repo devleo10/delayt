@@ -1,16 +1,22 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import { initializeSchema, getTestRunBySlug, getTestRunById, getRecentTestRuns } from './db/schema';
+import { initializeSchema, getTestRunBySlug, getTestRunById, getRecentTestRuns, getTestRunsBySlugs } from './db/schema';
+import { parseEndpointsField } from './db/jsonb';
 import { createAndStartRun } from './runner';
 import { getEndpointAnalytics, getRawRequestData, getLatencyHistogram } from './analytics';
-import { EndpointConfig, HttpMethod } from './types';
+import { EndpointConfig, HttpMethod } from '@delayt/shared';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+function buildShareUrl(slug: string): string {
+  return `${FRONTEND_URL.replace(/\/$/, '')}/r/${slug}`;
+}
 
 // Basic process safety handlers
 process.on('unhandledRejection', (reason) => {
@@ -27,9 +33,12 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.BASE_URL || '
 const corsOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:5173',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
-  ...allowedOrigins
+  'http://127.0.0.1:5173',
+  FRONTEND_URL.replace(/\/$/, ''),
+  ...allowedOrigins,
 ];
 app.use(cors({
   origin: (origin, callback) => {
@@ -87,6 +96,24 @@ initializeSchema().catch((error) => {
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', version: '2.0.0' });
+});
+
+// API route index
+app.get('/api', (req: Request, res: Response) => {
+  res.json({
+    name: 'Delayt API',
+    version: '2.0.0',
+    routes: [
+      { method: 'GET', path: '/health' },
+      { method: 'POST', path: '/api/run' },
+      { method: 'GET', path: '/api/run/:id' },
+      { method: 'GET', path: '/r/:slug' },
+      { method: 'GET', path: '/api/runs' },
+      { method: 'GET', path: '/api/results' },
+      { method: 'GET', path: '/api/raw/:endpoint?' },
+      { method: 'GET', path: '/api/histogram' },
+    ],
+  });
 });
 
 // ============================================
@@ -154,7 +181,7 @@ app.post('/api/run', rateLimit, async (req: Request, res: Response) => {
       requestCount
     );
 
-    const shareUrl = `${BASE_URL}/r/${slug}`;
+    const shareUrl = buildShareUrl(slug);
 
     res.json({ 
       success: true,
@@ -198,7 +225,7 @@ app.get('/api/run/:id', async (req: Request, res: Response) => {
       run: {
         id: run.id,
         slug: run.slug,
-        endpoints: JSON.parse(run.endpoints),
+        endpoints: parseEndpointsField(run.endpoints),
         requestCount: run.request_count,
         status: run.status,
         startedAt: run.started_at,
@@ -234,7 +261,7 @@ app.get('/r/:slug', async (req: Request, res: Response) => {
       run: {
         id: run.id,
         slug: run.slug,
-        endpoints: JSON.parse(run.endpoints),
+        endpoints: parseEndpointsField(run.endpoints),
         requestCount: run.request_count,
         status: run.status,
         startedAt: run.started_at,
@@ -243,7 +270,7 @@ app.get('/r/:slug', async (req: Request, res: Response) => {
       },
       results: analytics,
       histogram,
-      shareUrl: `${BASE_URL}/r/${slug}`,
+      shareUrl: buildShareUrl(slug),
     });
   } catch (error) {
     console.error('Error in /r/:slug:', error);
@@ -256,21 +283,33 @@ app.get('/r/:slug', async (req: Request, res: Response) => {
 // ============================================
 app.get('/api/runs', async (req: Request, res: Response) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
-    const runs = await getRecentTestRuns(limit);
+    const slugsParam = req.query.slugs as string | undefined;
+    let runs;
+
+    if (slugsParam) {
+      const slugs = slugsParam
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => /^[a-z0-9]+$/.test(s))
+        .slice(0, 50);
+      runs = await getTestRunsBySlugs(slugs);
+    } else {
+      const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
+      runs = await getRecentTestRuns(limit);
+    }
     
     res.json({
       success: true,
       runs: runs.map(run => ({
         id: run.id,
         slug: run.slug,
-        endpoints: JSON.parse(run.endpoints),
+        endpoints: parseEndpointsField(run.endpoints),
         requestCount: run.request_count,
         status: run.status,
         startedAt: run.started_at,
         completedAt: run.completed_at,
         createdAt: run.created_at,
-        shareUrl: `${BASE_URL}/r/${run.slug}`,
+        shareUrl: buildShareUrl(run.slug),
       })),
     });
   } catch (error) {
@@ -321,9 +360,9 @@ app.get('/api/histogram', async (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Delayr API server running on port ${PORT}`);
-  console.log(`   Health check: http://localhost:${PORT}/health`);
-  console.log(`   API docs: http://localhost:${PORT}/api`);
+  console.log(`Delayt API server running on port ${PORT}`);
+  console.log(`   Health: ${BASE_URL}/health`);
+  console.log(`   Routes: ${BASE_URL}/api`);
 });
 
 // Global error handler

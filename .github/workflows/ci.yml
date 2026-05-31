@@ -16,7 +16,7 @@ jobs:
         env:
           POSTGRES_PASSWORD: testpass
           POSTGRES_USER: testuser
-          POSTGRES_DB: delayr_test
+          POSTGRES_DB: delayt_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -61,11 +61,16 @@ jobs:
       run: |
         cd frontend && npm run build
 
-    - name: Test backend server starts
+    - name: Test backend server health
       run: |
         cd backend
-        export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/delayr_test"
-        timeout 10s npm start || true
+        export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/delayt_test"
+        npm start &
+        SERVER_PID=$!
+        sleep 3
+        curl -sf http://localhost:3001/health
+        curl -sf http://localhost:3001/api
+        kill $SERVER_PID
 
     env:
-      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/delayr_test
+      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/delayt_test
