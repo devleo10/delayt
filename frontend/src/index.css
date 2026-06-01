@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 * {
   margin: 0;
@@ -13,12 +13,13 @@ body,
 }
 
 body {
-  font-family: 'Sora', 'Segoe UI', sans-serif;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #07090b;
-  color: #e8edf0;
+  background: oklch(14.5% 0.008 180);
+  color: oklch(96% 0.005 180);
   line-height: 1.5;
+  font-size: 14px;
 }
 
 button,
@@ -33,6 +34,24 @@ pre {
   font-family: 'IBM Plex Mono', Consolas, monospace;
 }
 
+.font-display {
+  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+}
+
 ::selection {
-  background: rgba(63, 220, 151, 0.28);
+  background: oklch(86% 0.18 158 / 0.28);
+}
+
+@keyframes bar-rise {
+  from {
+    transform: scaleY(0.05);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.bar-rise {
+  transform-origin: bottom;
+  animation: 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both bar-rise;
 }

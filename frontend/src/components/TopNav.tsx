@@ -18,9 +18,8 @@ const TopNav: React.FC<TopNavProps> = ({
 }) => {
   const brand = (
     <div className="topnav-brand">
-      <span className="topnav-dot" aria-hidden="true" />
-      <span className="topnav-name">Delayt</span>
-      <span className="topnav-version">v2.0</span>
+      <span className="topnav-name">delayt</span>
+      <span className="topnav-version">v2.0.1</span>
     </div>
   );
 
@@ -29,63 +28,62 @@ const TopNav: React.FC<TopNavProps> = ({
 
   return (
     <header className="topnav">
-      {(variant === 'app' || variant === 'docs') && onGoHome ? (
-        <button type="button" className="topnav-brand-btn" onClick={onGoHome}>
-          {brand}
-        </button>
-      ) : (
-        brand
-      )}
-
-      <nav className="topnav-links" aria-label="Primary">
-        {variant === 'landing' && (
-          <>
-            <a className="topnav-link" href="#features">
-              Features
-            </a>
-            <button type="button" className="topnav-link" onClick={openDocs}>
-              Docs
-            </button>
-            <a className="topnav-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-            <button type="button" className="topnav-cta" onClick={onOpenApp}>
-              Open app <span aria-hidden="true">→</span>
-            </button>
-          </>
+      <div className="topnav-inner">
+        {(variant === 'app' || variant === 'docs') && onGoHome ? (
+          <button type="button" className="topnav-brand-btn" onClick={onGoHome}>
+            {brand}
+          </button>
+        ) : (
+          brand
         )}
 
-        {variant === 'docs' && (
-          <>
-            <button type="button" className="topnav-link topnav-link-active" aria-current="page">
-              Docs
-            </button>
-            <a className="topnav-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-            <button type="button" className="topnav-cta" onClick={onOpenApp}>
-              Open app <span aria-hidden="true">→</span>
-            </button>
-          </>
-        )}
+        <nav className="topnav-links" aria-label="Primary">
+          {variant === 'landing' && (
+            <>
+              <button type="button" className="topnav-link" onClick={openDocs}>
+                docs
+              </button>
+              <a className="topnav-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
+                github
+              </a>
+              <button type="button" className="topnav-cta" onClick={onOpenApp}>
+                open_app →
+              </button>
+            </>
+          )}
 
-        {variant === 'app' && (
-          <>
-            <button type="button" className="topnav-link" onClick={onNewRun}>
-              New run
-            </button>
-            <button type="button" className="topnav-link" onClick={openDocs}>
-              Docs
-            </button>
-            <a className="topnav-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-            <button type="button" className="topnav-cta" onClick={openCliDocs}>
-              Install CLI <span aria-hidden="true">→</span>
-            </button>
-          </>
-        )}
-      </nav>
+          {variant === 'docs' && (
+            <>
+              <button type="button" className="topnav-link topnav-link-active" aria-current="page">
+                docs
+              </button>
+              <a className="topnav-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
+                github
+              </a>
+              <button type="button" className="topnav-cta" onClick={onOpenApp}>
+                open_app →
+              </button>
+            </>
+          )}
+
+          {variant === 'app' && (
+            <>
+              <button type="button" className="topnav-link" onClick={onNewRun}>
+                new_run
+              </button>
+              <button type="button" className="topnav-link" onClick={openDocs}>
+                docs
+              </button>
+              <a className="topnav-link" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
+                github
+              </a>
+              <button type="button" className="topnav-cta" onClick={openCliDocs}>
+                install_cli →
+              </button>
+            </>
+          )}
+        </nav>
+      </div>
     </header>
   );
 };
