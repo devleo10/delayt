@@ -1,0 +1,59 @@
+{
+  "name": "@delayt/cli",
+  "version": "2.0.1",
+  "description": "API latency testing with p50, p95, p99 percentile analysis for CI/CD",
+  "keywords": [
+    "api",
+    "latency",
+    "testing",
+    "performance",
+    "percentile",
+    "p95",
+    "p99",
+    "ci",
+    "cd",
+    "devops",
+    "http",
+    "benchmark"
+  ],
+  "homepage": "https://github.com/devleo10/delayt#readme",
+  "bugs": {
+    "url": "https://github.com/devleo10/delayt/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devleo10/delayt.git",
+    "directory": "packages/cli"
+  },
+  "license": "MIT",
+  "author": "devleo10",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "bin": {
+    "delayt": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@delayt/shared": "2.0.1",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
