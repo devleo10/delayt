@@ -1,31 +1,16 @@
 {
-  "name": "delayt",
-  "version": "2.0.0",
-  "description": "API Latency Testing with Percentile Analysis - for developers and CI/CD",
+  "name": "delayt-backend",
+  "version": "2.0.1",
+  "private": true,
+  "description": "Delayt API server",
   "main": "dist/server.js",
-  "bin": {
-    "delayt": "./dist/cli/index.js"
-  },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "prebuild": "cd ../packages/shared && npm run build",
     "build": "tsc",
     "start": "node dist/server.js",
-    "cli": "ts-node src/cli/index.ts"
+    "cli": "npm run build --prefix ../packages/cli 2>/dev/null || true; node ../packages/cli/dist/index.js"
   },
-  "keywords": [
-    "api",
-    "latency",
-    "testing",
-    "performance",
-    "percentile",
-    "p95",
-    "p99",
-    "ci",
-    "cd",
-    "devops"
-  ],
-  "author": "",
   "license": "MIT",
   "dependencies": {
     "@delayt/shared": "file:../packages/shared",
@@ -45,5 +30,3 @@
     "ts-node": "^10.9.2"
   }
 }
-
-
