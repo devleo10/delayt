@@ -37,13 +37,24 @@ jobs:
     - name: Install dependencies
       run: |
         npm install
-        cd backend && npm install
+        cd packages/shared && npm install
+        cd ../cli && npm install
+        cd ../../backend && npm install
         cd ../frontend && npm install
-        cd ../packages/shared && npm install
 
     - name: Build shared package
       run: |
         cd packages/shared && npm run build
+
+    - name: Build CLI package
+      run: npm run build:cli
+
+    - name: CLI smoke test
+      run: |
+        node packages/cli/dist/index.js run -u https://httpbin.org/delay/0.1 -n 3 -q --assert-p95=10000
+
+    - name: TypeScript check CLI
+      run: npm run typecheck:cli
 
     - name: TypeScript check backend
       run: |
