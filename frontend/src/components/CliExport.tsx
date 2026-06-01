@@ -12,15 +12,13 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
   const [copyError, setCopyError] = useState<string | null>(null);
 
   const generateCliCommand = (includeAuth: boolean = false) => {
-    const lines: string[] = ['delayt \\'];
+    const lines: string[] = ['delayt run \\'];
 
-    // Add URLs
     endpoints.forEach((ep) => {
       lines.push(`  -u "${ep.url}" \\`);
     });
 
-    // Add request count
-    lines.push(`  -c ${requestCount} \\`);
+    lines.push(`  -n ${requestCount} \\`);
 
     // Add headers if needed
     if (includeAuth && endpoints.some((ep) => ep.headers)) {
@@ -58,7 +56,7 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
   return (
     <div className="cli-export">
       <div className="cli-export-header">
-        <h3>📱 Use in CI/CD Pipeline</h3>
+        <h3>Use in CI/CD</h3>
         <p>Copy this command to automate latency testing</p>
       </div>
 
@@ -71,7 +69,7 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
             onClick={() => handleCopy(cliCommand)}
             aria-label="Copy CLI command"
           >
-            {copied ? '✓ Copied' : '📋 Copy'}
+            {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
       </div>
@@ -86,7 +84,7 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
               onClick={() => handleCopy(cliCommandWithAuth)}
               aria-label="Copy CLI command with headers"
             >
-              {copied ? '✓ Copied' : '📋 Copy'}
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
         </div>
@@ -97,6 +95,12 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
         <ul>
           <li>Paste into your CI/CD pipeline (GitHub Actions, GitLab CI, etc.)</li>
           <li>Tests will fail if p95 {'>'} 500ms or p99 {'>'} 1000ms</li>
+          {!endpoints.some((ep) => ep.headers) && (
+            <li>
+              This run had no auth headers. Add <code>-H</code> flags (or use the web Authorization tab)
+              before relying on CI results for private APIs.
+            </li>
+          )}
           <li>Check documentation for more options: <code>delayt --help</code></li>
         </ul>
       </div>

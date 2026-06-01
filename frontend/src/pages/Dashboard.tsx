@@ -46,6 +46,25 @@ function Dashboard({ onNavigate, initialSlug }: DashboardProps) {
   const [resultsTab, setResultsTab] = useState<ResultsTab>('results');
   const [activeSlug, setActiveSlug] = useState<string | null>(initialSlug ?? null);
   const [historyKey, setHistoryKey] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      return localStorage.getItem('delayt_sidebar_open') !== 'false';
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSidebar = () => {
+    setSidebarOpen((open) => {
+      const next = !open;
+      try {
+        localStorage.setItem('delayt_sidebar_open', String(next));
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
 
   const loadSharedRun = useCallback(async (slug: string) => {
     setLoading(true);
@@ -243,7 +262,7 @@ function Dashboard({ onNavigate, initialSlug }: DashboardProps) {
       }
       return `${e.method} ${path}`;
     });
-    return `${host} · ${parts.join(' + ')} · ${requestCount} req each`;
+    return `${host}, ${parts.join(' + ')}, ${requestCount} req each`;
   }, [endpoints, requestCount]);
 
   const runDuration = useMemo(() => {
@@ -278,7 +297,7 @@ function Dashboard({ onNavigate, initialSlug }: DashboardProps) {
           <EducationalModal results={results} onClose={() => setShowEducational(false)} />
         )}
 
-        <div className="layout">
+        <div className={`layout ${sidebarOpen ? '' : 'layout-sidebar-collapsed'}`}>
           <RunHistory
             onOpenRun={(slug) => {
               onNavigate(`/r/${slug}`);
@@ -286,15 +305,28 @@ function Dashboard({ onNavigate, initialSlug }: DashboardProps) {
             }}
             activeSlug={activeSlug}
             reloadKey={historyKey}
+            collapsed={!sidebarOpen}
+            onToggleCollapsed={toggleSidebar}
           />
 
           <main className="main">
             <section className="dashboard-header">
-              <h1 className="dashboard-title">Run a test</h1>
-              <p className="dashboard-sub">Add endpoints, hit run, read your percentiles.</p>
+              <div className="dashboard-eyebrow">// composer</div>
+              <h1 className="dashboard-title font-display">
+                Fire real HTTP.
+                <br />
+                Read the <span style={{ color: 'var(--primary)' }}>truth</span>.
+              </h1>
+              <p className="dashboard-sub">
+                Add endpoints, run sequential requests, get p50 / p95 / p99. Share with{' '}
+                <code>/r/slug</code>.
+              </p>
             </section>
 
             <section className="composer-panel">
+              <div className="panel-label">
+                // endpoint · <span>configure run</span>
+              </div>
               <EndpointForm
                 onSubmit={handleSubmit}
                 disabled={loading}
@@ -320,6 +352,9 @@ function Dashboard({ onNavigate, initialSlug }: DashboardProps) {
 
             {hasResults && (
               <section className="results-panel">
+                <div className="panel-label">
+                  // receipt · <span>{activeSlug ? `run_${activeSlug}` : 'results'}</span>
+                </div>
                 <div className="results-tabbar">
                   <div className="results-tabs" role="tablist">
                     {tabs.map((t) => (
@@ -335,10 +370,10 @@ function Dashboard({ onNavigate, initialSlug }: DashboardProps) {
                     ))}
                   </div>
                   <div className="results-status">
-                    <span className="results-check">✓</span>
+                    <span className="results-check">Done</span>
                     {completedRequests || results.reduce((s, r) => s + r.request_count, 0)}{' '}
                     requests completed
-                    {runDuration ? ` · ${runDuration}` : ''}
+                    {runDuration ? `, ${runDuration}` : ''}
                   </div>
                 </div>
 

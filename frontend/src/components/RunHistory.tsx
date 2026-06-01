@@ -18,6 +18,8 @@ interface RunHistoryProps {
   onOpenRun?: (slug: string) => void;
   activeSlug?: string | null;
   reloadKey?: number;
+  collapsed?: boolean;
+  onToggleCollapsed?: () => void;
 }
 
 function timeAgo(iso: string): string {
@@ -45,7 +47,13 @@ function hostLabel(run: HistoryRun): string {
   }
 }
 
-const RunHistory: React.FC<RunHistoryProps> = ({ onOpenRun, activeSlug, reloadKey }) => {
+const RunHistory: React.FC<RunHistoryProps> = ({
+  onOpenRun,
+  activeSlug,
+  reloadKey,
+  collapsed = false,
+  onToggleCollapsed,
+}) => {
   const [runs, setRuns] = useState<HistoryRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,34 +109,60 @@ const RunHistory: React.FC<RunHistoryProps> = ({ onOpenRun, activeSlug, reloadKe
   };
 
   return (
-    <aside className="sidebar" aria-label="Your runs">
-      <div className="sidebar-heading">Your runs</div>
-      <p className="sidebar-hint">Saved in this browser</p>
-
-      {loading && <p className="sidebar-muted">Loading…</p>}
-      {error && <p className="sidebar-error">{error}</p>}
-      {!loading && !error && runs.length === 0 && (
-        <p className="sidebar-muted">No runs yet. Run your first test.</p>
-      )}
-
-      <ul className="sidebar-list">
-        {runs.map((run) => (
-          <li key={run.id}>
+    <aside
+      className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}
+      aria-label="Your runs"
+    >
+      {collapsed ? (
+        <button
+          type="button"
+          className="sidebar-expand"
+          onClick={onToggleCollapsed}
+          aria-label="Show run history"
+          title="Show run history"
+        >
+          Runs
+        </button>
+      ) : (
+        <>
+          <div className="sidebar-header">
+            <div className="sidebar-heading">// history</div>
             <button
               type="button"
-              className={`sidebar-item ${activeSlug === run.slug ? 'active' : ''}`}
-              onClick={() => openRun(run.slug)}
+              className="sidebar-collapse"
+              onClick={onToggleCollapsed}
+              aria-label="Hide run history"
+              title="Hide run history"
             >
-              <span className="sidebar-item-title">{hostLabel(run)}</span>
-              <span className="sidebar-item-meta">
-                <span className={`sidebar-status status-${run.status}`} aria-hidden="true" />
-                {run.endpoints.length} endpoint{run.endpoints.length !== 1 ? 's' : ''} ·{' '}
-                {timeAgo(run.createdAt)}
-              </span>
+              Hide
             </button>
-          </li>
-        ))}
-      </ul>
+          </div>
+          {loading && <p className="sidebar-muted">Loading…</p>}
+          {error && <p className="sidebar-error">{error}</p>}
+          {!loading && !error && runs.length === 0 && (
+            <p className="sidebar-muted">No runs yet. Run your first test.</p>
+          )}
+
+          <ul className="sidebar-list">
+            {runs.map((run) => (
+              <li key={run.id}>
+                <button
+                  type="button"
+                  className={`sidebar-item ${activeSlug === run.slug ? 'active' : ''}`}
+                  onClick={() => openRun(run.slug)}
+                >
+                  <span className="sidebar-item-title">{hostLabel(run)}</span>
+                  <span className="sidebar-item-meta">
+                    <span className={`sidebar-status status-${run.status}`} aria-hidden="true" />
+                    {run.endpoints.length} endpoint{run.endpoints.length !== 1 ? 's' : ''},{' '}
+                    {timeAgo(run.createdAt)}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </aside>
   );
 };

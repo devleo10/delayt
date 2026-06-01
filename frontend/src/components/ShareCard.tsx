@@ -16,16 +16,19 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
   const avgSuccessRate =
     results.reduce((sum, r) => sum + (r.success_rate ?? 100), 0) / results.length;
 
-  const getStatusEmoji = () => {
-    if (worstP95 < 100) return '🟢';
-    if (worstP95 < 200) return '🟡';
-    if (worstP95 < 500) return '🟠';
-    return '🔴';
+  const getStatus = (): { label: string; tone: 'good' | 'fair' | 'slow' | 'critical' } => {
+    if (avgSuccessRate < 0.5) return { label: 'Failed', tone: 'critical' };
+    if (avgSuccessRate < 95) return { label: 'Errors', tone: 'critical' };
+    if (worstP95 < 100) return { label: 'Good', tone: 'good' };
+    if (worstP95 < 200) return { label: 'Fair', tone: 'fair' };
+    if (worstP95 < 500) return { label: 'Slow', tone: 'slow' };
+    return { label: 'Critical', tone: 'critical' };
   };
+
+  const status = getStatus();
 
   const downloadAsImage = async () => {
     try {
-      // Dynamically import html2canvas
       const html2canvas = (await import('html2canvas')).default;
 
       if (cardRef.current) {
@@ -52,13 +55,13 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
   };
 
   const shareOnTwitter = () => {
-    const text = `Just tested my API with @delayt_app ⚡
+    const text = `Just tested my API with Delayt.
 
 p50: ${formatLatency(results[0].p50)}
 p95: ${formatLatency(worstP95)}
 p99: ${formatLatency(Math.max(...results.map((r) => r.p99)))}
 
-Stop measuring averages. Start measuring percentiles 📊
+Stop measuring averages. Start measuring percentiles.
 
 `;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
@@ -68,14 +71,14 @@ Stop measuring averages. Start measuring percentiles 📊
   return (
     <div className="share-card-container">
       <div className="share-card-header">
-        <h3>📊 Share Your Results</h3>
-        <p>Beautiful card for Twitter, Slack, and more</p>
+        <h3>// share · export card</h3>
+        <p>Receipt-style report for Slack, X, or your team chat.</p>
       </div>
 
       <div className="share-card" ref={cardRef}>
         <div className="card-header">
-          <div className="card-logo">⚡ Delayt</div>
-          <div className="card-status">{getStatusEmoji()}</div>
+          <div className="card-logo">Delayt</div>
+          <div className={`card-status status-${status.tone}`}>{status.label}</div>
         </div>
 
         <div className="card-title">API Performance Report</div>
@@ -122,16 +125,16 @@ Stop measuring averages. Start measuring percentiles 📊
         <div className="card-footer">
           <div className="card-tagline">Stop measuring averages. Start measuring percentiles.</div>
           <div className="card-url">{shareUrl}</div>
-          <div className="card-powered">Tested with Delayt ⚡</div>
+          <div className="card-powered">Tested with Delayt</div>
         </div>
       </div>
 
       <div className="share-actions">
         <button className="share-button twitter" onClick={shareOnTwitter} aria-label="Share on Twitter">
-          🐦 Share on Twitter
+          Share on X
         </button>
         <button className="share-button download" onClick={downloadAsImage} aria-label="Download as PNG">
-          {downloaded ? '✓ Downloaded' : '📥 Download PNG'}
+          {downloaded ? 'Downloaded' : 'Download PNG'}
         </button>
         <button
           className="share-button copy"
@@ -141,7 +144,7 @@ Stop measuring averages. Start measuring percentiles 📊
           }}
           aria-label="Copy share link"
         >
-          🔗 Copy Link
+          Copy link
         </button>
       </div>
     </div>

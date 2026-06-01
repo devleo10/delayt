@@ -59,7 +59,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
   };
 
   const calculateImprovement = (oldVal: number, newVal: number): { percent: string; improved: boolean } => {
-    if (oldVal === 0) return { percent: '—', improved: newVal < oldVal };
+    if (oldVal === 0) return { percent: 'n/a', improved: newVal < oldVal };
     const percent = ((oldVal - newVal) / oldVal) * 100;
     return { percent: percent.toFixed(1), improved: percent > 0 };
   };
@@ -75,7 +75,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
   return (
     <div className="comparison-mode">
       <div className="comparison-header">
-        <h3>📊 Compare Results (Before/After Optimization)</h3>
+        <h3>Compare results</h3>
         <p>Load a previous test to see your improvements</p>
       </div>
 
@@ -103,7 +103,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
               <div className="timeline-label">Before</div>
               <div className="timeline-date">{previousResults.timestamp}</div>
             </div>
-            <div className="timeline-arrow">→</div>
+            <div className="timeline-arrow">vs</div>
             <div className="timeline-item current">
               <div className="timeline-label">Now</div>
               <div className="timeline-date">{new Date().toLocaleString()}</div>
@@ -138,7 +138,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
                     <div className="col value before">{formatLatency(prevResult.p50)}</div>
                     <div className="col value after">{formatLatency(currResult.p50)}</div>
                     <div className={`col improvement ${p50Improvement.improved ? 'improved' : 'regressed'}`}>
-                      {p50Improvement.improved ? '✅' : '⚠️'} {p50Improvement.percent}%
+                      {p50Improvement.improved ? 'better' : 'worse'} {p50Improvement.percent}%
                     </div>
                   </div>
                   <div className="comparison-row">
@@ -147,7 +147,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
                     <div className="col value before">{formatLatency(prevResult.p95)}</div>
                     <div className="col value after">{formatLatency(currResult.p95)}</div>
                     <div className={`col improvement ${p95Improvement.improved ? 'improved' : 'regressed'}`}>
-                      {p95Improvement.improved ? '✅' : '⚠️'} {p95Improvement.percent}%
+                      {p95Improvement.improved ? 'better' : 'worse'} {p95Improvement.percent}%
                     </div>
                   </div>
                   <div className="comparison-row">
@@ -156,7 +156,7 @@ const ComparisonMode: React.FC<ComparisonModeProps> = ({ currentResults }) => {
                     <div className="col value before">{formatLatency(prevResult.p99)}</div>
                     <div className="col value after">{formatLatency(currResult.p99)}</div>
                     <div className={`col improvement ${p99Improvement.improved ? 'improved' : 'regressed'}`}>
-                      {p99Improvement.improved ? '✅' : '⚠️'} {p99Improvement.percent}%
+                      {p99Improvement.improved ? 'better' : 'worse'} {p99Improvement.percent}%
                     </div>
                   </div>
                 </React.Fragment>

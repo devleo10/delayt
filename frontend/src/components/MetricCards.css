@@ -1,72 +1,73 @@
 .metric-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 900px) {
+  .metric-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 .metric-card {
-  position: relative;
-  padding: 1.4rem 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg-elev);
-  overflow: hidden;
+  padding: 1rem 1.1rem;
+  background: var(--background);
 }
 
-.metric-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--text-faint);
-}
-
-.metric-card.tone-good::before {
-  background: var(--green);
-}
-.metric-card.tone-warn::before {
-  background: var(--amber);
-}
-.metric-card.tone-bad::before {
-  background: var(--red);
+.metric-card-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .metric-card-label {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin-bottom: 0.55rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
 }
 
 .metric-card-value {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-size: 0.875rem;
   font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--text);
+}
+
+.metric-card.tone-primary .metric-card-value {
+  color: var(--primary);
 }
 
 .metric-card.tone-warn .metric-card-value {
-  color: var(--amber);
-}
-.metric-card.tone-bad .metric-card-value {
-  color: var(--red);
+  color: var(--warn);
 }
 
-.metric-card-unit {
-  font-size: 0.4em;
-  font-weight: 500;
-  color: var(--text-faint);
-  margin-left: 0.2rem;
+.metric-card.tone-critical .metric-card-value {
+  color: var(--critical);
 }
 
-.metric-card-desc {
-  margin-top: 0.6rem;
-  font-size: 0.82rem;
-  color: var(--text-dim);
+.metric-card-bars {
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  word-break: break-all;
+}
+
+.metric-card.tone-primary .metric-card-bars {
+  color: var(--primary);
+}
+
+.metric-card.tone-warn .metric-card-bars {
+  color: var(--warn);
+}
+
+.metric-card.tone-critical .metric-card-bars {
+  color: var(--critical);
+}
+
+.metric-card-note {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
 }

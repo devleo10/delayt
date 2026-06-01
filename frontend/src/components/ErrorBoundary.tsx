@@ -33,7 +33,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div className="error-boundary">
           <div className="error-boundary-content">
-            <h2>🚨 Something went wrong</h2>
+            <h2>Something went wrong</h2>
             <p>The application encountered an unexpected error. Please try refreshing the page.</p>
             <details className="error-details">
               <summary>Error details</summary>

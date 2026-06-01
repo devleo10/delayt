@@ -11,7 +11,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
 
   const steps = [
     {
-      title: 'Why Percentiles Matter ⚡',
+      title: 'Why percentiles matter',
       content: (
         <div className="welcome-step">
           <h3>Your Average Latency is Lying to You</h3>
@@ -21,7 +21,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
               <div className="value">50ms</div>
               <div className="label">API B - Average:</div>
               <div className="value">60ms</div>
-              <p className="note">→ Looks like API A is faster</p>
+              <p className="note">Looks like API A is faster</p>
             </div>
             <div className="divider">BUT</div>
             <div className="scenario truth">
@@ -29,7 +29,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
               <div className="value danger">100ms</div>
               <div className="label">API B - p95:</div>
               <div className="value">500ms</div>
-              <p className="note">→ API B is actually 5x worse!</p>
+              <p className="note">API B is actually 5x worse on p95</p>
             </div>
           </div>
         </div>
@@ -43,11 +43,11 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
             <div className="metric">
               <div className="metric-name">p50</div>
               <div className="metric-desc">50% of requests faster than this</div>
-              <div className="metric-emoji">50% 🏃</div>
+              <div className="metric-emoji">50% of requests</div>
             </div>
             <div className="metric">
               <div className="metric-name p95">p95</div>
-              <div className="metric-desc">⭐ THE MOST IMPORTANT</div>
+              <div className="metric-desc">Most important metric</div>
               <div className="metric-emoji">95% of users experience</div>
             </div>
             <div className="metric">
@@ -67,13 +67,13 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
           <div className="code-block">
             delayt https://api.example.com/users
           </div>
-          <p>Or use this beautiful UI to:</p>
+          <p>Or use this UI to:</p>
           <ul className="feature-list">
-            <li>✅ Test multiple endpoints</li>
-            <li>✅ Add custom headers & auth</li>
-            <li>✅ Send POST/PUT request bodies</li>
-            <li>✅ Share results with teammates</li>
-            <li>✅ Export to CI/CD pipelines</li>
+            <li>Test multiple endpoints</li>
+            <li>Add custom headers and auth</li>
+            <li>Send POST/PUT request bodies</li>
+            <li>Share results with teammates</li>
+            <li>Export to CI/CD pipelines</li>
           </ul>
         </div>
       ),
@@ -84,7 +84,7 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
         <div className="welcome-step">
           <p>Let's start with a working example:</p>
           <button className="example-cta" onClick={onLoadExample}>
-            🚀 Try Example First
+            Try example first
           </button>
           <p className="small-text">
             This tests httpbin.org (a free public API) so you can see what real results look like.
@@ -139,12 +139,12 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
               disabled={step === 0}
               aria-label="Previous step"
             >
-              ← Back
+              Back
             </button>
 
             {step === steps.length - 1 ? (
               <button className="nav-button next primary" onClick={onClose}>
-                Let's Go! →
+                Get started
               </button>
             ) : (
               <button
@@ -152,12 +152,12 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
                 onClick={() => setStep(Math.min(steps.length - 1, step + 1))}
                 aria-label="Next step"
               >
-                Next →
+                Next
               </button>
             )}
           </div>
 
-          <p className="keyboard-hint">💡 Use arrow keys to navigate</p>
+          <p className="keyboard-hint">Use arrow keys to navigate</p>
         </div>
       </div>
     </div>

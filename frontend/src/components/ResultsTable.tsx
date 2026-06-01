@@ -66,7 +66,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({ results }) => {
             <th scope="col">
               <Tooltip content="50% of requests are this fast or faster. Your median experience." position="bottom">
                 <span style={{ borderBottom: '1px dotted #9ca3af', cursor: 'help' }}>
-                  p50 (median)
+                  p50
                 </span>
               </Tooltip>
             </th>

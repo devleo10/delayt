@@ -179,7 +179,7 @@ const LatencyChart: React.FC<LatencyChartProps> = ({ results, runId, view, hideT
   if (error) {
     return (
       <div className="chart-error">
-        <p>⚠️ {error}</p>
+        <p>{error}</p>
         <button 
           className="chart-retry-button" 
           onClick={() => {

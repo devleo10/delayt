@@ -1,219 +1,226 @@
 .share-card-container {
-  background: linear-gradient(145deg, rgba(31, 35, 56, 0.95), rgba(20, 23, 37, 0.97));
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  margin: 20px 0;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  margin: 0;
+  background: transparent;
 }
 
 .share-card-header h3 {
-  margin: 0 0 8px;
-  font-size: 1.05rem;
-  color: var(--text-primary);
-  font-weight: 700;
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  font-weight: 400;
 }
 
 .share-card-header p {
-  margin: 0;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
 }
 
 .share-card {
-  background: linear-gradient(135deg, #1f2a45 0%, #21233b 42%, #321f3f 100%);
-  border: 1px solid rgba(184, 198, 224, 0.36);
-  border-radius: 16px;
-  padding: 24px;
-  margin: 20px auto;
-  max-width: 500px;
-  font-family: 'Sora', sans-serif;
-  box-shadow: 0 16px 36px rgba(7, 9, 17, 0.45);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 1.25rem 1.5rem;
+  margin: 0;
+  max-width: 100%;
+  font-family: inherit;
+  box-shadow: none;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .card-logo {
-  font-size: 18px;
-  font-weight: 800;
-  color: #9ef8f0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--foreground);
   letter-spacing: -0.02em;
+  text-transform: lowercase;
 }
 
 .card-status {
-  font-size: 25px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 0;
+  border-radius: 0;
+  border: none;
 }
 
+.card-status.status-good { color: var(--primary); }
+.card-status.status-fair { color: var(--primary); }
+.card-status.status-slow { color: var(--warn); }
+.card-status.status-critical { color: var(--critical); }
+
 .card-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #f7f9fd;
-  margin-bottom: 16px;
-  text-align: center;
-  letter-spacing: -0.02em;
+  display: none;
 }
 
 .card-metrics {
-  background-color: rgba(5, 8, 16, 0.34);
-  border: 1px solid rgba(184, 198, 224, 0.23);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.metric-item {
-  margin-bottom: 12px;
-}
-
-.metric-item:last-child {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   margin-bottom: 0;
 }
 
+.metric-item {
+  margin-bottom: 0;
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed oklch(26% 0.012 180 / 0.6);
+  align-items: center;
+}
+
 .metric-endpoint {
-  font-size: 11px;
-  color: #c3ccdf;
-  margin-bottom: 6px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0;
+  font-weight: 400;
+  text-transform: lowercase;
 }
 
 .metric-values {
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
 .value-group {
-  flex: 1;
-  text-align: center;
+  text-align: left;
 }
 
 .value-label {
-  font-size: 10px;
-  color: #97a1bb;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 2px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: lowercase;
+  letter-spacing: 0;
+  margin-bottom: 0.15rem;
 }
 
 .value {
-  font-size: 16px;
-  font-weight: 800;
-  color: #ecf0fa;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
 }
 
 .value.highlight {
-  color: var(--accent-warning);
-  font-size: 18px;
+  color: var(--warn);
+  font-size: 0.875rem;
 }
 
 .card-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 1rem;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed oklch(26% 0.012 180 / 0.6);
 }
 
 .stat {
-  background-color: rgba(78, 205, 196, 0.16);
-  border: 1px solid rgba(78, 205, 196, 0.5);
-  border-radius: 10px;
-  padding: 12px;
-  text-align: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.35rem 0;
+  text-align: left;
 }
 
 .stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: #a9fff9;
-  line-height: 1;
-  margin-bottom: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  line-height: 1.2;
+  margin-bottom: 0.15rem;
 }
 
 .stat-label {
-  font-size: 10px;
-  color: #d1d9ea;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: lowercase;
+  letter-spacing: 0;
 }
 
 .card-footer {
-  border-top: 1px solid rgba(184, 198, 224, 0.25);
-  padding-top: 16px;
-  text-align: center;
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: 0.85rem;
+  text-align: left;
 }
 
 .card-tagline {
-  font-size: 13px;
-  color: #f1f5ff;
-  margin-bottom: 8px;
-  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.35rem;
+  font-weight: 400;
 }
 
 .card-url {
-  font-size: 10px;
-  color: #95fff6;
-  font-family: 'IBM Plex Mono', monospace;
-  margin-bottom: 8px;
+  font-size: 0.75rem;
+  color: var(--primary);
+  margin-bottom: 0.35rem;
   word-break: break-all;
 }
 
 .card-powered {
-  font-size: 10px;
-  color: #c1cae0;
-  letter-spacing: 0.06em;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
 }
 
 .share-actions {
   display: flex;
-  gap: 12px;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 16px;
-  justify-content: center;
+  margin-top: 1rem;
+  justify-content: flex-start;
 }
 
 .share-button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 999px;
-  font-size: 0.74rem;
-  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.share-button.twitter {
-  background: linear-gradient(140deg, #57c1ff, #22a6f1);
-  color: #06141f;
-}
-
-.share-button.download {
-  background: linear-gradient(140deg, #a997ff, #8d7bf9);
-  color: #111024;
-}
-
-.share-button.copy {
-  background: linear-gradient(140deg, #68e7ad, #55d49d);
-  color: #06180f;
+  text-transform: none;
+  letter-spacing: 0;
+  background: var(--foreground);
+  color: var(--background);
 }
 
 .share-button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  transform: none;
+  filter: none;
+}
+
+.share-button.twitter,
+.share-button.download,
+.share-button.copy {
+  background: var(--foreground);
+  color: var(--background);
 }
 
 @media (max-width: 640px) {
-  .share-card {
-    padding: 16px;
+  .metric-values {
+    grid-template-columns: 1fr;
   }
 
   .share-actions {
@@ -222,17 +229,5 @@
 
   .share-button {
     width: 100%;
-  }
-
-  .card-title {
-    font-size: 18px;
-  }
-
-  .value {
-    font-size: 14px;
-  }
-
-  .value.highlight {
-    font-size: 16px;
   }
 }

@@ -15,7 +15,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
 
   const steps = [
     {
-      title: '🎉 Your First Test Complete!',
+      title: 'Your first test is done',
       content: (
         <div className="edu-step">
           <p>Congratulations! Your API is now measured with real percentiles.</p>
@@ -37,7 +37,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
       ),
     },
     {
-      title: '📊 Understanding p50 (Median)',
+      title: 'Understanding p50 (median)',
       content: (
         <div className="edu-step">
           <div className="metric-explanation">
@@ -48,7 +48,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
               <strong>p50</strong> means 50% of your requests are faster than this.
             </p>
             <div className="explanation-box">
-              <p>📈 Think of it as your "median experience"</p>
+              <p>Think of it as your median experience.</p>
               <p>If you have 100 requests:</p>
               <ul>
                 <li>50 requests are faster than {formatLatency(firstResult.p50)}</li>
@@ -60,7 +60,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
       ),
     },
     {
-      title: '⭐ Understanding p95 (THE IMPORTANT ONE)',
+      title: 'Understanding p95 (the important one)',
       content: (
         <div className="edu-step">
           <div className="metric-explanation highlighted">
@@ -71,7 +71,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
               <strong>p95</strong> means 95% of your requests are faster than this.
             </p>
             <div className="explanation-box important">
-              <p>🎯 THIS IS THE METRIC THAT MATTERS MOST</p>
+              <p>This is the metric that matters most.</p>
               <p>If you have 100 requests:</p>
               <ul>
                 <li>95 requests are faster than {formatLatency(firstResult.p95)}</li>
@@ -87,7 +87,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
       ),
     },
     {
-      title: '🚨 Understanding p99 (Worst Case)',
+      title: 'Understanding p99 (worst case)',
       content: (
         <div className="edu-step">
           <div className="metric-explanation">
@@ -98,7 +98,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
               <strong>p99</strong> means 99% of your requests are faster than this.
             </p>
             <div className="explanation-box">
-              <p>⚠️ Only 1% of requests are slower (your absolute worst case)</p>
+              <p>Only 1% of requests are slower. That is your absolute worst case.</p>
               <p>If you have 1000 requests:</p>
               <ul>
                 <li>990 requests are faster than {formatLatency(firstResult.p99)}</li>
@@ -114,7 +114,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
       ),
     },
     {
-      title: '✅ What Now?',
+      title: 'What now?',
       content: (
         <div className="edu-step">
           <p>You now understand your API's real performance!</p>
@@ -145,7 +145,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
             </div>
           </div>
           <p className="pro-tip">
-            💡 <strong>Pro Tip:</strong> "Stop measuring averages, start measuring percentiles." Percentiles tell you
+            <strong>Tip:</strong> Stop measuring averages, start measuring percentiles. Percentiles tell you
             what users actually experience.
           </p>
         </div>
@@ -195,12 +195,12 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
               disabled={step === 0}
               aria-label="Previous step"
             >
-              ← Back
+              Back
             </button>
 
             {step === steps.length - 1 ? (
               <button className="nav-button next primary" onClick={onClose}>
-                Let's Go! →
+                Done
               </button>
             ) : (
               <button
@@ -208,7 +208,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
                 onClick={() => setStep(Math.min(steps.length - 1, step + 1))}
                 aria-label="Next step"
               >
-                Next →
+                Next
               </button>
             )}
           </div>
