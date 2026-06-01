@@ -13,6 +13,7 @@ const TOC = [
   { id: 'percentiles', label: 'Percentiles' },
   { id: 'setup', label: 'Setup' },
   { id: 'web-app', label: 'Test in the app' },
+  { id: 'auth', label: 'Auth & headers' },
   { id: 'results', label: 'Read results' },
   { id: 'sharing', label: 'Share runs' },
   { id: 'cli', label: 'CLI' },
@@ -90,7 +91,7 @@ const DocsPage: React.FC<DocsPageProps> = ({ onNavigate, initialHash }) => {
             <p className="docs-eyebrow">Documentation</p>
             <h1 className="docs-title">How to test API latency with Delayt</h1>
             <p className="docs-lead">
-              Delayt measures real HTTP response times and reports percentile latency — the numbers
+              Delayt measures real HTTP response times and reports percentile latency, the numbers
               that reflect what users actually experience, not misleading averages.
             </p>
           </header>
@@ -134,15 +135,15 @@ const DocsPage: React.FC<DocsPageProps> = ({ onNavigate, initialHash }) => {
                 <tbody>
                   <tr>
                     <td><code>p50</code></td>
-                    <td>Half of requests finished at or below this time — typical experience.</td>
+                    <td>Half of requests finished at or below this time. Typical experience.</td>
                   </tr>
                   <tr>
                     <td><code>p95</code></td>
-                    <td>95% of requests finished at or below this time — start here when optimizing.</td>
+                    <td>95% of requests finished at or below this time. Start here when optimizing.</td>
                   </tr>
                   <tr>
                     <td><code>p99</code></td>
-                    <td>Worst-case tail for most users — catches spikes and cold starts.</td>
+                    <td>Worst-case tail for most users. Catches spikes and cold starts.</td>
                   </tr>
                 </tbody>
               </table>
@@ -190,17 +191,20 @@ npm run dev:all`}</code></pre>
                   <strong>Add one or more endpoints</strong>
                   <p>
                     Paste a URL, choose the HTTP method (GET, POST, PUT, PATCH, DELETE), and set the
-                    request count (1–200 per endpoint). You can add up to 10 endpoints in a single run.
+                    request count (1-200 per endpoint). You can add up to 10 endpoints in a single run.
                   </p>
                 </div>
               </li>
               <li className="docs-step">
                 <span className="docs-step-num">3</span>
                 <div>
-                  <strong>Configure headers and body (optional)</strong>
+                  <strong>Configure the request (tabs)</strong>
                   <p>
-                    Expand an endpoint row to add headers (e.g. <code>Authorization</code>) or a JSON
-                    body for POST/PUT/PATCH requests.
+                    Use the composer tabs: <strong>Parameters</strong> for query strings,{' '}
+                    <strong>Body</strong> for JSON on POST/PUT/PATCH, <strong>Headers</strong> for
+                    custom headers (API keys, <code>User-Agent</code>, etc.), and{' '}
+                    <strong>Authorization</strong> for Bearer tokens. See{' '}
+                    <a href="#auth">Auth &amp; headers</a> for how missing credentials behave.
                   </p>
                 </div>
               </li>
@@ -226,8 +230,103 @@ npm run dev:all`}</code></pre>
               </li>
             </ol>
             <button type="button" className="docs-inline-cta" onClick={() => onNavigate('/app')}>
-              Open the app <span aria-hidden="true">→</span>
+              Open the app
             </button>
+          </section>
+
+          <section className="docs-section" id="auth">
+            <h2>Auth, headers, and private APIs</h2>
+            <p>
+              Delayt is a latency tester: it always sends the number of requests you configured and
+              records whatever your API returns. It does not block the run when auth or headers are
+              missing.
+            </p>
+
+            <h3>Where to put each value</h3>
+            <div className="docs-table-wrap">
+              <table className="docs-table">
+                <thead>
+                  <tr>
+                    <th>Tab</th>
+                    <th>Use for</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Parameters</strong></td>
+                    <td>
+                      Query string key/value pairs (merged into the URL). Empty rows are ignored.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Body</strong></td>
+                    <td>JSON payload for POST, PUT, or PATCH.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Headers</strong></td>
+                    <td>
+                      Any custom header, e.g. <code>X-API-Key</code>, <code>X-App-Source</code>,{' '}
+                      <code>User-Agent</code>. Only filled rows are sent.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Authorization</strong></td>
+                    <td>
+                      Bearer token only. Delayt adds the <code>Bearer</code> prefix if you paste
+                      the raw token and sends <code>Authorization: Bearer …</code>.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Runs without auth still execute</h3>
+            <p>
+              If you leave Authorization and Headers empty, Delayt still runs every request. Your
+              API may respond with <code>401</code> or <code>403</code>; those responses are
+              measured like any other HTTP response. The run completes; the API call itself failed
+              from your API&apos;s perspective.
+            </p>
+            <p>
+              Delayt does not validate credentials before starting and does not send a single
+              preflight request. Check the <strong>Success %</strong> column after a run: if auth was
+              missing, you will usually see <strong>0%</strong> (or a low rate) when every response
+              is 4xx/5xx.
+            </p>
+
+            <h3>How success rate is calculated</h3>
+            <p>
+              Percentiles (p50, p95, p99) are computed from all response times in the run, including
+              failed auth. Success rate counts responses with status <code>0</code> (timeout/network)
+              or <code>400+</code> as errors. A run full of <code>403</code> responses still shows
+              latency numbers, but success rate should be 0%.
+            </p>
+
+            <div className="docs-callout">
+              <p>
+                <strong>Who sends the request?</strong> The Delayt backend makes HTTP calls to your
+                URL, not your browser. In local dev that is your machine; on a hosted deploy, targets
+                must be reachable from that server (public URLs or VPN). <code>localhost</code> on
+                your laptop is not reachable from a cloud-hosted Delayt instance.
+              </p>
+            </div>
+
+            <h3>Share links and secrets</h3>
+            <p>
+              Headers and Bearer tokens are stored with the run so shared links reproduce the same
+              request. Treat share URLs like any secret-bearing config: only send them to people who
+              should see those credentials.
+            </p>
+
+            <h3>CLI equivalent</h3>
+            <p>
+              Pass headers with repeated <code>-H</code> flags. After a web run, use the CLI export
+              panel on the dashboard to copy commands with or without auth headers.
+            </p>
+            <pre className="docs-code"><code>{`delayt run -u https://api.example.com/v1/resource \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
+  -H "X-App-Source: my-app/1.0" \\
+  -n 50`}</code></pre>
           </section>
 
           <section className="docs-section" id="results">
@@ -235,14 +334,18 @@ npm run dev:all`}</code></pre>
             <h3>Metric cards</h3>
             <p>
               p50, p95, and p99 appear at the top for each endpoint. Focus on <strong>p95</strong>{' '}
-              first — if it is high, a meaningful slice of users is waiting too long.
+              first. If it is high, a meaningful slice of users is waiting too long.
             </p>
             <h3>Results tab</h3>
-            <p>Per-endpoint summary with min, max, mean, percentiles, and status code breakdown.</p>
+            <p>
+              Per-endpoint summary with min, max, mean, percentiles, and <strong>Success %</strong>.
+              If you tested without required auth or headers, expect a low success rate even though
+              the run finished. See <a href="#auth">Auth &amp; headers</a>.
+            </p>
             <h3>Histogram</h3>
-            <p>Distribution of response times — useful for spotting multi-modal latency (e.g. cache hits vs misses).</p>
+            <p>Distribution of response times. Useful for spotting multi-modal latency (e.g. cache hits vs misses).</p>
             <h3>Scatter</h3>
-            <p>Request index vs latency over time — helps spot drift or warming effects during a run.</p>
+            <p>Request index vs latency over time. Helps spot drift or warming effects during a run.</p>
             <h3>Compare</h3>
             <p>Side-by-side percentile comparison when you tested multiple endpoints in one run.</p>
           </section>
@@ -251,11 +354,11 @@ npm run dev:all`}</code></pre>
             <h2>Sharing results</h2>
             <p>
               Every completed run gets a short slug. Copy the share link (e.g.{' '}
-              <code>/r/abc123</code>) and send it to teammates — they can view results without
+              <code>/r/abc123</code>) and send it to teammates. They can view results without
               re-running the test.
             </p>
             <p>
-              Your sidebar shows runs saved in a browser cookie on this device — no account required.
+              Your sidebar shows runs saved in a browser cookie on this device. No account required.
               Opening a shared link adds that run to your history here.
             </p>
           </section>
@@ -263,25 +366,22 @@ npm run dev:all`}</code></pre>
           <section className="docs-section" id="cli">
             <h2>CLI for CI/CD</h2>
             <p>
-              The CLI runs without a database — ideal for pipelines and local pre-merge checks. It is
-              included in this repo but not published to npm yet.
+              The CLI runs without a database. Good for pipelines and local pre-merge checks.
             </p>
-            <h3>Install locally</h3>
-            <pre className="docs-code"><code>{`cd backend
-npm install
-npm run build
-npm link          # optional: global \`delayt\` command
+            <h3>Install</h3>
+            <pre className="docs-code"><code>{`npx @delayt/cli run -u https://api.example.com/health -n 50
 
-# Or run directly:
-npm run cli -- -u https://api.example.com/health -c 50`}</code></pre>
+# Or from source:
+npm run build:cli
+npm run cli -- run -u https://api.example.com/health -n 50`}</code></pre>
             <h3>Example with assertions</h3>
-            <pre className="docs-code"><code>{`delayt \\
+            <pre className="docs-code"><code>{`delayt run \\
   -u https://api.example.com/health \\
-  -c 50 \\
+  -n 50 \\
   --assert-p95=200 \\
   --output json`}</code></pre>
             <p>
-              Exit codes: <code>0</code> pass · <code>1</code> assertion failed · <code>2</code> error.
+              Exit codes: <code>0</code> pass, <code>1</code> assertion failed, <code>2</code> error.
               After a web run, use the CLI export panel to copy an equivalent command.
             </p>
           </section>
@@ -290,24 +390,28 @@ npm run cli -- -u https://api.example.com/health -c 50`}</code></pre>
             <h2>Tips for accurate tests</h2>
             <ul>
               <li>
-                Use at least <strong>30–50 requests</strong> per endpoint for stable percentile
+                Use at least <strong>30-50 requests</strong> per endpoint for stable percentile
                 estimates.
               </li>
-              <li>Test against staging that mirrors production — cold starts and auth matter.</li>
+              <li>Test against staging that mirrors production. Cold starts and auth matter.</li>
               <li>Run the same test before and after a change to see real delta, not noise.</li>
               <li>
-                Watch p99 alongside p95 — a high p99 often means timeouts or occasional backend
+                Watch p99 alongside p95. A high p99 often means timeouts or occasional backend
                 contention.
               </li>
               <li>
-                For authenticated APIs, add headers in the composer or use{' '}
-                <code>-H "Authorization: Bearer …"</code> in the CLI.
+                For private APIs, fill Authorization and Headers before Run. A run without them
+                still executes but usually returns 401/403; check Success %, not just percentiles.
+              </li>
+              <li>
+                Put query params in the Parameters tab (or URL). API keys and custom headers belong
+                on the Headers tab, not only in the URL bar.
               </li>
             </ul>
           </section>
 
           <footer className="docs-footer">
-            <span className="docs-footer-copy">Delayt v2.0 · MIT</span>
+            <span className="docs-footer-copy">Delayt v2.0 | MIT</span>
             <div className="docs-footer-links">
               <button type="button" className="docs-footer-link" onClick={() => onNavigate('/')}>
                 Home
