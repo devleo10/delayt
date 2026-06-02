@@ -204,3 +204,45 @@ export function calculatePercentageChange(baseline: number, current: number): nu
   if (baseline === 0) return current === 0 ? 0 : 100;
   return ((current - baseline) / baseline) * 100;
 }
+
+/**
+ * Computes percentiles from a sorted array of numbers
+ * Uses linear interpolation for non-integer indices
+ */
+export function computePercentiles(
+  data: number[],
+  percentiles: number[]
+): Record<number, number> {
+  if (data.length === 0) {
+    return percentiles.reduce((acc, p) => ({ ...acc, [p]: 0 }), {});
+  }
+
+  const sorted = [...data].sort((a, b) => a - b);
+  const result: Record<number, number> = {};
+
+  for (const percentile of percentiles) {
+    const index = (percentile / 100) * (sorted.length - 1);
+    const lower = Math.floor(index);
+    const upper = Math.ceil(index);
+    const fraction = index - lower;
+
+    if (lower === upper) {
+      result[percentile] = sorted[lower];
+    } else {
+      // Linear interpolation
+      result[percentile] = sorted[lower] * (1 - fraction) + sorted[upper] * fraction;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Computes standard deviation
+ */
+export function computeStdDev(data: number[], avg: number): number {
+  if (data.length < 2) return 0;
+  const squareDiffs = data.map(value => Math.pow(value - avg, 2));
+  const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / data.length;
+  return Math.sqrt(avgSquareDiff);
+}

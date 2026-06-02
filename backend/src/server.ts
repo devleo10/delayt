@@ -1,78 +1,103 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import * as dotenv from 'dotenv';
-import { initializeSchema, getTestRunBySlug, getTestRunById, getRecentTestRuns, getTestRunsBySlugs } from './db/schema';
-import { parseEndpointsField } from './db/jsonb';
-import { createAndStartRun } from './runner';
-import { getEndpointAnalytics, getRawRequestData, getLatencyHistogram } from './analytics';
-import { EndpointConfig, HttpMethod } from '@delayt/shared';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import * as dotenv from "dotenv";
+import {
+  initializeSchema,
+  getTestRunBySlug,
+  getTestRunById,
+  getRecentTestRuns,
+  getTestRunsBySlugs,
+} from "./db/schema";
+import { parseEndpointsField } from "./db/jsonb";
+import { createAndStartRun, cancelRun } from "./runner";
+import {
+  getEndpointAnalytics,
+  getRawRequestData,
+  getLatencyHistogram,
+} from "./analytics";
+import { EndpointConfig, HttpMethod } from "@delayt/shared";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 function buildShareUrl(slug: string): string {
-  return `${FRONTEND_URL.replace(/\/$/, '')}/r/${slug}`;
+  return `${FRONTEND_URL.replace(/\/$/, "")}/r/${slug}`;
 }
 
 // Basic process safety handlers
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection:', reason);
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
 });
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
   process.exit(1);
 });
 
 // Middleware
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.BASE_URL || '').split(',').map(s => s.trim()).filter(Boolean);
+const allowedOrigins = (
+  process.env.ALLOWED_ORIGINS ||
+  process.env.BASE_URL ||
+  ""
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 // Always allow localhost for development
 const corsOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:5173',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:5173',
-  FRONTEND_URL.replace(/\/$/, ''),
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
+  "http://127.0.0.1:5173",
+  FRONTEND_URL.replace(/\/$/, ""),
   ...allowedOrigins,
 ];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (corsOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('CORS policy: Origin not allowed'));
-  }
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (corsOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS policy: Origin not allowed"));
+    },
+  }),
+);
 app.use(express.json());
 
 // Rate limiting (simple in-memory implementation)
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_REQUESTS = parseInt(process.env.RATE_LIMIT_REQUESTS || '30', 10);
-const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '3600000', 10); // 1 hour
+const RATE_LIMIT_REQUESTS = parseInt(
+  process.env.RATE_LIMIT_REQUESTS || "30",
+  10,
+);
+const RATE_LIMIT_WINDOW_MS = parseInt(
+  process.env.RATE_LIMIT_WINDOW_MS || "3600000",
+  10,
+); // 1 hour
 
 function rateLimit(req: Request, res: Response, next: Function) {
-  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const ip = req.ip || req.connection.remoteAddress || "unknown";
   const now = Date.now();
-  
+
   const record = requestCounts.get(ip);
-  
+
   if (!record || now > record.resetTime) {
     requestCounts.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return next();
   }
-  
+
   if (record.count >= RATE_LIMIT_REQUESTS) {
-    return res.status(429).json({ 
-      error: 'Rate limit exceeded', 
+    return res.status(429).json({
+      error: "Rate limit exceeded",
       message: `Maximum ${RATE_LIMIT_REQUESTS} test runs per hour. Please try again later.`,
-      retryAfter: Math.ceil((record.resetTime - now) / 1000)
+      retryAfter: Math.ceil((record.resetTime - now) / 1000),
     });
   }
-  
+
   record.count++;
   return next();
 }
@@ -89,29 +114,30 @@ setInterval(() => {
 
 // Initialize database schema on startup
 initializeSchema().catch((error) => {
-  console.error('Failed to initialize database schema:', error);
+  console.error("Failed to initialize database schema:", error);
   process.exit(1);
 });
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', version: '1.0.0' });
+app.get("/health", (req: Request, res: Response) => {
+  res.json({ status: "ok", version: "1.0.0" });
 });
 
 // API route index
-app.get('/api', (req: Request, res: Response) => {
+app.get("/api", (req: Request, res: Response) => {
   res.json({
-    name: 'Delayt API',
-    version: '1.0.0',
+    name: "Delayt API",
+    version: "1.0.0",
     routes: [
-      { method: 'GET', path: '/health' },
-      { method: 'POST', path: '/api/run' },
-      { method: 'GET', path: '/api/run/:id' },
-      { method: 'GET', path: '/r/:slug' },
-      { method: 'GET', path: '/api/runs' },
-      { method: 'GET', path: '/api/results' },
-      { method: 'GET', path: '/api/raw/:endpoint?' },
-      { method: 'GET', path: '/api/histogram' },
+      { method: "GET", path: "/health" },
+      { method: "POST", path: "/api/run" },
+      { method: "GET", path: "/api/run/:id" },
+      { method: "POST", path: "/api/run/:id/stop" },
+      { method: "GET", path: "/r/:slug" },
+      { method: "GET", path: "/api/runs" },
+      { method: "GET", path: "/api/results" },
+      { method: "GET", path: "/api/raw/:endpoint?" },
+      { method: "GET", path: "/api/histogram" },
     ],
   });
 });
@@ -119,102 +145,123 @@ app.get('/api', (req: Request, res: Response) => {
 // ============================================
 // POST /api/run - Start a new test run
 // ============================================
-app.post('/api/run', rateLimit, async (req: Request, res: Response) => {
+app.post("/api/run", rateLimit, async (req: Request, res: Response) => {
   try {
     const { endpoints, requestCount = 50 } = req.body;
 
     if (!endpoints || !Array.isArray(endpoints) || endpoints.length === 0) {
-      return res.status(400).json({ 
-        error: 'Invalid request',
-        message: 'Expected { endpoints: Array<{url: string, method: string, headers?: object, payload?: object}>, requestCount?: number }' 
+      return res.status(400).json({
+        error: "Invalid request",
+        message:
+          "Expected { endpoints: Array<{url: string, method: string, headers?: object, payload?: object}>, requestCount?: number }",
       });
     }
 
     if (endpoints.length > 10) {
       return res.status(400).json({
-        error: 'Too many endpoints',
-        message: 'Maximum 10 endpoints per test run'
+        error: "Too many endpoints",
+        message: "Maximum 10 endpoints per test run",
       });
     }
 
     if (requestCount < 1 || requestCount > 200) {
       return res.status(400).json({
-        error: 'Invalid request count',
-        message: 'Request count must be between 1 and 200'
+        error: "Invalid request count",
+        message: "Request count must be between 1 and 200",
       });
     }
 
-    const validMethods: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+    const validMethods: HttpMethod[] = [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+    ];
 
     // Validate endpoint format
     for (const endpoint of endpoints) {
-      if (!endpoint.url || typeof endpoint.url !== 'string') {
-        return res.status(400).json({ error: 'Each endpoint must have a valid url string' });
+      if (!endpoint.url || typeof endpoint.url !== "string") {
+        return res
+          .status(400)
+          .json({ error: "Each endpoint must have a valid url string" });
       }
-      
+
       // Validate URL format
       try {
         new URL(endpoint.url);
       } catch {
         return res.status(400).json({ error: `Invalid URL: ${endpoint.url}` });
       }
-      
+
       if (!endpoint.method || !validMethods.includes(endpoint.method)) {
-        return res.status(400).json({ 
-          error: `Each endpoint must have method: ${validMethods.join(', ')}` 
+        return res.status(400).json({
+          error: `Each endpoint must have method: ${validMethods.join(", ")}`,
         });
       }
-      
-      if (['POST', 'PUT', 'PATCH'].includes(endpoint.method) && 
-          endpoint.payload && typeof endpoint.payload !== 'object') {
-        return res.status(400).json({ error: 'Payload must be a valid object' });
+
+      if (
+        ["POST", "PUT", "PATCH"].includes(endpoint.method) &&
+        endpoint.payload &&
+        typeof endpoint.payload !== "object"
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Payload must be a valid object" });
       }
-      
-      if (endpoint.headers && typeof endpoint.headers !== 'object') {
-        return res.status(400).json({ error: 'Headers must be a valid object' });
+
+      if (endpoint.headers && typeof endpoint.headers !== "object") {
+        return res
+          .status(400)
+          .json({ error: "Headers must be a valid object" });
       }
     }
 
     // Create and start the run
     const { runId, slug } = await createAndStartRun(
       endpoints as EndpointConfig[],
-      requestCount
+      requestCount,
     );
 
     const shareUrl = buildShareUrl(slug);
 
-    res.json({ 
+    res.json({
       success: true,
-      runId, 
+      runId,
       slug,
       shareUrl,
-      message: 'Tests started successfully'
+      message: "Tests started successfully",
     });
   } catch (error) {
-    console.error('Error in /api/run:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /api/run:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // ============================================
 // GET /api/run/:id - Get run status and results
 // ============================================
-app.get('/api/run/:id', async (req: Request, res: Response) => {
+app.get("/api/run/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
-    if (!id || typeof id !== 'string') {
-      return res.status(400).json({ error: 'Invalid request', message: 'ID must be a valid string' });
+
+    if (!id || typeof id !== "string") {
+      return res
+        .status(400)
+        .json({
+          error: "Invalid request",
+          message: "ID must be a valid string",
+        });
     }
-    
+
     // Try to find by slug first, then by ID
     let run = await getTestRunBySlug(id);
     if (!run) {
       run = await getTestRunById(id);
     }
-    
+
     if (!run) {
-      return res.status(404).json({ error: 'Run not found' });
+      return res.status(404).json({ error: "Run not found" });
     }
 
     const analytics = await getEndpointAnalytics(run.id);
@@ -236,21 +283,54 @@ app.get('/api/run/:id', async (req: Request, res: Response) => {
       rawData,
     });
   } catch (error) {
-    console.error('Error in /api/run/:id:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /api/run/:id:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ============================================
+// POST /api/run/:id/stop - Stop a running test
+// ============================================
+app.post("/api/run/:id/stop", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Try to find by slug or ID
+    let run = await getTestRunBySlug(id);
+    if (!run) {
+      run = await getTestRunById(id);
+    }
+
+    if (!run) {
+      return res.status(404).json({ error: "Run not found" });
+    }
+
+    if (run.status !== "running" && run.status !== "pending") {
+      return res.status(400).json({ error: "Run is not active" });
+    }
+
+    cancelRun(run.id);
+
+    res.json({
+      success: true,
+      message: "Stop signal sent to runner",
+    });
+  } catch (error) {
+    console.error("Error in /api/run/:id/stop:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // ============================================
 // GET /r/:slug - Shareable link redirect/data
 // ============================================
-app.get('/r/:slug', async (req: Request, res: Response) => {
+app.get("/r/:slug", async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
     const run = await getTestRunBySlug(slug);
-    
+
     if (!run) {
-      return res.status(404).json({ error: 'Run not found' });
+      return res.status(404).json({ error: "Run not found" });
     }
 
     const analytics = await getEndpointAnalytics(run.id);
@@ -273,22 +353,22 @@ app.get('/r/:slug', async (req: Request, res: Response) => {
       shareUrl: buildShareUrl(slug),
     });
   } catch (error) {
-    console.error('Error in /r/:slug:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /r/:slug:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // ============================================
 // GET /api/runs - Get recent test runs (history)
 // ============================================
-app.get('/api/runs', async (req: Request, res: Response) => {
+app.get("/api/runs", async (req: Request, res: Response) => {
   try {
     const slugsParam = req.query.slugs as string | undefined;
     let runs;
 
     if (slugsParam) {
       const slugs = slugsParam
-        .split(',')
+        .split(",")
         .map((s) => s.trim())
         .filter((s) => /^[a-z0-9]+$/.test(s))
         .slice(0, 50);
@@ -297,10 +377,10 @@ app.get('/api/runs', async (req: Request, res: Response) => {
       const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
       runs = await getRecentTestRuns(limit);
     }
-    
+
     res.json({
       success: true,
-      runs: runs.map(run => ({
+      runs: runs.map((run) => ({
         id: run.id,
         slug: run.slug,
         endpoints: parseEndpointsField(run.endpoints),
@@ -313,8 +393,8 @@ app.get('/api/runs', async (req: Request, res: Response) => {
       })),
     });
   } catch (error) {
-    console.error('Error in /api/runs:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /api/runs:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -323,39 +403,41 @@ app.get('/api/runs', async (req: Request, res: Response) => {
 // ============================================
 
 // GET /api/results - Get analytics results (legacy)
-app.get('/api/results', async (req: Request, res: Response) => {
+app.get("/api/results", async (req: Request, res: Response) => {
   try {
     const runId = req.query.runId as string | undefined;
     const analytics = await getEndpointAnalytics(runId);
     res.json({ success: true, results: analytics });
   } catch (error) {
-    console.error('Error in /api/results:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /api/results:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // GET /api/raw - Get raw request data (legacy)
-app.get('/api/raw/:endpoint?', async (req: Request, res: Response) => {
+app.get("/api/raw/:endpoint?", async (req: Request, res: Response) => {
   try {
-    const endpoint = req.params.endpoint ? decodeURIComponent(req.params.endpoint) : undefined;
+    const endpoint = req.params.endpoint
+      ? decodeURIComponent(req.params.endpoint)
+      : undefined;
     const runId = req.query.runId as string | undefined;
     const rawData = await getRawRequestData({ endpoint, runId });
     res.json({ success: true, data: rawData });
   } catch (error) {
-    console.error('Error in /api/raw:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /api/raw:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // GET /api/histogram - Get latency histogram
-app.get('/api/histogram', async (req: Request, res: Response) => {
+app.get("/api/histogram", async (req: Request, res: Response) => {
   try {
     const runId = req.query.runId as string | undefined;
     const histogram = await getLatencyHistogram(runId);
     res.json({ success: true, histogram });
   } catch (error) {
-    console.error('Error in /api/histogram:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Error in /api/histogram:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -367,9 +449,12 @@ app.listen(PORT, () => {
 
 // Global error handler
 app.use((err: any, req: Request, res: Response, next: Function) => {
-  console.error('Unhandled error:', err && err.stack ? err.stack : err);
+  console.error("Unhandled error:", err && err.stack ? err.stack : err);
   if (res.headersSent) return next(err);
   const status = err && err.status ? err.status : 500;
-  res.status(status).json({ error: err && err.message ? err.message : 'Internal server error' });
+  res
+    .status(status)
+    .json({
+      error: err && err.message ? err.message : "Internal server error",
+    });
 });
-

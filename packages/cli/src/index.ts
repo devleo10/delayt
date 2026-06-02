@@ -17,6 +17,8 @@ import {
   formatLatency,
   CLIOptions,
   AssertionResult,
+  computePercentiles,
+  computeStdDev,
 } from '@delayt/shared';
 
 const colors = {
@@ -161,36 +163,21 @@ ${colors.bold}EXIT CODES:${colors.reset}
 `);
 }
 
-function computePercentiles(data: number[], percentiles: number[]): Record<number, number> {
-  if (data.length === 0) {
-    return percentiles.reduce((acc, p) => ({ ...acc, [p]: 0 }), {});
+function getRequestSizeBytes(endpoint: EndpointConfig): number {
+  if (['POST', 'PUT', 'PATCH'].includes(endpoint.method) && endpoint.payload) {
+    return Buffer.byteLength(JSON.stringify(endpoint.payload), 'utf8');
   }
-
-  const sorted = [...data].sort((a, b) => a - b);
-  const result: Record<number, number> = {};
-
-  for (const percentile of percentiles) {
-    const index = (percentile / 100) * (sorted.length - 1);
-    const lower = Math.floor(index);
-    const upper = Math.ceil(index);
-    const fraction = index - lower;
-
-    if (lower === upper) {
-      result[percentile] = sorted[lower];
-    } else {
-      result[percentile] = sorted[lower] * (1 - fraction) + sorted[upper] * fraction;
-    }
-  }
-
-  return result;
+  return 0;
 }
 
 async function measureRequest(endpoint: EndpointConfig): Promise<{
   latency: number;
   status: number;
+  requestSizeBytes: number;
   error?: string;
 }> {
   const startTime = process.hrtime.bigint();
+  const requestSizeBytes = getRequestSizeBytes(endpoint);
 
   try {
     const config: AxiosRequestConfig = {
@@ -213,7 +200,7 @@ async function measureRequest(endpoint: EndpointConfig): Promise<{
     const endTime = process.hrtime.bigint();
     const latency = Number(endTime - startTime) / 1_000_000;
 
-    return { latency, status: response.status };
+    return { latency, status: response.status, requestSizeBytes };
   } catch (error) {
     const endTime = process.hrtime.bigint();
     const latency = Number(endTime - startTime) / 1_000_000;
@@ -221,6 +208,7 @@ async function measureRequest(endpoint: EndpointConfig): Promise<{
     return {
       latency,
       status: 0,
+      requestSizeBytes,
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -232,11 +220,13 @@ async function runTests(
   quiet: boolean
 ): Promise<AnalyticsResult> {
   const latencies: number[] = [];
+  const payloadSizes: number[] = [];
   let errorCount = 0;
 
   for (let i = 1; i <= count; i++) {
     const result = await measureRequest(endpoint);
     latencies.push(result.latency);
+    payloadSizes.push(result.requestSizeBytes);
 
     if (result.status === 0 || result.status >= 400) {
       errorCount++;
@@ -261,6 +251,11 @@ async function runTests(
   const avg = latencies.reduce((a, b) => a + b, 0) / latencies.length;
   const min = Math.min(...latencies);
   const max = Math.max(...latencies);
+  const stdDev = computeStdDev(latencies, avg);
+  const avgPayloadSize =
+    payloadSizes.length > 0
+      ? payloadSizes.reduce((a, b) => a + b, 0) / payloadSizes.length
+      : 0;
 
   return {
     endpoint: endpoint.url,
@@ -271,8 +266,8 @@ async function runTests(
     min,
     max,
     avg,
-    stdDev: 0,
-    avg_payload_size: 0,
+    stdDev,
+    avg_payload_size: Math.round(avgPayloadSize),
     request_count: count,
     error_count: errorCount,
     error_rate: (errorCount / count) * 100,

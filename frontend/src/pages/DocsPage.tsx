@@ -10,6 +10,7 @@ interface DocsPageProps {
 
 const TOC = [
   { id: 'purpose', label: 'Purpose' },
+  { id: 'comparison', label: 'vs load tools' },
   { id: 'percentiles', label: 'Percentiles' },
   { id: 'setup', label: 'Setup' },
   { id: 'web-app', label: 'Test in the app' },
@@ -116,6 +117,103 @@ const DocsPage: React.FC<DocsPageProps> = ({ onNavigate, initialHash }) => {
                 measurements without concurrency noise.
               </p>
             </div>
+          </section>
+
+          <section className="docs-section" id="comparison">
+            <h2>How Delayt differs from JMeter, Gatling, Locust, and k6</h2>
+            <p>
+              Tools like <strong>JMeter</strong>, <strong>Gatling</strong>, <strong>Locust</strong>,{' '}
+              <strong>k6</strong>, and <strong>Artillery</strong> are built for <strong>load and stress
+              testing</strong>. They simulate many concurrent users to find throughput limits, queue
+              buildup, and failure points under pressure.
+            </p>
+            <p>
+              Delayt is built for something else: a <strong>fast percentile smoke check</strong>{' '}
+              before you ship. One endpoint, sequential requests, p50/p95/p99 out of the box, and a
+              one-liner in CI. No test plans, no virtual users, no cluster setup.
+            </p>
+
+            <div className="docs-table-wrap">
+              <table className="docs-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Load tools (JMeter, Gatling, Locust, k6…)</th>
+                    <th>Delayt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Primary goal</strong></td>
+                    <td>Stress the system: concurrency, saturation, breaking points</td>
+                    <td>Measure real latency distribution on a single path</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Request pattern</strong></td>
+                    <td>Many parallel virtual users, ramps, scenarios</td>
+                    <td>Sequential requests (clean timing, no concurrency noise)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Key metrics</strong></td>
+                    <td>Throughput, error rate under load, RPS, sometimes percentiles</td>
+                    <td>p50, p95, p99 first; success rate and histograms in the UI</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Setup time</strong></td>
+                    <td>Scripts, plugins, agents, or distributed workers</td>
+                    <td><code>npx @delayt/cli run -u … -n 50</code> or paste a URL in the app</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Best moment to run</strong></td>
+                    <td>Capacity planning, pre-scale drills, finding max RPS</td>
+                    <td>Pre-deploy staging check, regression gate, quick team share</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Collaboration</strong></td>
+                    <td>Reports exported from your load test run</td>
+                    <td>Shareable <code>/r/:slug</code> links from the web app</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>When to use which</h3>
+            <ul>
+              <li>
+                <strong>Use Delayt</strong> when you want to know &quot;is this endpoint still fast
+                for typical users?&quot; before a merge or deploy, or to compare two URLs side by
+                side with percentile numbers your PM can read.
+              </li>
+              <li>
+                <strong>Use JMeter / Gatling / Locust / k6</strong> when you need to answer &quot;how
+                many concurrent users can we handle?&quot; or &quot;where does the system break under
+                load?&quot;
+              </li>
+              <li>
+                <strong>Use both</strong> in a healthy pipeline: Delayt as a lightweight percentile
+                gate on every PR; load tools on a schedule or before major releases.
+              </li>
+            </ul>
+
+            <div className="docs-callout">
+              <p>
+                Delayt will not replace a load test. Sequential requests cannot expose contention,
+                connection pool exhaustion, or queueing that only appears under concurrency. That is
+                by design: you get a clear latency baseline without mixing in load-generator artifacts.
+              </p>
+            </div>
+
+            <h3>CI example (Delayt&apos;s sweet spot)</h3>
+            <pre className="docs-code"><code>{`# Fail the build if p95 on staging health exceeds 500ms
+npx @delayt/cli run \\
+  -u https://staging.api.example.com/health \\
+  -n 50 \\
+  --assert-p95=500 \\
+  --output json -q`}</code></pre>
+            <p>
+              Load tools can do performance gates too, but they need more wiring. Delayt is meant
+              to be the check you add in five minutes and keep forever.
+            </p>
           </section>
 
           <section className="docs-section" id="percentiles">
@@ -348,6 +446,18 @@ npm run dev:all`}</code></pre>
             <p>Request index vs latency over time. Helps spot drift or warming effects during a run.</p>
             <h3>Compare</h3>
             <p>Side-by-side percentile comparison when you tested multiple endpoints in one run.</p>
+            <h3>Export</h3>
+            <p>
+              From the Results tab, download summary data as JSON or CSV, or export per-request raw
+              rows (latency, status code, payload sizes) as Raw JSON / Raw CSV. Use{' '}
+              <strong>Copy as Markdown</strong> for GitHub issues and PRs.
+            </p>
+            <h3>Stop a run</h3>
+            <p>
+              While a test is running, click <strong>Stop</strong> on the progress bar to cancel
+              remaining requests. The run stops between requests; the in-flight request still
+              completes.
+            </p>
           </section>
 
           <section className="docs-section" id="sharing">
@@ -359,7 +469,8 @@ npm run dev:all`}</code></pre>
             </p>
             <p>
               Your sidebar shows runs saved in a browser cookie on this device. No account required.
-              Opening a shared link adds that run to your history here.
+              Opening a shared link adds that run to your history here. Use <strong>Clear</strong> in
+              the sidebar to remove local history (share links still work; server data is unchanged).
             </p>
           </section>
 

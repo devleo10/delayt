@@ -1,13 +1,25 @@
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
-import { EndpointConfig, RequestResult, generateSlug } from '@delayt/shared';
+import axios, { AxiosRequestConfig, AxiosError } from "axios";
+import { EndpointConfig, RequestResult, generateSlug } from "@delayt/shared";
 import {
   insertRequestResult,
   createTestRun,
   updateTestRunStatus,
-} from './db/schema';
+} from "./db/schema";
 
-const REQUEST_TIMEOUT_MS = parseInt(process.env.REQUEST_TIMEOUT_MS || '30000', 10);
-const DEFAULT_REQUEST_COUNT = parseInt(process.env.DEFAULT_REQUEST_COUNT || '50', 10);
+const REQUEST_TIMEOUT_MS = parseInt(
+  process.env.REQUEST_TIMEOUT_MS || "30000",
+  10,
+);
+const DEFAULT_REQUEST_COUNT = parseInt(
+  process.env.DEFAULT_REQUEST_COUNT || "50",
+  10,
+);
+
+const cancelledRuns = new Set<string>();
+
+export function cancelRun(runId: string): void {
+  cancelledRuns.add(runId);
+}
 
 interface RunOptions {
   runId?: string;
@@ -18,7 +30,7 @@ async function makeRequest(
   endpoint: EndpointConfig,
   requestNumber: number,
   totalRequests: number,
-  runId?: string
+  runId?: string,
 ): Promise<RequestResult> {
   const startTime = process.hrtime.bigint();
   let latency_ms = 0;
@@ -29,8 +41,14 @@ async function makeRequest(
 
   try {
     // Calculate request size
-    if (['POST', 'PUT', 'PATCH'].includes(endpoint.method) && endpoint.payload) {
-      request_size_bytes = Buffer.byteLength(JSON.stringify(endpoint.payload), 'utf8');
+    if (
+      ["POST", "PUT", "PATCH"].includes(endpoint.method) &&
+      endpoint.payload
+    ) {
+      request_size_bytes = Buffer.byteLength(
+        JSON.stringify(endpoint.payload),
+        "utf8",
+      );
     } else {
       request_size_bytes = 0;
     }
@@ -48,27 +66,33 @@ async function makeRequest(
       config.headers = { ...endpoint.headers };
     }
 
-    if (['POST', 'PUT', 'PATCH'].includes(endpoint.method) && endpoint.payload) {
+    if (
+      ["POST", "PUT", "PATCH"].includes(endpoint.method) &&
+      endpoint.payload
+    ) {
       config.data = endpoint.payload;
       config.headers = {
         ...(config.headers || {}),
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
     }
 
     // Make the request
     const response = await axios(config);
-    
+
     // Calculate latency
     const endTime = process.hrtime.bigint();
     latency_ms = Number(endTime - startTime) / 1_000_000; // Convert nanoseconds to milliseconds
 
     // Get response size
     if (response.data) {
-      if (typeof response.data === 'string') {
-        response_size_bytes = Buffer.byteLength(response.data, 'utf8');
+      if (typeof response.data === "string") {
+        response_size_bytes = Buffer.byteLength(response.data, "utf8");
       } else {
-        response_size_bytes = Buffer.byteLength(JSON.stringify(response.data), 'utf8');
+        response_size_bytes = Buffer.byteLength(
+          JSON.stringify(response.data),
+          "utf8",
+        );
       }
     } else {
       response_size_bytes = 0;
@@ -79,7 +103,7 @@ async function makeRequest(
     // Log success
     console.log(
       `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ` +
-      `${status_code} - ${latency_ms.toFixed(2)}ms`
+        `${status_code} - ${latency_ms.toFixed(2)}ms`,
     );
   } catch (error) {
     // Calculate latency even on error
@@ -89,17 +113,20 @@ async function makeRequest(
     // Handle different error types
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError;
-      
+
       if (axiosError.response) {
         // Got response with error status
         status_code = axiosError.response.status;
         if (axiosError.response.data) {
-          if (typeof axiosError.response.data === 'string') {
-            response_size_bytes = Buffer.byteLength(axiosError.response.data, 'utf8');
+          if (typeof axiosError.response.data === "string") {
+            response_size_bytes = Buffer.byteLength(
+              axiosError.response.data,
+              "utf8",
+            );
           } else {
             response_size_bytes = Buffer.byteLength(
               JSON.stringify(axiosError.response.data),
-              'utf8'
+              "utf8",
             );
           }
         }
@@ -108,14 +135,14 @@ async function makeRequest(
         status_code = 0; // Use 0 to indicate network/timeout error
         error_message = `Request timeout or network error: ${error.message}`;
         console.error(
-          `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ${error_message}`
+          `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ${error_message}`,
         );
       } else {
         // Error setting up request
         status_code = 0;
         error_message = `Request setup error: ${error.message}`;
         console.error(
-          `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ${error_message}`
+          `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ${error_message}`,
         );
       }
     } else {
@@ -123,7 +150,7 @@ async function makeRequest(
       status_code = 0;
       error_message = `Unknown error: ${error instanceof Error ? error.message : String(error)}`;
       console.error(
-        `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ${error_message}`
+        `[${requestNumber}/${totalRequests}] ${endpoint.method} ${endpoint.url} - ${error_message}`,
       );
     }
   }
@@ -146,17 +173,17 @@ async function makeRequest(
 
 export async function createAndStartRun(
   endpoints: EndpointConfig[],
-  requestCount: number = DEFAULT_REQUEST_COUNT
+  requestCount: number = DEFAULT_REQUEST_COUNT,
 ): Promise<{ runId: string; slug: string }> {
   const runId = `run_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const slug = generateSlug(8);
 
   await createTestRun(runId, slug, endpoints, requestCount);
-  
+
   // Start tests asynchronously
   runEndpointTests(endpoints, { runId, requestCount }).catch((error) => {
-    console.error('Error running endpoint tests:', error);
-    updateTestRunStatus(runId, 'failed').catch(console.error);
+    console.error("Error running endpoint tests:", error);
+    updateTestRunStatus(runId, "failed").catch(console.error);
   });
 
   return { runId, slug };
@@ -168,14 +195,16 @@ export async function createAndStartRun(
 
 export async function runEndpointTests(
   endpoints: EndpointConfig[],
-  options: RunOptions = {}
+  options: RunOptions = {},
 ): Promise<void> {
   const { runId, requestCount = DEFAULT_REQUEST_COUNT } = options;
-  
-  console.log(`Starting tests for ${endpoints.length} endpoint(s) - ${requestCount} requests each`);
-  
+
+  console.log(
+    `Starting tests for ${endpoints.length} endpoint(s) - ${requestCount} requests each`,
+  );
+
   if (runId) {
-    await updateTestRunStatus(runId, 'running');
+    await updateTestRunStatus(runId, "running");
   }
 
   try {
@@ -183,8 +212,16 @@ export async function runEndpointTests(
       console.log(`\nTesting endpoint: ${endpoint.method} ${endpoint.url}`);
 
       for (let i = 1; i <= requestCount; i++) {
+        // Check if run was cancelled
+        if (runId && cancelledRuns.has(runId)) {
+          console.log(`Run ${runId} was cancelled. Stopping.`);
+          cancelledRuns.delete(runId);
+          await updateTestRunStatus(runId, "failed"); // Mark as failed if cancelled early
+          return;
+        }
+
         const result = await makeRequest(endpoint, i, requestCount, runId);
-        
+
         // Store result in database immediately
         try {
           await insertRequestResult(result);
@@ -194,21 +231,21 @@ export async function runEndpointTests(
         }
       }
 
-      console.log(`Completed ${requestCount} requests for ${endpoint.method} ${endpoint.url}`);
+      console.log(
+        `Completed ${requestCount} requests for ${endpoint.method} ${endpoint.url}`,
+      );
     }
 
-    console.log('\nAll endpoint tests completed');
-    
+    console.log("\nAll endpoint tests completed");
+
     if (runId) {
-      await updateTestRunStatus(runId, 'completed');
+      await updateTestRunStatus(runId, "completed");
     }
   } catch (error) {
-    console.error('Test run failed:', error);
+    console.error("Test run failed:", error);
     if (runId) {
-      await updateTestRunStatus(runId, 'failed');
+      await updateTestRunStatus(runId, "failed");
     }
     throw error;
   }
 }
-
-

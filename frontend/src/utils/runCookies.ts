@@ -1,10 +1,12 @@
-const COOKIE_NAME = 'delayt_runs';
+const COOKIE_NAME = "delayt_runs";
 const MAX_RUNS = 40;
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 year
 
 function readCookieValue(name: string): string | null {
   const prefix = `${name}=`;
-  const match = document.cookie.split('; ').find((row) => row.startsWith(prefix));
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(prefix));
   if (!match) return null;
   return decodeURIComponent(match.slice(prefix.length));
 }
@@ -20,7 +22,10 @@ export function getRunSlugsFromCookie(): string[] {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((slug): slug is string => typeof slug === 'string' && /^[a-z0-9]+$/.test(slug));
+    return parsed.filter(
+      (slug): slug is string =>
+        typeof slug === "string" && /^[a-z0-9]+$/.test(slug),
+    );
   } catch {
     return [];
   }
@@ -35,6 +40,12 @@ export function addRunSlugToCookie(slug: string): void {
 }
 
 export function setRunSlugsInCookie(slugs: string[]): void {
-  const valid = slugs.filter((slug) => typeof slug === 'string' && /^[a-z0-9]+$/.test(slug));
+  const valid = slugs.filter(
+    (slug) => typeof slug === "string" && /^[a-z0-9]+$/.test(slug),
+  );
   writeCookieValue(COOKIE_NAME, JSON.stringify(valid.slice(0, MAX_RUNS)));
+}
+
+export function clearRunSlugsFromCookie(): void {
+  writeCookieValue(COOKIE_NAME, JSON.stringify([]));
 }

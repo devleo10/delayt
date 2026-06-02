@@ -31,6 +31,21 @@ If your API shows: `avg: 50ms | p95: 500ms | p99: 2000ms`
 
 This means 5% of users experience 500ms+ latency, and 1% wait 2+ seconds. **That's critical information averages hide.**
 
+## How Delayt differs from load testing tools
+
+JMeter, Gatling, Locust, k6, and Artillery simulate **concurrent users** to find throughput limits and failure points under stress. Delayt does **sequential percentile smoke checks**: one path, p50/p95/p99, shareable results, and a one-line CI gate.
+
+| | Load tools | Delayt |
+|---|------------|--------|
+| **Goal** | Stress, saturation, max RPS | Latency distribution on a single path |
+| **Pattern** | Parallel virtual users, ramps | Sequential requests (no concurrency noise) |
+| **When** | Capacity planning, pre-scale drills | Pre-deploy staging, PR regression gate |
+| **Setup** | Scripts, agents, scenarios | `npx @delayt/cli run -u … -n 50` |
+
+Use **both** in a healthy pipeline: Delayt on every PR for percentile gates; load tools on a schedule or before major releases. Delayt will not expose contention or pool exhaustion that only shows up under concurrency. That is intentional.
+
+Full comparison in the web app at **`/docs#comparison`** after you run `npm run dev:all`.
+
 ## Features
 
 ### Core
