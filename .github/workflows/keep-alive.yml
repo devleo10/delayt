@@ -1,0 +1,24 @@
+name: Keep alive
+
+on:
+  schedule:
+    # Every 5 minutes — keeps Render free tier from sleeping (15 min idle timeout)
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        env:
+          BACKEND_HEALTH_URL: ${{ secrets.BACKEND_HEALTH_URL }}
+        run: |
+          if [ -z "$BACKEND_HEALTH_URL" ]; then
+            echo "BACKEND_HEALTH_URL secret is not set. Skipping ping."
+            echo "See docs/uptime-robot.md to configure UptimeRobot or this workflow."
+            exit 0
+          fi
+          echo "Pinging $BACKEND_HEALTH_URL"
+          curl -sf --max-time 30 "$BACKEND_HEALTH_URL"
+          echo "OK"

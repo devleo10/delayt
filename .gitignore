@@ -38,6 +38,7 @@ Thumbs.db
 !CONTRIBUTING.md
 !LICENSE
 !packages/cli/README.md
+!docs/uptime-robot.md
 
 # Lock files (can generate from package.json)
 package-lock.json

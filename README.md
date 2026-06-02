@@ -287,6 +287,12 @@ VITE_API_URL=http://localhost:3001
 
 `FRONTEND_URL` is used for share links returned by the API. The UI displays links using the browser origin (`/r/{slug}`).
 
+### Keep-alive on Render free tier
+
+Render spins down idle free services after ~15 minutes. Use [UptimeRobot](https://uptimerobot.com) to ping `/health` every 5 minutes, or set the `BACKEND_HEALTH_URL` GitHub secret for the included keep-alive workflow.
+
+See [docs/uptime-robot.md](docs/uptime-robot.md) for setup steps.
+
 ## Real-World Use Cases
 
 ### 1. **Pre-deployment Validation**
