@@ -19,7 +19,7 @@ const TopNav: React.FC<TopNavProps> = ({
   const brand = (
     <div className="topnav-brand">
       <span className="topnav-name">delayt</span>
-      <span className="topnav-version">v2.0.1</span>
+      <span className="topnav-version">v1.0.0</span>
     </div>
   );
 

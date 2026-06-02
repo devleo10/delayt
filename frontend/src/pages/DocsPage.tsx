@@ -411,7 +411,7 @@ npm run cli -- run -u https://api.example.com/health -n 50`}</code></pre>
           </section>
 
           <footer className="docs-footer">
-            <span className="docs-footer-copy">Delayt v2.0 | MIT</span>
+            <span className="docs-footer-copy">Delayt v1.0 | MIT</span>
             <div className="docs-footer-links">
               <button type="button" className="docs-footer-link" onClick={() => onNavigate('/')}>
                 Home

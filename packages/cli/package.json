@@ -1,6 +1,6 @@
 {
   "name": "@delayt/cli",
-  "version": "2.0.1",
+  "version": "1.0.0",
   "description": "API latency testing with p50, p95, p99 percentile analysis for CI/CD",
   "keywords": [
     "api",
@@ -46,7 +46,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@delayt/shared": "2.0.1",
+    "@delayt/shared": "1.0.1",
     "axios": "^1.6.2"
   },
   "devDependencies": {

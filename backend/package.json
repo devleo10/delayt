@@ -1,6 +1,6 @@
 {
   "name": "delayt-backend",
-  "version": "2.0.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Delayt API server",
   "main": "dist/server.js",

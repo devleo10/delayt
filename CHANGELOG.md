@@ -1,20 +1,11 @@
 # Changelog
 
-## 2.0.1 — 2026-06-02
+## 1.0.0 — 2026-06-02
+
+First release (pre-production).
 
 ### Added
-- Standalone `@delayt/cli` npm package (`packages/cli`)
-- `delayt run` subcommand (matches landing page UX)
-- `-n` / `--n` alias for request count
-- Publish-ready monorepo layout with `@delayt/shared`
-
-### Changed
-- CLI moved out of backend into `packages/cli`
-- Version aligned to 2.0.1 across CLI and shared packages
-
-## 2.0.0
-
-- Web dashboard with shareable `/r/:slug` links
-- Express API + PostgreSQL run storage
-- Percentile analysis (p50, p95, p99)
-- Initial CLI with `--assert-p95` CI gates
+- Web app: percentile testing (p50, p95, p99), shareable `/r/:slug` links
+- `@delayt/cli` npm package with `run` subcommand and CI assertions
+- `@delayt/shared` types and utilities
+- Editorial landing page and dashboard UI

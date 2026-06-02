@@ -42,7 +42,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
         <div className="editorial-header-inner">
           <div className="editorial-brand">
             <span className="editorial-name">delayt</span>
-            <span className="editorial-version">v2.0.1</span>
+            <span className="editorial-version">v1.0.0</span>
           </div>
           <div className="editorial-stats">
             <span>
@@ -89,7 +89,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           </aside>
 
           <div className="editorial-hero-main">
-            <div className="editorial-issue">delayt — issue 14 — {issueDate}</div>
+            <div className="editorial-issue">delayt — issue 1 — {issueDate}</div>
             <h1 className="editorial-headline font-display">
               <span className="editorial-headline-line">
                 Your <em>average</em>

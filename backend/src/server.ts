@@ -95,14 +95,14 @@ initializeSchema().catch((error) => {
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
-  res.json({ status: 'ok', version: '2.0.0' });
+  res.json({ status: 'ok', version: '1.0.0' });
 });
 
 // API route index
 app.get('/api', (req: Request, res: Response) => {
   res.json({
     name: 'Delayt API',
-    version: '2.0.0',
+    version: '1.0.0',
     routes: [
       { method: 'GET', path: '/health' },
       { method: 'POST', path: '/api/run' },
