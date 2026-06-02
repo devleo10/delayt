@@ -1,6 +1,6 @@
 {
   "name": "@delayt/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "API latency testing with p50, p95, p99 percentile analysis for CI/CD",
   "keywords": [
     "api",

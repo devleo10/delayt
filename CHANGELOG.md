@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-06-02
+
+### Changed
+- `@delayt/cli@1.0.1` depends on `@delayt/shared@1.0.1` (README on npm)
+
 ## 1.0.0 — 2026-06-02
 
 First release (pre-production).
