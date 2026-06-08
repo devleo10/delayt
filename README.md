@@ -142,12 +142,6 @@ See [delayt.foo/docs](https://www.delayt.foo/docs) for full API and auth notes.
 
 **Env:** copy `app/.env.example` → `app/.env`. Requires `DATABASE_URL` for run history and share links.
 
-## Deploy
-
-**Recommended:** [Vercel](https://vercel.com/new) + [Neon](https://neon.tech). Root directory: `app`. See [docs/vercel.md](docs/vercel.md).
-
-Optional Docker prod stack: `deploy/` (Dockerfile + `docker-compose.prod.yml`).
-
 ## Links
 
 - **App:** [delayt.foo](https://www.delayt.foo/)
