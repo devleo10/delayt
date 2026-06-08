@@ -157,6 +157,7 @@ ${colors.bold}OPTIONS:${colors.reset}
   -q, --quiet            Suppress progress output
   --share                Upload results to Delayt dashboard (/r/slug)
   --share-url <url>      Dashboard base URL (or set DELAYT_SHARE_URL)
+                         Requires DELAYT_IMPORT_API_KEY when server sets IMPORT_API_KEY
 
 ${colors.bold}ASSERTIONS:${colors.reset}
   --assert-p50=<ms>      Fail if p50 latency exceeds threshold
@@ -275,11 +276,21 @@ async function uploadRun(
   samples: ImportRequestRow[]
 ): Promise<{ slug: string; shareUrl: string }> {
   const base = shareBase.replace(/\/$/, '');
-  const response = await axios.post(`${base}/api/runs/import`, {
-    endpoints,
-    requestCount,
-    requests: samples,
-  });
+  const importKey = process.env.DELAYT_IMPORT_API_KEY?.trim();
+  const headers: Record<string, string> = {};
+  if (importKey) {
+    headers['X-Delayt-Import-Key'] = importKey;
+  }
+
+  const response = await axios.post(
+    `${base}/api/runs/import`,
+    {
+      endpoints,
+      requestCount,
+      requests: samples,
+    },
+    { headers }
+  );
 
   if (!response.data?.success || !response.data?.slug) {
     throw new Error(response.data?.message || 'Import failed');

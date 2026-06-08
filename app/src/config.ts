@@ -1,9 +1,14 @@
+import packageJson from '../package.json';
+
 export const API_BASE_URL = '';
 
-/** Published CLI / shared package version. Keep in sync with packages/cli. */
-export const APP_VERSION = '1.0.3';
+/** App release version (sync with app/package.json). */
+export const APP_VERSION = packageJson.version;
 
 export const GITHUB_REPO_URL = 'https://github.com/devleo10/delayt';
+
+/** Production site (README, CLI doc links, share examples). */
+export const SITE_URL = 'https://www.delayt.foo';
 
 export const CREATOR_X_URL = 'https://x.com/_devleo10';
 export const CREATOR_HANDLE = '@_devleo10';

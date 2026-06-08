@@ -17,6 +17,7 @@ COPY --from=build /app/packages/shared /app/packages/shared
 COPY --from=build /app/app/.next /app/app/.next
 COPY --from=build /app/app/node_modules /app/app/node_modules
 COPY --from=build /app/app/package.json /app/app/
+COPY --from=build /app/app/next.config.js /app/app/next.config.js
 
 WORKDIR /app/app
 ENV NODE_ENV=production

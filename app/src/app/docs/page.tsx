@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { APP_VERSION, GITHUB_REPO_URL } from '@/config';
+import { APP_VERSION, GITHUB_REPO_URL, SITE_URL } from '@/config';
 import SiteCredit from '@/components/SiteCredit';
 
 const TOC = [
@@ -561,7 +561,7 @@ npx @delayt/cli run \\
 
             <h3 id="cli-ci">CI / JSON output &amp; share</h3>
             <pre className="docs-code"><code>{`# Upload CLI results to the dashboard
-DELAYT_SHARE_URL=https://yourdomain.dev \\
+DELAYT_SHARE_URL=${SITE_URL} \\
   npx @delayt/cli run -u https://api.example.com/health -n 50 --share
 
 # GitHub Actions
@@ -575,7 +575,7 @@ delayt run -u https://api.example.com/health -n 50`}</code></pre>
               error. Use <code>-q</code> to hide progress; <code>-o json</code> for machines.
             </p>
             <p>
-              Set <code>DELAYT_DOCS_URL=https://yourdomain.dev</code> so CLI footers link to this
+              Set <code>DELAYT_DOCS_URL={SITE_URL}</code> so CLI footers link to this
               page. After a web run, use the CLI export panel to copy a starter command.
             </p>
           </section>

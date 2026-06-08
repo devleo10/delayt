@@ -33,7 +33,7 @@ Vercel → Project → **Settings → Environment Variables**:
 | Variable | Value | Required |
 |----------|--------|----------|
 | `DATABASE_URL` | Neon pooled connection string | Yes |
-| `FRONTEND_URL` | `https://yourdomain.dev` | Yes (share links + CORS) |
+| `FRONTEND_URL` | `https://www.yourdomain.dev` | Yes (share links) |
 
 Recommended for Hobby (free):
 
@@ -43,13 +43,20 @@ Recommended for Hobby (free):
 | `WEB_MAX_REQUEST_COUNT` | `20` |
 | `REQUEST_TIMEOUT_MS` | `15000` |
 
+**CORS (apex + www):** If users can open both `https://yourdomain.dev` and `https://www.yourdomain.dev`, set:
+
+| Variable | Value |
+|----------|--------|
+| `FRONTEND_URL` | `https://www.yourdomain.dev` (canonical share-link host) |
+| `ALLOWED_ORIGINS` | `https://www.yourdomain.dev,https://yourdomain.dev` |
+
 Optional:
 
 | Variable | Default |
 |----------|---------|
-| `ALLOWED_ORIGINS` | — |
 | `RATE_LIMIT_REQUESTS` | `30` |
 | `RATE_LIMIT_WINDOW_MS` | `3600000` |
+| `IMPORT_API_KEY` | — (required for CLI `--share` when set) |
 
 Save env vars, then **Redeploy**.
 
@@ -59,18 +66,19 @@ Save env vars, then **Redeploy**.
 
 1. Vercel → **Domains** → Add `yourdomain.dev` and `www`
 2. Add DNS records at your registrar
-3. Set `FRONTEND_URL=https://yourdomain.dev`
-4. Redeploy
+3. Set `FRONTEND_URL` to your canonical host (usually `https://www.yourdomain.dev`)
+4. Set `ALLOWED_ORIGINS` to include both apex and www if both resolve
+5. Redeploy
 
 ---
 
 ## 5. Verify
 
 ```bash
-curl https://yourdomain.dev/api/health
-# {"status":"ok","version":"1.0.0"}
+curl https://www.yourdomain.dev/api/health
+# {"status":"ok","version":"1.0.3"}
 
-open https://yourdomain.dev/app
+open https://www.yourdomain.dev/app
 ```
 
 Run a test (default 15 requests) → copy `/r/slug` → open in incognito.
@@ -89,6 +97,16 @@ For 50+ requests and stable p95/p99, users copy the CLI command from the results
 ```bash
 npx @delayt/cli run -u https://api.example.com/health -n 50 --assert-p95=500
 ```
+
+Upload to dashboard (`--share`):
+
+```bash
+DELAYT_SHARE_URL=https://www.yourdomain.dev \
+DELAYT_IMPORT_API_KEY=your_secret \
+npx @delayt/cli run -u https://api.example.com/health -n 50 --share
+```
+
+Set `IMPORT_API_KEY` on Vercel and the same value as `DELAYT_IMPORT_API_KEY` in CI.
 
 ---
 
@@ -114,4 +132,4 @@ Use local Docker `DATABASE_URL` in `app/.env`. Override `WEB_MAX_REQUEST_COUNT` 
 | **Rate limit** | In-memory per serverless instance (soft) |
 | **Stop run** | Best-effort on serverless (per-instance cancel flag) |
 
-CLI does not use Vercel or Neon unless you add `--share` upload later.
+CLI does not use Vercel or Neon unless you add `--share`.

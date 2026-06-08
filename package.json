@@ -22,10 +22,11 @@
     "publish:shared": "npm run build:shared && npm publish --workspace=packages/shared --access public",
     "publish:cli": "npm run build:cli && npm publish --workspace=packages/cli --access public",
     "test:shared": "npm run build:shared && npm run test --workspace=packages/shared",
-    "typecheck": "npm run typecheck:shared && npm run typecheck:cli && npm run typecheck:app",
+    "typecheck": "npm run build:shared && npm run typecheck:shared && npm run typecheck:cli && npm run typecheck:app",
     "typecheck:shared": "npx tsc --noEmit --project packages/shared/tsconfig.json",
-    "typecheck:cli": "npm install --workspace=packages/cli --no-save file:../shared && npx tsc --noEmit --project packages/cli/tsconfig.json",
+    "typecheck:cli": "npx tsc --noEmit --project packages/cli/tsconfig.json",
     "typecheck:app": "npx tsc --noEmit --project app/tsconfig.json",
+    "lint": "npm run lint --workspace=app",
     "db:init": "npm run db:init --workspace=app"
   },
   "keywords": ["api", "latency", "visualization", "percentile", "p95"],

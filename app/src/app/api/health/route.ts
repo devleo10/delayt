@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
+import { APP_VERSION } from '@/config';
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok', version: '1.0.3' });
+  return NextResponse.json({ status: 'ok', version: APP_VERSION });
 }

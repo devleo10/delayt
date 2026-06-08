@@ -53,6 +53,9 @@ jobs:
     - name: TypeScript check
       run: npm run typecheck
 
+    - name: ESLint (app)
+      run: npm run lint --workspace=app
+
     - name: Build Next.js app
       run: npm run build:app
 

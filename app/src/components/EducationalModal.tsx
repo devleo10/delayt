@@ -23,13 +23,15 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
   const [step, setStep] = useState(0);
 
   const firstResult = results[0];
-  if (!firstResult) return null;
+  const endpointLabel = firstResult?.name || firstResult?.endpoint || '';
+  const maxMs = firstResult
+    ? Math.max(firstResult.p50, firstResult.p95, firstResult.p99, 1)
+    : 1;
 
-  const endpointLabel = firstResult.name || firstResult.endpoint;
-  const maxMs = Math.max(firstResult.p50, firstResult.p95, firstResult.p99, 1);
+  const steps = useMemo(() => {
+    if (!firstResult) return [];
 
-  const steps = useMemo(
-    () => [
+    return [
       {
         code: '01',
         label: 'capture',
@@ -161,12 +163,8 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
           </div>
         ),
       },
-    ],
-    [firstResult, endpointLabel, maxMs]
-  );
-
-  const current = steps[step];
-  const isLast = step === steps.length - 1;
+    ];
+  }, [firstResult, endpointLabel, maxMs]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -177,6 +175,11 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [step, steps.length, onClose]);
+
+  if (!firstResult) return null;
+
+  const current = steps[step];
+  const isLast = step === steps.length - 1;
 
   return (
     <div className="educational-modal-overlay" onClick={onClose}>

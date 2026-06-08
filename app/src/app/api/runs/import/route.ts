@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EndpointConfig, generateSlug, validateRunRequest } from '@delayt/shared';
 import { importCompletedRun } from '@/lib/db/schema';
+import {
+  checkImportApiKey,
+  checkRateLimit,
+  corsPreflightResponse,
+  getClientIp,
+  rejectDisallowedOrigin,
+} from '@/lib/cors';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +21,26 @@ interface ImportRequestRow {
   error_message?: string;
 }
 
+export async function OPTIONS(request: NextRequest) {
+  return corsPreflightResponse(request);
+}
+
 export async function POST(request: NextRequest) {
+  const corsReject = rejectDisallowedOrigin(request);
+  if (corsReject) return corsReject;
+
+  const authReject = checkImportApiKey(request);
+  if (authReject) return authReject;
+
+  const ip = getClientIp(request);
+  const rateCheck = checkRateLimit(ip);
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { success: false, message: rateCheck.message },
+      { status: 429 }
+    );
+  }
+
   let body: {
     endpoints?: EndpointConfig[];
     requestCount?: number;
