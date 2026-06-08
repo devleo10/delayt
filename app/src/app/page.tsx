@@ -92,22 +92,21 @@ export default function LandingPage() {
             </h1>
             <div className="editorial-lead">
               <p>
-                Fifty requests, mostly fast. The dashboard greenlights <strong>186ms avg</strong>.
-                Scroll to p95 and <strong>1 in 20</strong> is already past <strong>800ms</strong>;
-                the worst <strong>1%</strong> land in <strong>seconds</strong>. The headline number
-                never moved.
+                <strong>186ms avg</strong> - green check. <strong>1 in 20</strong> past{' '}
+                <strong>800ms</strong> at <strong>p95</strong>. The slowest <strong>1%</strong> in
+                seconds. The dashboard never flinched.
               </p>
               <p className="editorial-lead-muted">
-                Delayt sends sequential HTTP requests and reports <strong>p50</strong>,{' '}
-                <strong>p95</strong>, and <strong>p99</strong>. Use the web app for quick checks (≤20
-                requests) or the CLI for longer samples and CI gates.
+                Run the endpoint. Read the tail. <strong>p50</strong>, <strong>p95</strong>,{' '}
+                <strong>p99</strong> from one sequential pass. Web for smoke tests ·{' '}
+                <code>npx @delayt/cli</code> for 50+ runs and <code>--assert-p95</code> in CI.
               </p>
             </div>
             <div className="editorial-cta-row">
               <button type="button" className="editorial-cta" onClick={() => router.push('/app')}>
                 <span>$</span> npx @delayt/cli run
               </button>
-              <span className="editorial-cta-note">↳ open source · no signup · MIT</span>
+              <span className="editorial-cta-note">↳ add -u and --assert-p95 to your pipeline</span>
             </div>
           </div>
 

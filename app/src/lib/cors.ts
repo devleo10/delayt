@@ -5,8 +5,68 @@ const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '36000
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
+/** www ↔ apex pair for a configured production URL. */
+export function expandOriginVariants(originUrl: string): string[] {
+  try {
+    const parsed = new URL(originUrl);
+    const variants = new Set<string>([parsed.origin]);
+    const { protocol, hostname, port } = parsed;
+
+    if (hostname.startsWith('www.')) {
+      const apexHost = hostname.slice(4);
+      variants.add(`${protocol}//${apexHost}${port ? `:${port}` : ''}`);
+    } else if (!hostname.includes('localhost') && hostname.includes('.')) {
+      variants.add(`${protocol}//www.${hostname}${port ? `:${port}` : ''}`);
+    }
+
+    return [...variants];
+  } catch {
+    return [originUrl];
+  }
+}
+
+function configuredOrigins(): string[] {
+  const origins = new Set<string>();
+
+  if (process.env.FRONTEND_URL) {
+    for (const origin of expandOriginVariants(process.env.FRONTEND_URL.trim())) {
+      origins.add(origin);
+    }
+  }
+
+  for (const entry of process.env.ALLOWED_ORIGINS?.split(',') || []) {
+    const trimmed = entry.trim();
+    if (trimmed) origins.add(trimmed);
+  }
+
+  return [...origins];
+}
+
+/** Origins implied by the Host this request hit (custom domain on Vercel, no env required). */
+export function originsForRequestHost(request: NextRequest): string[] {
+  const hostHeader =
+    request.headers.get('x-forwarded-host')?.split(',')[0]?.trim() ||
+    request.headers.get('host')?.trim();
+
+  if (!hostHeader) return [];
+
+  const proto =
+    request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim() || 'https';
+  const base = `${proto}://${hostHeader}`;
+  const variants = new Set<string>(expandOriginVariants(base));
+
+  // Local dev may use http while forwarded-proto is https behind a proxy.
+  if (proto === 'https') {
+    for (const origin of [...variants]) {
+      variants.add(origin.replace(/^https:\/\//, 'http://'));
+    }
+  }
+
+  return [...variants];
+}
+
 /** Origins allowed to call mutating API routes from a browser. */
-export function isOriginAllowed(origin: string | null): boolean {
+export function isOriginAllowed(origin: string | null, request?: NextRequest): boolean {
   if (!origin) return true;
 
   const allowedPatterns = [
@@ -16,15 +76,14 @@ export function isOriginAllowed(origin: string | null): boolean {
 
   if (allowedPatterns.some((p) => p.test(origin))) return true;
 
+  if (request && originsForRequestHost(request).includes(origin)) return true;
+
   if (process.env.VERCEL_URL) {
     const vercelOrigin = `https://${process.env.VERCEL_URL}`;
     if (origin === vercelOrigin) return true;
   }
 
-  if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return true;
-
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map((s) => s.trim()) || [];
-  if (allowedOrigins.includes(origin)) return true;
+  if (configuredOrigins().includes(origin)) return true;
 
   return false;
 }
@@ -77,7 +136,7 @@ export function corsPreflightResponse(request: NextRequest): NextResponse {
     return new NextResponse(null, { status: 204 });
   }
 
-  if (!isOriginAllowed(origin)) {
+  if (!isOriginAllowed(origin, request)) {
     return new NextResponse(null, { status: 403 });
   }
 
@@ -90,8 +149,16 @@ export function corsPreflightResponse(request: NextRequest): NextResponse {
 /** Reject disallowed browser origins on mutating routes. */
 export function rejectDisallowedOrigin(request: NextRequest): NextResponse | null {
   const origin = request.headers.get('origin');
-  if (origin && !isOriginAllowed(origin)) {
-    return NextResponse.json({ error: 'CORS policy: Origin not allowed' }, { status: 403 });
+  if (origin && !isOriginAllowed(origin, request)) {
+    return NextResponse.json(
+      {
+        error: 'CORS policy: Origin not allowed',
+        origin,
+        host: request.headers.get('host'),
+        hint: 'Origin must match the site host, FRONTEND_URL, or ALLOWED_ORIGINS.',
+      },
+      { status: 403 }
+    );
   }
   return null;
 }
