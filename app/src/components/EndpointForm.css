@@ -1,0 +1,501 @@
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.composer-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.composer-endpoint {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.composer-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+
+.composer-method {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--green);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 0.85rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.composer-row.method-post .composer-method {
+  color: #5aa9ff;
+}
+.composer-row.method-put .composer-method {
+  color: var(--amber);
+}
+.composer-row.method-patch .composer-method {
+  color: var(--accent-purple);
+}
+.composer-row.method-delete .composer-method {
+  color: var(--red);
+}
+
+.composer-method option {
+  background: var(--bg-elev);
+  color: var(--text);
+}
+
+.composer-url {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.84rem;
+  padding: 0.65rem 0.85rem;
+}
+
+.composer-url::placeholder {
+  color: var(--text-faint);
+}
+
+.composer-remove {
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--text-faint);
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 2.4rem;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.composer-remove:hover:not(:disabled) {
+  color: var(--red);
+  background: rgba(243, 104, 95, 0.08);
+}
+
+.composer-remove:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Tabs panel */
+.composer-tabs-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.composer-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 0.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  overflow-x: auto;
+}
+
+.composer-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.composer-tab:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.composer-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--green);
+}
+
+.composer-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.3rem;
+  border-radius: 4px;
+  background: rgba(63, 220, 151, 0.15);
+  color: var(--green);
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.composer-tab-content {
+  padding: 1rem 1.1rem;
+  min-height: 140px;
+}
+
+/* KV table (Parameters / Headers) */
+.composer-kv-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.composer-kv-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.composer-kv-table-wrap {
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.composer-kv-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.composer-kv-table thead th {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.composer-kv-table tbody td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.composer-kv-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.composer-kv-actions-col {
+  width: 2.25rem;
+  padding: 0 0.25rem !important;
+  text-align: center;
+}
+
+.composer-kv-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.composer-kv-input::placeholder {
+  color: var(--text-faint);
+}
+
+.composer-kv-input:focus {
+  background: rgba(63, 220, 151, 0.04);
+}
+
+.composer-kv-remove {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.2rem;
+}
+
+.composer-kv-remove:hover:not(:disabled) {
+  color: var(--red);
+}
+
+/* Body tab */
+.composer-body-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.composer-textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  padding: 0.65rem 0.75rem;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.composer-textarea:focus {
+  border-color: rgba(63, 220, 151, 0.5);
+}
+
+/* Auth tab */
+.composer-auth-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 480px;
+}
+
+.composer-auth-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  padding: 0.6rem 0.75rem;
+  outline: none;
+}
+
+.composer-auth-input:focus {
+  border-color: rgba(63, 220, 151, 0.5);
+}
+
+.composer-field-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  line-height: 1.45;
+}
+
+.composer-field-hint code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+/* Label row below tabs */
+.composer-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1.1rem;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.composer-inline-label {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.composer-label-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+  outline: none;
+}
+
+.composer-label-input:focus {
+  border-color: rgba(63, 220, 151, 0.4);
+}
+
+/* Footer */
+.composer-ghost {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.composer-ghost:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.composer-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.composer-error {
+  font-size: 0.82rem;
+  color: var(--red);
+  padding: 0.55rem 0.75rem;
+  background: rgba(243, 104, 95, 0.08);
+  border: 1px solid rgba(243, 104, 95, 0.3);
+  border-radius: 0;
+}
+
+.composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.composer-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.composer-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  padding: 0.25rem 0.3rem 0.25rem 0.65rem;
+}
+
+.composer-stepper-label {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.composer-stepper-input {
+  width: 3rem;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.composer-stepper-input::-webkit-outer-spin-button,
+.composer-stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.composer-stepper-btn {
+  width: 1.7rem;
+  height: 1.7rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.composer-stepper-btn:hover:not(:disabled) {
+  color: var(--green);
+  border-color: rgba(63, 220, 151, 0.4);
+}
+
+.composer-web-limit-hint {
+  flex: 1 1 100%;
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.composer-web-limit-hint code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--green);
+  word-break: break-all;
+}
+
+.composer-run {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--foreground);
+  color: var(--background);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.composer-run:hover:not(:disabled) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  transform: none;
+  filter: none;
+}
+
+.composer-run:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+@media (max-width: 620px) {
+  .composer-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .composer-run {
+    justify-content: center;
+  }
+  .composer-tabs {
+    padding: 0;
+  }
+  .composer-tab {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.78rem;
+  }
+}

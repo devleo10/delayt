@@ -152,6 +152,8 @@ export interface CLIOptions {
   assertP99?: number;
   output?: 'json' | 'table' | 'markdown';
   quiet?: boolean;
+  share?: boolean;
+  shareUrl?: string;
 }
 
 export interface CLIResult {
@@ -167,6 +169,79 @@ export interface AssertionResult {
   expected: number;
   actual: number;
   passed: boolean;
+}
+
+export interface RunRequestValidation {
+  valid: boolean;
+  message?: string;
+  count?: number;
+}
+
+const VALID_HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+
+export function validateRunRequest(
+  body: { endpoints?: EndpointConfig[]; requestCount?: number },
+  options: {
+    maxRequestCount?: number;
+    defaultRequestCount?: number;
+    maxEndpoints?: number;
+  } = {}
+): RunRequestValidation {
+  const {
+    maxRequestCount = 200,
+    defaultRequestCount = 50,
+    maxEndpoints = 10,
+  } = options;
+
+  const { endpoints, requestCount = defaultRequestCount } = body;
+
+  if (!endpoints || !Array.isArray(endpoints) || endpoints.length === 0) {
+    return { valid: false, message: 'At least one endpoint is required' };
+  }
+
+  if (endpoints.length > maxEndpoints) {
+    return { valid: false, message: `Maximum ${maxEndpoints} endpoints per run` };
+  }
+
+  if (requestCount < 1 || requestCount > maxRequestCount) {
+    return {
+      valid: false,
+      message: `Request count must be between 1 and ${maxRequestCount}`,
+    };
+  }
+
+  for (const ep of endpoints) {
+    if (!ep.url) {
+      return { valid: false, message: 'Each endpoint must have a URL' };
+    }
+
+    try {
+      new URL(ep.url);
+    } catch {
+      return { valid: false, message: `Invalid URL: ${ep.url}` };
+    }
+
+    if (!VALID_HTTP_METHODS.includes(ep.method)) {
+      return { valid: false, message: `Invalid HTTP method: ${ep.method}` };
+    }
+
+    if (
+      ['POST', 'PUT', 'PATCH'].includes(ep.method) &&
+      ep.payload &&
+      typeof ep.payload !== 'object'
+    ) {
+      return {
+        valid: false,
+        message: `Payload must be a JSON object for ${ep.method} ${ep.url}`,
+      };
+    }
+
+    if (ep.headers && typeof ep.headers !== 'object') {
+      return { valid: false, message: 'Headers must be a key-value object' };
+    }
+  }
+
+  return { valid: true, count: requestCount };
 }
 
 // ============================================
@@ -245,4 +320,56 @@ export function computeStdDev(data: number[], avg: number): number {
   const squareDiffs = data.map(value => Math.pow(value - avg, 2));
   const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / data.length;
   return Math.sqrt(avgSquareDiff);
+}
+
+export interface RequestSample {
+  latencyMs: number;
+  statusCode: number;
+  requestSizeBytes?: number;
+}
+
+/** Build AnalyticsResult from per-request samples (CLI + server analytics). */
+export function buildAnalyticsResult(
+  endpoint: string,
+  method: string,
+  samples: RequestSample[]
+): AnalyticsResult {
+  const latencies = samples.map((s) => s.latencyMs);
+  const payloadSizes = samples.map((s) => s.requestSizeBytes ?? 0);
+  let errorCount = 0;
+
+  for (const sample of samples) {
+    if (sample.statusCode === 0 || sample.statusCode >= 400) {
+      errorCount++;
+    }
+  }
+
+  const percentiles = computePercentiles(latencies, [50, 95, 99]);
+  const avg =
+    latencies.length > 0 ? latencies.reduce((a, b) => a + b, 0) / latencies.length : 0;
+  const min = latencies.length > 0 ? Math.min(...latencies) : 0;
+  const max = latencies.length > 0 ? Math.max(...latencies) : 0;
+  const stdDev = computeStdDev(latencies, avg);
+  const avgPayloadSize =
+    payloadSizes.length > 0
+      ? payloadSizes.reduce((a, b) => a + b, 0) / payloadSizes.length
+      : 0;
+  const errorRate = latencies.length > 0 ? (errorCount / latencies.length) * 100 : 0;
+
+  return {
+    endpoint,
+    method: method as HttpMethod,
+    p50: percentiles[50],
+    p95: percentiles[95],
+    p99: percentiles[99],
+    min,
+    max,
+    avg,
+    stdDev,
+    avg_payload_size: Math.round(avgPayloadSize),
+    request_count: latencies.length,
+    error_count: errorCount,
+    error_rate: Math.round(errorRate * 100) / 100,
+    success_rate: Math.round((100 - errorRate) * 100) / 100,
+  };
 }

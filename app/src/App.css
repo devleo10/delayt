@@ -1,0 +1,320 @@
+/* ============================================
+   DELAYT - Editorial Terminal Theme
+   (matched to pretty-pix-polish.lovable.app)
+   ============================================ */
+
+:root {
+  --background: oklch(14.5% 0.008 180);
+  --foreground: oklch(96% 0.005 180);
+  --primary: oklch(86% 0.18 158);
+  --primary-foreground: oklch(18% 0.02 180);
+  --muted: oklch(24% 0.012 180);
+  --muted-foreground: oklch(66% 0.012 180);
+  --border: oklch(26% 0.012 180);
+  --warn: oklch(82% 0.17 75);
+  --critical: oklch(68% 0.22 22);
+
+  /* Legacy aliases */
+  --bg: var(--background);
+  --bg-panel: oklch(17% 0.009 180);
+  --bg-elev: oklch(20% 0.01 180);
+  --border-strong: oklch(32% 0.012 180);
+  --border-hover: oklch(38% 0.012 180);
+  --text: var(--foreground);
+  --text-dim: oklch(78% 0.008 180);
+  --text-faint: var(--muted-foreground);
+  --green: var(--primary);
+  --green-bright: oklch(90% 0.2 158);
+  --amber: var(--warn);
+  --red: var(--critical);
+  --accent-purple: oklch(72% 0.14 280);
+
+  --bg-primary: var(--bg);
+  --bg-secondary: var(--bg-panel);
+  --bg-tertiary: var(--bg-elev);
+  --bg-card: var(--bg-elev);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-dim);
+  --text-muted: var(--text-faint);
+  --accent-primary: var(--green);
+  --accent-secondary: var(--green-bright);
+  --accent-warning: var(--amber);
+  --accent-danger: var(--red);
+  --border-color: var(--border);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+
+  --spacing-xs: 0.3rem;
+  --spacing-sm: 0.6rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.4rem;
+  --spacing-xl: 2rem;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+
+  --max-width: 1400px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* ============================================
+   Layout
+   ============================================ */
+
+.layout {
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
+  transition: grid-template-columns 0.2s ease;
+  border-top: 1px solid var(--border);
+}
+
+.layout.layout-sidebar-collapsed {
+  grid-template-columns: 44px minmax(0, 1fr);
+}
+
+.main {
+  min-width: 0;
+  padding: 2.5rem clamp(1.25rem, 4vw, 2.5rem) 4rem;
+  max-width: none;
+  border-left: 1px solid var(--border);
+}
+
+/* ============================================
+   Dashboard header
+   ============================================ */
+
+.dashboard-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.dashboard-eyebrow {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  color: var(--foreground);
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-sub {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  max-width: 36rem;
+  line-height: 1.65;
+}
+
+/* ============================================
+   Panels
+   ============================================ */
+
+.composer-panel,
+.results-panel {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 1.5rem;
+  box-shadow: none;
+}
+
+.composer-panel {
+  margin-bottom: 1.5rem;
+}
+
+.panel-label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 1rem;
+}
+
+.panel-label span {
+  color: var(--foreground);
+}
+
+.app-error {
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.84rem;
+  color: var(--critical);
+  background: oklch(68% 0.22 22 / 0.08);
+  border: 1px solid oklch(68% 0.22 22 / 0.28);
+  border-radius: 0;
+}
+
+.app-error.subtle {
+  background: none;
+  border: none;
+  padding: 0.4rem 0;
+}
+
+/* ============================================
+   Results panel
+   ============================================ */
+
+.results-tabbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px dashed oklch(26% 0.012 180 / 0.6);
+  flex-wrap: wrap;
+}
+
+.results-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.results-tab {
+  background: none;
+  border: none;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.results-tab:hover {
+  color: var(--foreground);
+}
+
+.results-tab.active {
+  color: var(--primary);
+}
+
+.results-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.results-check {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.results-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0 0.2rem;
+  flex-wrap: wrap;
+}
+
+.results-summary-text {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.share-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0.25rem 0.3rem 0.25rem 0.85rem;
+}
+
+.share-pill-url {
+  font-size: 0.75rem;
+  color: var(--primary);
+}
+
+.share-pill-btn {
+  background: var(--foreground);
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  color: var(--background);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.share-pill-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.results-body {
+  padding-top: 1.5rem;
+}
+
+.results-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.results-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.extras {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.app-site-footer {
+  border-top: 1px solid var(--border);
+  padding: 0.85rem 1.5rem 1.25rem;
+  font-size: 0.68rem;
+  color: var(--muted-foreground);
+}
+
+.site-credit a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.site-credit a:hover {
+  color: var(--foreground);
+}
+
+@media (max-width: 900px) {
+  .layout,
+  .layout.layout-sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+  .main {
+    padding: 1.6rem 1.1rem 3rem;
+    border-left: none;
+  }
+}

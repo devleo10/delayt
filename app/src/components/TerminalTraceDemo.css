@@ -1,0 +1,82 @@
+.terminal-trace {
+  min-height: 18rem;
+}
+
+.terminal-command {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.terminal-cursor {
+  color: var(--primary);
+  animation: terminal-blink 1s step-end infinite;
+}
+
+.terminal-cursor-tail {
+  margin-left: 0.1em;
+}
+
+@keyframes terminal-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.terminal-line {
+  display: inline;
+  opacity: 0;
+  animation: terminal-fade-in 0.2s ease forwards;
+}
+
+.terminal-line-active {
+  color: oklch(96% 0.005 180 / 0.75);
+}
+
+.terminal-line-ok {
+  color: var(--primary);
+}
+
+.terminal-line-fail {
+  color: var(--warn);
+}
+
+.terminal-stat {
+  display: inline-block;
+  animation: terminal-fade-in 0.15s ease forwards;
+}
+
+.terminal-verdict,
+.terminal-share {
+  display: inline-block;
+  animation: terminal-fade-in 0.25s ease forwards;
+}
+
+@keyframes terminal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-cursor {
+    animation: none;
+  }
+
+  .terminal-line,
+  .terminal-stat,
+  .terminal-verdict,
+  .terminal-share {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

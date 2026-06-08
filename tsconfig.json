@@ -10,10 +10,8 @@
     "moduleResolution": "node"
   },
   "include": [
-    "backend/src/**/*",
-    "frontend/src/**/*",
+    "app/src/**/*",
     "packages/**/src/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
-

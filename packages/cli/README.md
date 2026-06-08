@@ -2,29 +2,36 @@
 
 API latency testing with **p50, p95, and p99** percentile analysis. No database required.
 
-The unscoped name `delayt` is blocked by npm (too similar to `delay`). Install via the `@delayt` scope instead.
-
 ## Install
 
 ```bash
 npm install -g @delayt/cli
-# or run without installing
-npx @delayt/cli run -u https://api.example.com/health
+npx @delayt/cli run -u https://api.example.com/health -n 50
 ```
 
-After global install, the command is still **`delayt`**:
+## Quick examples
 
 ```bash
-delayt run -u https://httpbin.org/delay/0.1 -n 20
+# More requests than the web app (web max: 20)
+npx @delayt/cli run -u https://api.example.com/health -n 50
+
+# Auth headers
+npx @delayt/cli run -u https://api.example.com/data \
+  -H "Authorization: Bearer TOKEN" -n 50
+
+# CI gate
+npx @delayt/cli run -u https://api.example.com/health -n 50 --assert-p95=500 -q -o json
 ```
 
-## CI/CD
+After each run the CLI prints a **// summary** block and doc links. Set `DELAYT_DOCS_URL=https://yourdomain.dev` for clickable `/docs#cli` URLs.
 
-```yaml
-- name: API latency gate
-  run: npx @delayt/cli@latest run -u ${{ secrets.API_URL }} --assert-p95=300 --output json -q
-```
+## Docs
+
+- **Request count:** `-n 50` (default 50, max 200)
+- **Auth:** `-H "Name: Value"`
+- **POST:** `-m POST -d '{"key":"value"}'`
+- **Asserts:** `--assert-p95=500` (exit 1 on fail)
+
+Full recipes: `/docs#cli` on your Delayt site, or [github.com/devleo10/delayt](https://github.com/devleo10/delayt).
 
 Exit codes: `0` pass · `1` assertion failed · `2` error
-
-See the [main README](https://github.com/devleo10/delayt) for the web app and docs.

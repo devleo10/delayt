@@ -1,0 +1,244 @@
+.share-card-container {
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  margin: 0;
+  background: transparent;
+}
+
+.share-card-header h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+.share-card-header p {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.share-card {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 1.25rem 1.5rem;
+  margin: 0;
+  max-width: 100%;
+  font-family: inherit;
+  box-shadow: none;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-logo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+}
+
+.card-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+}
+
+.card-status.status-good { color: var(--primary); }
+.card-status.status-fair { color: var(--primary); }
+.card-status.status-slow { color: var(--warn); }
+.card-status.status-critical { color: var(--critical); }
+
+.card-title {
+  display: none;
+}
+
+.card-metrics {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.metric-item {
+  margin-bottom: 0;
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed oklch(26% 0.012 180 / 0.6);
+  align-items: center;
+}
+
+.metric-endpoint {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0;
+  font-weight: 400;
+  text-transform: lowercase;
+}
+
+.metric-values {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.value-group {
+  text-align: left;
+}
+
+.value-label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: lowercase;
+  letter-spacing: 0;
+  margin-bottom: 0.15rem;
+}
+
+.value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.value.highlight {
+  color: var(--warn);
+  font-size: 0.875rem;
+}
+
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed oklch(26% 0.012 180 / 0.6);
+}
+
+.stat {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.35rem 0;
+  text-align: left;
+}
+
+.stat-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  line-height: 1.2;
+  margin-bottom: 0.15rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: lowercase;
+  letter-spacing: 0;
+}
+
+.card-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: 0.85rem;
+  text-align: left;
+}
+
+.card-tagline {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.35rem;
+  font-weight: 400;
+}
+
+.card-url {
+  font-size: 0.75rem;
+  color: var(--primary);
+  margin-bottom: 0.35rem;
+  word-break: break-all;
+}
+
+.card-powered {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.share-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  justify-content: flex-start;
+}
+
+.share-button {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--foreground);
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.share-button:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  transform: none;
+  filter: none;
+}
+
+.share-button.twitter,
+.share-button.download,
+.share-button.copy {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.share-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.share-download-error {
+  margin: 0.65rem 0 0;
+  font-size: 0.72rem;
+  color: var(--critical);
+}
+
+@media (max-width: 640px) {
+  .metric-values {
+    grid-template-columns: 1fr;
+  }
+
+  .share-actions {
+    flex-direction: column;
+  }
+
+  .share-button {
+    width: 100%;
+  }
+}

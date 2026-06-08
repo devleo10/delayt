@@ -1,9 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
-yarn.lock
-client/node_modules/
-client/build/
 
 # Environment variables
 .env
@@ -13,6 +9,7 @@ client/build/
 # Build outputs
 dist/
 build/
+.next/
 *.tgz
 *.log
 
@@ -39,10 +36,8 @@ Thumbs.db
 !LICENSE
 !packages/cli/README.md
 !docs/uptime-robot.md
-
-# Lock files (can generate from package.json)
-package-lock.json
-yarn.lock
+!docs/vercel.md
+!docs/digitalocean.md
 
 # Test coverage
 coverage/
@@ -51,14 +46,3 @@ coverage/
 # Temp files
 *.tmp
 *.temp
-.DS_Store
-Thumbs.db
-
-# Backend temp
-backend/dist/
-backend/node_modules/
-
-# Frontend temp
-frontend/dist/
-frontend/node_modules/
-frontend/build/

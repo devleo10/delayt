@@ -1,0 +1,33 @@
+{
+  "name": "delayt",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "prebuild": "npm run build --prefix ../packages/shared",
+    "start": "next start",
+    "lint": "next lint",
+    "db:init": "ts-node --project tsconfig.scripts.json scripts/init-db.ts"
+  },
+  "dependencies": {
+    "@delayt/shared": "file:../packages/shared",
+    "@vercel/functions": "^2.0.0",
+    "axios": "^1.6.2",
+    "html2canvas": "^1.4.1",
+    "next": "14.2.0",
+    "pg": "^8.11.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.10.3"
+  },
+  "devDependencies": {
+    "@types/html2canvas": "^1.0.0",
+    "@types/node": "^20.10.5",
+    "@types/pg": "^8.10.9",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}

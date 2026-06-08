@@ -15,10 +15,9 @@ import {
   AnalyticsResult,
   HttpMethod,
   formatLatency,
+  buildAnalyticsResult,
   CLIOptions,
   AssertionResult,
-  computePercentiles,
-  computeStdDev,
 } from '@delayt/shared';
 
 const colors = {
@@ -45,6 +44,21 @@ function getVersion(): string {
 }
 
 const VERSION = getVersion();
+
+const DEFAULT_DOCS_HOST = 'https://github.com/devleo10/delayt';
+
+function docsLink(anchor: string): string {
+  const base = process.env.DELAYT_DOCS_URL?.replace(/\/$/, '');
+  if (base) {
+    return base.includes('#') ? base : `${base}/docs#${anchor}`;
+  }
+  return `/docs#${anchor}`;
+}
+
+function writeProgressLine(text: string): void {
+  const width = process.stdout.columns || 100;
+  process.stdout.write(`\r${text.padEnd(width, ' ')}`);
+}
 
 function normalizeArgs(argv: string[]): string[] {
   const args = [...argv];
@@ -102,7 +116,10 @@ function parseArgs(args: string[]): CLIOptions {
       i++;
     } else if (arg === '--quiet' || arg === '-q') {
       options.quiet = true;
-    } else if (arg === '--regions') {
+    } else if (arg === '--share') {
+      options.share = true;
+    } else if (arg === '--share-url') {
+      options.shareUrl = nextArg;
       i++;
     } else if (arg === '--help' || arg === '-h') {
       printHelp();
@@ -138,6 +155,8 @@ ${colors.bold}OPTIONS:${colors.reset}
   -d, --data <json>      Request body for POST/PUT/PATCH
   -o, --output <format>  Output format: table, json, markdown (default: table)
   -q, --quiet            Suppress progress output
+  --share                Upload results to Delayt dashboard (/r/slug)
+  --share-url <url>      Dashboard base URL (or set DELAYT_SHARE_URL)
 
 ${colors.bold}ASSERTIONS:${colors.reset}
   --assert-p50=<ms>      Fail if p50 latency exceeds threshold
@@ -160,6 +179,10 @@ ${colors.bold}EXIT CODES:${colors.reset}
   0  All tests passed (or no assertions specified)
   1  Assertion failed (latency threshold exceeded)
   2  Error (network, configuration, etc.)
+
+${colors.bold}DOCS:${colors.reset}
+  Recipes (request count, auth, params, asserts): ${docsLink('cli')}
+  Set ${colors.gray}DELAYT_DOCS_URL=https://yourdomain.dev${colors.reset} for full doc URLs.
 `);
 }
 
@@ -174,10 +197,12 @@ async function measureRequest(endpoint: EndpointConfig): Promise<{
   latency: number;
   status: number;
   requestSizeBytes: number;
+  responseSizeBytes: number;
   error?: string;
 }> {
   const startTime = process.hrtime.bigint();
   const requestSizeBytes = getRequestSizeBytes(endpoint);
+  let responseSizeBytes = 0;
 
   try {
     const config: AxiosRequestConfig = {
@@ -200,7 +225,20 @@ async function measureRequest(endpoint: EndpointConfig): Promise<{
     const endTime = process.hrtime.bigint();
     const latency = Number(endTime - startTime) / 1_000_000;
 
-    return { latency, status: response.status, requestSizeBytes };
+    if (response.data) {
+      if (typeof response.data === 'string') {
+        responseSizeBytes = Buffer.byteLength(response.data, 'utf8');
+      } else {
+        responseSizeBytes = Buffer.byteLength(JSON.stringify(response.data), 'utf8');
+      }
+    }
+
+    return {
+      latency,
+      status: response.status,
+      requestSizeBytes,
+      responseSizeBytes,
+    };
   } catch (error) {
     const endTime = process.hrtime.bigint();
     const latency = Number(endTime - startTime) / 1_000_000;
@@ -209,36 +247,78 @@ async function measureRequest(endpoint: EndpointConfig): Promise<{
       latency,
       status: 0,
       requestSizeBytes,
+      responseSizeBytes: 0,
       error: error instanceof Error ? error.message : String(error),
     };
   }
+}
+
+interface ImportRequestRow {
+  endpoint: string;
+  method: string;
+  latency_ms: number;
+  request_size_bytes: number;
+  response_size_bytes: number;
+  status_code: number;
+  error_message?: string;
+}
+
+interface RunTestsOutput {
+  result: AnalyticsResult;
+  samples: ImportRequestRow[];
+}
+
+async function uploadRun(
+  shareBase: string,
+  endpoints: EndpointConfig[],
+  requestCount: number,
+  samples: ImportRequestRow[]
+): Promise<{ slug: string; shareUrl: string }> {
+  const base = shareBase.replace(/\/$/, '');
+  const response = await axios.post(`${base}/api/runs/import`, {
+    endpoints,
+    requestCount,
+    requests: samples,
+  });
+
+  if (!response.data?.success || !response.data?.slug) {
+    throw new Error(response.data?.message || 'Import failed');
+  }
+
+  const slug = response.data.slug as string;
+  const sharePath = response.data.shareUrl || `/r/${slug}`;
+  const shareUrl = sharePath.startsWith('http') ? sharePath : `${base}${sharePath}`;
+
+  return { slug, shareUrl };
 }
 
 async function runTests(
   endpoint: EndpointConfig,
   count: number,
   quiet: boolean
-): Promise<AnalyticsResult> {
-  const latencies: number[] = [];
-  const payloadSizes: number[] = [];
-  let errorCount = 0;
+): Promise<RunTestsOutput> {
+  const samples: ImportRequestRow[] = [];
 
   for (let i = 1; i <= count; i++) {
     const result = await measureRequest(endpoint);
-    latencies.push(result.latency);
-    payloadSizes.push(result.requestSizeBytes);
 
-    if (result.status === 0 || result.status >= 400) {
-      errorCount++;
-    }
+    samples.push({
+      endpoint: endpoint.url,
+      method: endpoint.method,
+      latency_ms: result.latency,
+      request_size_bytes: result.requestSizeBytes,
+      response_size_bytes: result.responseSizeBytes,
+      status_code: result.status,
+      error_message: result.error,
+    });
 
     if (!quiet) {
       const progress = Math.round((i / count) * 100);
       const statusColor =
         result.status >= 200 && result.status < 300 ? colors.green : colors.red;
-      process.stdout.write(
-        `\r  [${progress.toString().padStart(3)}%] ${endpoint.method} ${endpoint.url} - ` +
-          `${statusColor}${result.status}${colors.reset} - ${result.latency.toFixed(2)}ms`
+      writeProgressLine(
+        `  [${progress.toString().padStart(3)}%] ${endpoint.method} ${endpoint.url} - ` +
+          `${statusColor}${result.status}${colors.reset} - ${formatLatency(result.latency)}`
       );
     }
   }
@@ -247,31 +327,15 @@ async function runTests(
     process.stdout.write('\n');
   }
 
-  const percentiles = computePercentiles(latencies, [50, 95, 99]);
-  const avg = latencies.reduce((a, b) => a + b, 0) / latencies.length;
-  const min = Math.min(...latencies);
-  const max = Math.max(...latencies);
-  const stdDev = computeStdDev(latencies, avg);
-  const avgPayloadSize =
-    payloadSizes.length > 0
-      ? payloadSizes.reduce((a, b) => a + b, 0) / payloadSizes.length
-      : 0;
+  const analyticsSamples = samples.map((s) => ({
+    latencyMs: s.latency_ms,
+    statusCode: s.status_code,
+    requestSizeBytes: s.request_size_bytes,
+  }));
 
   return {
-    endpoint: endpoint.url,
-    method: endpoint.method,
-    p50: percentiles[50],
-    p95: percentiles[95],
-    p99: percentiles[99],
-    min,
-    max,
-    avg,
-    stdDev,
-    avg_payload_size: Math.round(avgPayloadSize),
-    request_count: count,
-    error_count: errorCount,
-    error_rate: (errorCount / count) * 100,
-    success_rate: ((count - errorCount) / count) * 100,
+    result: buildAnalyticsResult(endpoint.url, endpoint.method, analyticsSamples),
+    samples,
   };
 }
 
@@ -311,6 +375,75 @@ function checkAssertions(results: AnalyticsResult[], options: CLIOptions): Asser
   }
 
   return assertions;
+}
+
+function printRunSummary(result: AnalyticsResult, requestCount: number): void {
+  const spread = result.p50 > 0 ? result.p95 / result.p50 : 1;
+  const tailNote =
+    spread >= 3
+      ? `${colors.yellow}wide p50→p95 spread (${spread.toFixed(1)}×) — tail is slow, median is not${colors.reset}`
+      : result.p95 < 200
+        ? `${colors.green}p95 under 200ms${colors.reset}`
+        : `${colors.yellow}p95 ${formatLatency(result.p95)} — watch regressions${colors.reset}`;
+
+  console.log(`${colors.bold}// summary${colors.reset} ${result.method} ${result.endpoint}`);
+  console.log(
+    `  p50 ${formatLatency(result.p50)} · p95 ${formatLatency(result.p95)} · p99 ${formatLatency(result.p99)} · ` +
+      `${result.success_rate.toFixed(0)}% 2xx · min ${formatLatency(result.min)} · max ${formatLatency(result.max)}`
+  );
+  console.log(`  ${tailNote}`);
+
+  if (requestCount < 30) {
+    console.log(
+      `  ${colors.gray}n=${requestCount} — small sample; use -n 50 for stabler p95 (${docsLink('cli-count')})${colors.reset}`
+    );
+  }
+  console.log('');
+}
+
+function printHints(
+  options: CLIOptions,
+  results: AnalyticsResult[],
+  assertions: AssertionResult[],
+  allPassed: boolean
+): void {
+  const hints: string[] = [];
+  const failed = assertions.filter((a) => !a.passed);
+
+  if (failed.length > 0) {
+    const failedLatency = failed.some((a) => a.type === 'p95' || a.type === 'p99');
+    if (failedLatency) {
+      hints.push(
+        `assertions failed — adjust --assert-p95/--assert-p99 or fix tail latency (${docsLink('cli-assert')})`
+      );
+    }
+    const worst = results.reduce((a, b) => (b.p95 > a.p95 ? b : a), results[0]);
+    if (worst && worst.p50 > 0 && worst.p95 / worst.p50 >= 3) {
+      hints.push('slow tail vs median — profile worst requests, not just average');
+    }
+  }
+
+  if ((options.count ?? 50) < 30 && (options.assertP95 || options.assertP99)) {
+    hints.push(`low -n with strict asserts — try -n 50 (${docsLink('cli-count')})`);
+  }
+
+  if (!options.headers && results.some((r) => r.success_rate < 95)) {
+    hints.push(`low 2xx rate — add auth/headers with -H (${docsLink('cli-auth')})`);
+  }
+
+  if (!allPassed && hints.length === 0) {
+    hints.push(`recipes: ${docsLink('cli')}`);
+  }
+
+  console.log(`${colors.gray}→ help: delayt --help${colors.reset}`);
+  for (const hint of hints.slice(0, 3)) {
+    console.log(`${colors.gray}→ ${hint}${colors.reset}`);
+  }
+  const docTarget = process.env.DELAYT_DOCS_URL
+    ? docsLink('cli')
+    : `${docsLink('cli')} (set DELAYT_DOCS_URL=https://yourdomain.dev)`;
+  console.log(`${colors.gray}→ docs: ${docTarget}${colors.reset}`);
+  console.log('');
 }
 
 function outputTable(results: AnalyticsResult[]) {
@@ -410,13 +543,49 @@ async function main(): Promise<void> {
   }
 
   const results: AnalyticsResult[] = [];
+  const allSamples: ImportRequestRow[] = [];
 
   for (const endpoint of endpoints) {
     try {
-      const result = await runTests(endpoint, options.count!, options.quiet!);
+      const { result, samples } = await runTests(endpoint, options.count!, options.quiet!);
       results.push(result);
+      allSamples.push(...samples);
+      if (!options.quiet && options.output !== 'json') {
+        printRunSummary(result, options.count!);
+      }
     } catch (error) {
       console.error(colors.red + `Error testing ${endpoint.url}: ${error}` + colors.reset);
+      process.exit(2);
+    }
+  }
+
+  if (options.share) {
+    const shareBase =
+      options.shareUrl || process.env.DELAYT_SHARE_URL || process.env.DELAYT_DOCS_URL;
+
+    if (!shareBase) {
+      console.error(
+        colors.red +
+          'Error: --share requires --share-url or DELAYT_SHARE_URL (e.g. https://yourdomain.dev)' +
+          colors.reset
+      );
+      process.exit(2);
+    }
+
+    try {
+      const { shareUrl } = await uploadRun(
+        shareBase,
+        endpoints,
+        options.count!,
+        allSamples
+      );
+      if (!options.quiet) {
+        console.log(`${colors.bold}// shared${colors.reset}`);
+        console.log(`  ${shareUrl}`);
+        console.log('');
+      }
+    } catch (error) {
+      console.error(colors.red + `Share upload failed: ${error}` + colors.reset);
       process.exit(2);
     }
   }
@@ -449,10 +618,15 @@ async function main(): Promise<void> {
   if (!allPassed) {
     if (!options.quiet && options.output !== 'json') {
       console.log(colors.red + colors.bold + 'Assertions failed.' + colors.reset);
+      printHints(options, results, assertions, allPassed);
     }
     process.exit(1);
   } else if (assertions.length > 0 && !options.quiet && options.output !== 'json') {
     console.log(colors.green + colors.bold + 'All assertions passed.' + colors.reset);
+  }
+
+  if (!options.quiet && options.output !== 'json') {
+    printHints(options, results, assertions, allPassed);
   }
 
   process.exit(0);
