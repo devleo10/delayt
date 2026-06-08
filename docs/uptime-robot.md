@@ -47,5 +47,5 @@ Use **either** UptimeRobot **or** the GitHub workflow, not both, unless you want
 ## Verify it works
 
 1. Deploy backend, wait 20+ minutes without visiting the URL.
-2. Open `https://YOUR-API.onrender.com/health` — if it responds in under ~2s, keep-alive is working.
+2. Open `https://YOUR-API.onrender.com/health`. If it responds in under ~2s, keep-alive is working.
 3. In UptimeRobot, status should show **Up** with recent checks.

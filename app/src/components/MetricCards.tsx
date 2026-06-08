@@ -23,21 +23,21 @@ const MetricCards: React.FC<MetricCardsProps> = ({ results }) => {
       tone: 'primary' as const,
       label: 'p50',
       ms: p50,
-      note: 'median user',
+      note: 'median request',
     },
     {
       key: 'p95',
       tone: 'warn' as const,
       label: 'p95',
       ms: p95,
-      note: '1 in 20 users',
+      note: '5% of requests slower',
     },
     {
       key: 'p99',
       tone: 'critical' as const,
       label: 'p99',
       ms: p99,
-      note: 'loudest user',
+      note: 'slowest 1% of requests',
     },
   ];
 

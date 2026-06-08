@@ -2,7 +2,7 @@ import { getPool } from './client';
 
 let schemaInitPromise: Promise<void> | null = null;
 
-/** Idempotent schema setup — safe on Vercel cold starts and local dev. */
+/** Idempotent schema setup. Safe on Vercel cold starts and local dev. */
 export function ensureSchemaInitialized(): Promise<void> {
   if (!schemaInitPromise) {
     schemaInitPromise = initializeSchema().catch((err) => {

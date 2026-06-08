@@ -65,7 +65,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
             </div>
 
             <p className="edu-lede">
-              Sequential smoke test complete. These numbers are percentiles — not averages.
+              Sequential smoke test complete. These numbers are percentiles, not averages.
               The dashboard below has the full breakdown.
             </p>
           </div>
@@ -83,8 +83,8 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
               <div className="edu-metric-bars">{barBlocks(firstResult.p95, maxMs, 28)}</div>
             </div>
             <p className="edu-copy">
-              <strong>95% of requests finished faster than this.</strong> The other 5% is where
-              users feel slowness — timeouts, cold starts, queue spikes.
+              <strong>95% of requests finished faster than this.</strong> The other 5% is where tail
+              latency shows up: timeouts, cold starts, queue spikes.
             </p>
             <div className="edu-aside">
               <span className="edu-aside-tag">// why not average?</span>
@@ -115,7 +115,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
                 <span className="edu-spread-val tone-warn">
                   {formatLatency(firstResult.p95)}
                 </span>
-                <span className="edu-spread-desc">plan capacity here</span>
+                <span className="edu-spread-desc">SLO / regression line</span>
               </div>
               <div className="edu-spread-row">
                 <span className="edu-spread-key">p99</span>
@@ -126,7 +126,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
               </div>
             </div>
             <p className="edu-copy">
-              Wide gap between p50 and p99 usually means inconsistent backends — GC, N+1 queries,
+              Wide gap between p50 and p99 usually means inconsistent backends: GC, N+1 queries,
               or upstream variance. Tighten p99 before chasing median.
             </p>
           </div>
@@ -141,7 +141,7 @@ const EducationalModal: React.FC<EducationalModalProps> = ({ results, onClose })
             <ul className="edu-checklist">
               <li>
                 <span className="edu-check-key">share</span>
-                <span>Copy the `/r/slug` link — results stay readable without an account.</span>
+                <span>Copy the `/r/slug` link. Results stay readable without an account.</span>
               </li>
               <li>
                 <span className="edu-check-key">compare</span>

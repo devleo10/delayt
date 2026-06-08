@@ -14,14 +14,14 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
       title: 'Why percentiles matter',
       content: (
         <div className="welcome-step">
-          <h3>Your Average Latency is Lying to You</h3>
+          <h3>Averages hide slow requests</h3>
           <div className="example-scenario">
             <div className="scenario">
               <div className="label">API A - Average:</div>
               <div className="value">50ms</div>
               <div className="label">API B - Average:</div>
               <div className="value">60ms</div>
-              <p className="note">Looks like API A is faster</p>
+              <p className="note">Average alone suggests API A is faster</p>
             </div>
             <div className="divider">BUT</div>
             <div className="scenario truth">
@@ -29,43 +29,40 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
               <div className="value danger">100ms</div>
               <div className="label">API B - p95:</div>
               <div className="value">500ms</div>
-              <p className="note">API B is actually 5x worse on p95</p>
+              <p className="note">API B has a much slower tail on p95</p>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: 'Meet Your New Metrics',
+      title: 'Reading p50 / p95 / p99',
       content: (
         <div className="welcome-step">
           <div className="metric-explainer">
             <div className="metric">
               <div className="metric-name">p50</div>
-              <div className="metric-desc">50% of requests faster than this</div>
-              <div className="metric-emoji">50% of requests</div>
+              <div className="metric-desc">50% of requests finished faster than this</div>
             </div>
             <div className="metric">
               <div className="metric-name p95">p95</div>
-              <div className="metric-desc">Most important metric</div>
-              <div className="metric-emoji">95% of users experience</div>
+              <div className="metric-desc">95% of requests finished faster than this</div>
             </div>
             <div className="metric">
               <div className="metric-name">p99</div>
-              <div className="metric-desc">99% of requests faster than this</div>
-              <div className="metric-emoji">Your worst 1%</div>
+              <div className="metric-desc">99% of requests finished faster than this</div>
             </div>
           </div>
         </div>
       ),
     },
     {
-      title: 'One Command. That\'s It.',
+      title: 'CLI or web UI',
       content: (
         <div className="welcome-step">
-          <p>CLI for developers:</p>
+          <p>CLI for longer runs and CI:</p>
           <div className="code-block">
-            delayt https://api.example.com/users
+            npx @delayt/cli run -u https://api.example.com/health -n 50
           </div>
           <p>Or use this UI to:</p>
           <ul className="feature-list">
@@ -73,24 +70,24 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose, onLoadExample }) =
             <li>Add custom headers and auth</li>
             <li>Send POST/PUT request bodies</li>
             <li>Share results with teammates</li>
-            <li>Export to CI/CD pipelines</li>
+            <li>Export commands for CI/CD</li>
           </ul>
         </div>
       ),
     },
     {
-      title: 'Ready to Test?',
+      title: 'Ready to test?',
       content: (
         <div className="welcome-step">
-          <p>Let's start with a working example:</p>
+          <p>Start with a public example:</p>
           <button className="example-cta" onClick={onLoadExample}>
-            Try example first
+            Load example
           </button>
           <p className="small-text">
-            This tests httpbin.org (a free public API) so you can see what real results look like.
+            Uses httpbin.org so you can see real percentile output.
           </p>
           <p className="skip-text">
-            After, you'll test YOUR API and understand exactly what the numbers mean.
+            Then point it at your own API and set your own --assert-* thresholds.
           </p>
         </div>
       ),

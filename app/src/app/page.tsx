@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { GITHUB_REPO_URL } from '@/config';
+import { APP_VERSION, GITHUB_REPO_URL } from '@/config';
 import SiteCredit from '@/components/SiteCredit';
 import TerminalTraceDemo from '@/components/TerminalTraceDemo';
 
@@ -30,7 +30,6 @@ function generateHistogram(): { height: number; tone: 'primary' | 'warn' | 'crit
 export default function LandingPage() {
   const router = useRouter();
   const histogram = useMemo(() => generateHistogram(), []);
-  const issueDate = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toLowerCase();
 
   return (
     <div className="editorial">
@@ -38,7 +37,7 @@ export default function LandingPage() {
         <div className="editorial-header-inner">
           <div className="editorial-brand">
             <span className="editorial-name">delayt</span>
-            <span className="editorial-version">v1.0.3</span>
+            <span className="editorial-version">v{APP_VERSION}</span>
           </div>
           <div className="editorial-stats">
             <span>sequential smoke tests</span>
@@ -54,25 +53,25 @@ export default function LandingPage() {
       <section className="editorial-hero-section">
         <div className="editorial-grid editorial-hero-grid">
           <aside className="editorial-sidebar">
-            <div className="editorial-comment">// index</div>
+            <div className="editorial-comment">// on this page</div>
             <ol className="editorial-index">
               <li>
                 <button type="button" className="editorial-index-link" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  <span className="editorial-num">01</span> the_lie
+                  avg vs tail
                 </button>
               </li>
               <li>
-                <button type="button" className="editorial-index-link" onClick={() => document.getElementById('a-real-run')?.scrollIntoView({ behavior: 'smooth' })}>
-                  <span className="editorial-num">02</span> a_real_run
+                <button type="button" className="editorial-index-link" onClick={() => document.getElementById('example-run')?.scrollIntoView({ behavior: 'smooth' })}>
+                  example run
                 </button>
               </li>
               <li>
                 <button type="button" className="editorial-index-link" onClick={() => document.getElementById('manifesto')?.scrollIntoView({ behavior: 'smooth' })}>
-                  <span className="editorial-num">03</span> manifesto
+                  manifesto
                 </button>
               </li>
             </ol>
-            <div className="editorial-comment editorial-comment-spaced">// about</div>
+            <div className="editorial-comment editorial-comment-spaced">// limits</div>
             <div className="editorial-status">
               mode: <span>sequential</span>
               <br />
@@ -83,32 +82,32 @@ export default function LandingPage() {
           </aside>
 
           <div className="editorial-hero-main">
-            <div className="editorial-issue">delayt — issue 1 — {issueDate}</div>
             <h1 className="editorial-headline font-display">
               <span className="editorial-headline-line">
                 Your <em>average</em>
               </span>
               <span className="editorial-headline-line">
-                is a <span className="editorial-accent">lie.</span>
+                hides the <span className="editorial-accent">tail.</span>
               </span>
             </h1>
             <div className="editorial-lead">
-              <p className="editorial-dropcap">
-                You ship a feature. The dashboard says <strong>186ms avg</strong>. You go to bed.
-                Meanwhile one in twenty users is staring at a spinner for two and a half seconds,
-                and they&apos;re the ones who write the angry tweet.
+              <p>
+                Fifty requests, mostly fast. The dashboard greenlights <strong>186ms avg</strong>.
+                Scroll to p95 and <strong>1 in 20</strong> is already past <strong>800ms</strong>;
+                the worst <strong>1%</strong> land in <strong>seconds</strong>. The headline number
+                never moved.
               </p>
               <p className="editorial-lead-muted">
-                Delayt fires real HTTP at your endpoints and prints the percentiles that actually
-                describe a human waiting: <strong>p50</strong>, <strong>p95</strong>,{' '}
-                <strong>p99</strong>. No averages. No vibes. No SaaS dashboard.
+                Delayt sends sequential HTTP requests and reports <strong>p50</strong>,{' '}
+                <strong>p95</strong>, and <strong>p99</strong>. Use the web app for quick checks (≤20
+                requests) or the CLI for longer samples and CI gates.
               </p>
             </div>
             <div className="editorial-cta-row">
               <button type="button" className="editorial-cta" onClick={() => router.push('/app')}>
                 <span>$</span> npx @delayt/cli run
               </button>
-              <span className="editorial-cta-note">↳ local-first. no signup. ~14kb wire.</span>
+              <span className="editorial-cta-note">↳ open source · no signup · MIT</span>
             </div>
           </div>
 
@@ -116,54 +115,57 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="editorial-section" id="a-real-run">
+      <section className="editorial-section" id="example-run">
         <div className="editorial-contained editorial-receipt">
           <div className="editorial-receipt-header">
-            <span>// receipt · run_ocln34nl</span>
-            <span>printed {new Date().toUTCString().slice(17, 25)} UTC</span>
+            <span>// example receipt</span>
+            <span>run_ocln34nl · 50 requests</span>
           </div>
           <div className="editorial-receipt-rows">
             <div className="editorial-receipt-row">
               <span className="editorial-receipt-key">endpoint</span>
-              <span>POST  api.stripe.com/v1/payment_intents</span>
+              <span>GET  api.example.com/v1/resource</span>
             </div>
             <div className="editorial-receipt-row">
               <span className="editorial-receipt-key">requests</span>
-              <span>8,192 across 4 regions over 6m 12s</span>
+              <span>50 sequential · ~12s wall time</span>
             </div>
             <div className="editorial-receipt-row editorial-receipt-muted">
               <span className="editorial-receipt-key">avg</span>
               <span>
-                186ms <span className="editorial-receipt-note">← what your dashboard tells you</span>
+                186ms <span className="editorial-receipt-note">← smooths over outliers</span>
               </span>
             </div>
             <div className="editorial-receipt-row">
               <span className="editorial-receipt-key">p50</span>
               <span>
-                143ms <span className="editorial-receipt-note">← median user</span>
+                143ms <span className="editorial-receipt-note">← median request</span>
               </span>
             </div>
             <div className="editorial-receipt-row">
               <span className="editorial-receipt-key">p95</span>
               <span>
-                812ms <span className="editorial-receipt-note">← 1 in 20 users</span>
+                812ms <span className="editorial-receipt-note">← 5% of requests slower</span>
               </span>
             </div>
             <div className="editorial-receipt-row">
               <span className="editorial-receipt-key">p99</span>
               <span>
-                2.31s <span className="editorial-receipt-note">← your loudest user</span>
+                2.31s <span className="editorial-receipt-note">← slowest 1% of requests</span>
               </span>
             </div>
             <div className="editorial-receipt-row">
               <span className="editorial-receipt-key">errors</span>
-              <span>0.04% (3 / 8192) · all 504 from fra1 between 02:14–02:17 UTC</span>
+              <span>0% · all 2xx in this sample</span>
             </div>
             <div className="editorial-receipt-row editorial-receipt-verdict">
               <span className="editorial-receipt-key">verdict</span>
-              <span className="trace-critical">CRITICAL — p99 budget 800ms, exceeded by 1.51s</span>
+              <span className="trace-critical">
+                CRITICAL: example budget p99 &lt; 800ms (with --assert-p99=800)
+              </span>
             </div>
           </div>
+          <p className="editorial-sample-note">* fictional sample, not a live run</p>
         </div>
       </section>
 
@@ -171,8 +173,8 @@ export default function LandingPage() {
         <div className="editorial-contained">
           <div className="editorial-comment">// distribution</div>
           <p className="editorial-distribution-copy">
-            8,192 requests, bucketed by response time. The long tail on the right is what an avg
-            silently averages away.
+            50 requests bucketed by response time. The long tail on the right is what an average
+            silently smooths away.
           </p>
           <div className="editorial-histogram">
             <div className="editorial-histogram-bars">
@@ -191,6 +193,7 @@ export default function LandingPage() {
               <span>3s+</span>
             </div>
           </div>
+          <p className="editorial-sample-note">* fictional sample, not a live run</p>
         </div>
       </section>
 
@@ -198,16 +201,16 @@ export default function LandingPage() {
         <div className="editorial-grid editorial-manifesto-grid">
           <div className="editorial-comment editorial-manifesto-label">// manifesto</div>
           <p className="editorial-manifesto font-display">
-            We don&apos;t ship dashboards, we don&apos;t ship gradients, we don&apos;t ship
-            &quot;AI-powered insights&quot;. We ship one number that is true and three numbers
-            that hurt. You decide what to do about it.
+            Sequential latency checks, not load tests. Print p50, p95, and p99 from real HTTP
+            responses. Pick your own thresholds; we don&apos;t pretend 200ms fits every API.
           </p>
           <ul className="editorial-manifesto-list">
-            <li>— no signup, ever</li>
-            <li>— runs in your terminal or your tab</li>
-            <li>— headers stay on your machine</li>
-            <li>— exits with code 1 if p95 fails</li>
-            <li>— MIT, open source, one binary</li>
+            <li>- no signup on the hosted web app</li>
+            <li>- browser UI for quick runs (up to 20 requests); CLI for 50–200 and CI</li>
+            <li>- CLI runs locally; auth headers stay in your terminal</li>
+            <li>- hosted web runs send HTTP from the server (see docs)</li>
+            <li>- exit code 1 when --assert-p95 / --assert-p99 fails</li>
+            <li>- MIT · npm install @delayt/cli</li>
           </ul>
         </div>
       </section>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="delayt">
+  <defs>
+    <linearGradient id="trace" x1="28" y1="135" x2="152" y2="45" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3dd4b8"/>
+      <stop offset="100%" stop-color="#b8ffe8"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="44" fill="#0e1210"/>
+  <path
+    d="M28 126h31l12.4-38.2 13.6 68.6 14.6-86.8 15.8 59.4 12.4-23.8H152"
+    fill="none"
+    stroke="url(#trace)"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="104" cy="70" r="11" fill="#b8ffe8"/>
+</svg>

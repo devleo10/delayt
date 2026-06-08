@@ -13,6 +13,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
   const [downloaded, setDownloaded] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const worstP95 = Math.max(...results.map((r) => r.p95));
@@ -20,15 +21,16 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
     results.reduce((sum, r) => sum + (r.success_rate ?? 100), 0) / results.length;
 
   const getStatus = (): { label: string; tone: 'good' | 'fair' | 'slow' | 'critical' } => {
-    if (avgSuccessRate < 0.5) return { label: 'Failed', tone: 'critical' };
+    if (avgSuccessRate < 50) return { label: 'Failed', tone: 'critical' };
     if (avgSuccessRate < 95) return { label: 'Errors', tone: 'critical' };
-    if (worstP95 < 100) return { label: 'Good', tone: 'good' };
-    if (worstP95 < 200) return { label: 'Fair', tone: 'fair' };
+    if (worstP95 < 100) return { label: 'Fast', tone: 'good' };
+    if (worstP95 < 200) return { label: 'OK', tone: 'fair' };
     if (worstP95 < 500) return { label: 'Slow', tone: 'slow' };
-    return { label: 'Critical', tone: 'critical' };
+    return { label: 'Tail', tone: 'critical' };
   };
 
   const status = getStatus();
+  const primaryName = results[0]?.name || results[0]?.endpoint || 'run';
 
   const downloadAsImage = async () => {
     if (!cardRef.current || downloading) return;
@@ -49,24 +51,30 @@ const ShareCard: React.FC<ShareCardProps> = ({ results, runId, shareUrl }) => {
   };
 
   const shareOnTwitter = () => {
-    const text = `Just tested my API with Delayt.
-
-p50: ${formatLatency(results[0].p50)}
-p95: ${formatLatency(worstP95)}
-p99: ${formatLatency(Math.max(...results.map((r) => r.p99)))}
-
-Stop measuring averages. Start measuring percentiles.
+    const text = `Latency run: ${primaryName}
+p50 ${formatLatency(results[0].p50)} · p95 ${formatLatency(worstP95)} · p99 ${formatLatency(Math.max(...results.map((r) => r.p99)))}
 
 `;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
     window.open(url, '_blank');
   };
 
+  const copyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      setDownloadError('Could not copy link. Select and copy manually.');
+      setTimeout(() => setDownloadError(null), 4000);
+    }
+  };
+
   return (
     <div className="share-card-container">
       <div className="share-card-header">
         <h3>// share · export card</h3>
-        <p>Receipt-style report for Slack, X, or your team chat.</p>
+        <p>Receipt-style summary for Slack, X, or your team chat. Labels use rough defaults, not your SLO.</p>
       </div>
 
       <div className="share-card" ref={cardRef}>
@@ -75,7 +83,7 @@ Stop measuring averages. Start measuring percentiles.
           <div className={`card-status status-${status.tone}`}>{status.label}</div>
         </div>
 
-        <div className="card-title">API Performance Report</div>
+        <div className="card-title">Latency run · {primaryName}</div>
 
         <div className="card-metrics">
           {results.slice(0, 3).map((result) => (
@@ -117,9 +125,9 @@ Stop measuring averages. Start measuring percentiles.
         </div>
 
         <div className="card-footer">
-          <div className="card-tagline">Stop measuring averages. Start measuring percentiles.</div>
+          <div className="card-tagline">Sequential sample · not a load test</div>
           <div className="card-url">{shareUrl}</div>
-          <div className="card-powered">Tested with Delayt</div>
+          <div className="card-powered">delayt</div>
         </div>
       </div>
 
@@ -137,13 +145,10 @@ Stop measuring averages. Start measuring percentiles.
         </button>
         <button
           className="share-button copy"
-          onClick={() => {
-            navigator.clipboard.writeText(shareUrl);
-            alert('Link copied!');
-          }}
+          onClick={copyShareLink}
           aria-label="Copy share link"
         >
-          Copy link
+          {linkCopied ? 'Copied' : 'Copy link'}
         </button>
       </div>
 

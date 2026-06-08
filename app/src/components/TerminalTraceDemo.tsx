@@ -5,7 +5,7 @@ const TOTAL = 50;
 const OK_COUNT = 50;
 
 const COMMAND = `$ delayt run \\
-   -u api.stripe.com/v1/charges \\
+   -u api.example.com/v1/resource \\
    -n ${TOTAL}`;
 
 const P50_BARS = 2;
@@ -33,7 +33,7 @@ interface TerminalTraceDemoProps {
 }
 
 const TerminalTraceDemo: React.FC<TerminalTraceDemoProps> = ({
-  label = '// trace · illustrative CLI output',
+  label = '// trace · example CLI output',
 }) => {
   const containerRef = useRef<HTMLElement>(null);
   const [started, setStarted] = useState(false);

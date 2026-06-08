@@ -1,6 +1,6 @@
 # Delayt
 
-**API Latency Testing with Percentile Analysis (p50, p95, p99)**
+**API latency testing with percentile analysis (p50, p95, p99)**
 
 Stop measuring averages. Start measuring what matters.
 
@@ -10,28 +10,26 @@ Stop measuring averages. Start measuring what matters.
 
 ## Why Delayt?
 
-**The Problem with Averages:**
+**The problem with averages:**
 
-Your API has an average latency of 50ms. Sounds great, right? But here's the truth:
-- 99 requests at 10ms + 1 request at 10 seconds = 200ms average
-- That 200ms average hides the fact that some users wait 10 seconds
+Your API might show 50ms average while a few requests take seconds. One slow outlier barely moves the average.
 
-**What Percentiles Tell You:**
+**What percentiles tell you:**
 
-| Metric | Meaning | Why It Matters |
+| Metric | Meaning | Why it matters |
 |--------|---------|----------------|
-| **p50** | 50% of requests are faster | Your median experience |
-| **p95** | 95% of requests are faster | What most users experience |
-| **p99** | 99% of requests are faster | Your worst-case (almost) |
+| **p50** | 50% of requests are faster | Median latency in the sample |
+| **p95** | 95% of requests are faster | Common SLO / regression line |
+| **p99** | 99% of requests are faster | Slow tail: spikes and cold starts |
 
 If your API shows: `avg: 50ms | p95: 500ms | p99: 2000ms`
 
-This means 5% of users experience 500ms+ latency, and 1% wait 2+ seconds. **That's critical information averages hide.**
+Then 5% of requests in that sample were slower than 500ms, and 1% were slower than 2s. **Averages hide that.**
 
 ## Quick Start
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/devleo10/delayt
 cd delayt
 
 docker compose up -d        # Start PostgreSQL
@@ -42,7 +40,7 @@ cp app/.env.example app/.env
 npm run dev                 # Start Next.js on http://localhost:3000
 ```
 
-Open **http://localhost:3000** — the app serves both the UI and API on the same port.
+Open **http://localhost:3000**. The app serves both the UI and API on the same port.
 
 ### CLI (no database required)
 
@@ -58,7 +56,7 @@ npm run cli -- run -u https://api.example.com/health --assert-p95=200
 
 ```
 delayt/
-├── app/                # Next.js (App Router) — frontend + API
+├── app/                # Next.js (App Router): frontend + API
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── page.tsx           # Landing page
@@ -76,7 +74,7 @@ delayt/
 └── docker-compose.yml # PostgreSQL
 ```
 
-All backend logic (runner, analytics, DB schema) lives in `app/src/lib/`. API routes in `app/src/app/api/` serve the same endpoints as the original Express backend — no client code changes needed.
+All backend logic (runner, analytics, DB schema) lives in `app/src/lib/`. API routes in `app/src/app/api/` serve the same endpoints as the original Express backend. No client code changes needed.
 
 ## API Reference
 
@@ -150,8 +148,8 @@ RATE_LIMIT_WINDOW_MS=3600000
 
 ## Deploy on Vercel
 
-1. **[Neon](https://neon.tech)** — free Postgres, copy `DATABASE_URL`
-2. **[Vercel](https://vercel.com/new)** — import repo, **Root Directory: `app`**
+1. **[Neon](https://neon.tech)**: free Postgres, copy `DATABASE_URL`
+2. **[Vercel](https://vercel.com/new)**: import repo, **Root Directory: `app`**
 3. Env: `DATABASE_URL`, `FRONTEND_URL=https://yourdomain.dev`, optional `WEB_MAX_REQUEST_COUNT=20`
 4. Add your domain in Vercel → Domains
 
@@ -159,8 +157,8 @@ Web dashboard: **15 default / 20 max** requests. CLI: **50–200** for full runs
 
 Full steps: [docs/vercel.md](docs/vercel.md)
 
-Self-hosting with Docker is optional — see `deploy/` and [docs/digitalocean.md](docs/digitalocean.md).
+Self-hosting with Docker is optional. See `deploy/` and [docs/digitalocean.md](docs/digitalocean.md).
 
 ## License
 
-MIT © 2024
+MIT © 2026

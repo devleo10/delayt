@@ -164,7 +164,7 @@ ${colors.bold}ASSERTIONS:${colors.reset}
   --assert-p99=<ms>      Fail if p99 latency exceeds threshold
 
 ${colors.bold}EXAMPLES:${colors.reset}
-  ${colors.gray}# Landing page style${colors.reset}
+  ${colors.gray}# Quick smoke test${colors.reset}
   delayt run -u https://api.example.com/health -n 50
 
   ${colors.gray}# CI gate${colors.reset}
@@ -381,10 +381,10 @@ function printRunSummary(result: AnalyticsResult, requestCount: number): void {
   const spread = result.p50 > 0 ? result.p95 / result.p50 : 1;
   const tailNote =
     spread >= 3
-      ? `${colors.yellow}wide p50→p95 spread (${spread.toFixed(1)}×) — tail is slow, median is not${colors.reset}`
+      ? `${colors.yellow}wide p50→p95 spread (${spread.toFixed(1)}×): tail is slow, median is not${colors.reset}`
       : result.p95 < 200
-        ? `${colors.green}p95 under 200ms${colors.reset}`
-        : `${colors.yellow}p95 ${formatLatency(result.p95)} — watch regressions${colors.reset}`;
+        ? `${colors.green}p95 under 200ms (heuristic)${colors.reset}`
+        : `${colors.yellow}p95 ${formatLatency(result.p95)}: set --assert-p95 for your SLO${colors.reset}`;
 
   console.log(`${colors.bold}// summary${colors.reset} ${result.method} ${result.endpoint}`);
   console.log(
@@ -395,7 +395,7 @@ function printRunSummary(result: AnalyticsResult, requestCount: number): void {
 
   if (requestCount < 30) {
     console.log(
-      `  ${colors.gray}n=${requestCount} — small sample; use -n 50 for stabler p95 (${docsLink('cli-count')})${colors.reset}`
+      `  ${colors.gray}n=${requestCount}: small sample; use -n 50 for stabler p95 (${docsLink('cli-count')})${colors.reset}`
     );
   }
   console.log('');
@@ -414,21 +414,21 @@ function printHints(
     const failedLatency = failed.some((a) => a.type === 'p95' || a.type === 'p99');
     if (failedLatency) {
       hints.push(
-        `assertions failed — adjust --assert-p95/--assert-p99 or fix tail latency (${docsLink('cli-assert')})`
+        `assertions failed: adjust --assert-p95/--assert-p99 or fix tail latency (${docsLink('cli-assert')})`
       );
     }
     const worst = results.reduce((a, b) => (b.p95 > a.p95 ? b : a), results[0]);
     if (worst && worst.p50 > 0 && worst.p95 / worst.p50 >= 3) {
-      hints.push('slow tail vs median — profile worst requests, not just average');
+      hints.push('slow tail vs median: profile worst requests, not just average');
     }
   }
 
   if ((options.count ?? 50) < 30 && (options.assertP95 || options.assertP99)) {
-    hints.push(`low -n with strict asserts — try -n 50 (${docsLink('cli-count')})`);
+    hints.push(`low -n with strict asserts: try -n 50 (${docsLink('cli-count')})`);
   }
 
   if (!options.headers && results.some((r) => r.success_rate < 95)) {
-    hints.push(`low 2xx rate — add auth/headers with -H (${docsLink('cli-auth')})`);
+    hints.push(`low 2xx rate: add auth/headers with -H (${docsLink('cli-auth')})`);
   }
 
   if (!allPassed && hints.length === 0) {

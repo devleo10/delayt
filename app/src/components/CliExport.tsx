@@ -21,9 +21,10 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
       lines.push(`  -u "${ep.url}" \\`);
     });
 
-    lines.push(`  -n ${count} \\`);
+    lines.push(`  -n ${count}`);
 
     if (includeAuth && endpoints.some((ep) => ep.headers)) {
+      lines[lines.length - 1] += ' \\';
       endpoints.forEach((ep) => {
         if (ep.headers) {
           Object.entries(ep.headers).forEach(([key, value]) => {
@@ -31,10 +32,8 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
           });
         }
       });
+      lines[lines.length - 1] = lines[lines.length - 1].replace(/ \\$/, '');
     }
-
-    lines.push(`  --assert-p95=500 \\`);
-    lines.push(`  --assert-p99=1000`);
 
     return lines.join('\n');
   };
@@ -62,8 +61,8 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
       <div className="cli-export-header">
         <h3>// run in terminal</h3>
         <p>
-          The web app caps at {WEB_MAX_REQUEST_COUNT} requests per endpoint. Use the CLI for full
-          runs with no timeout limits.
+          The web app caps at {WEB_MAX_REQUEST_COUNT} requests per endpoint. Use the CLI for{' '}
+          {CLI_RECOMMENDED_REQUEST_COUNT}–200 requests and CI gates.
         </p>
       </div>
 
@@ -123,10 +122,12 @@ const CliExport: React.FC<CliExportProps> = ({ endpoints, requestCount }) => {
         <div className="cli-help-head">// why cli</div>
         <ul>
           <li>
-            Run {CLI_RECOMMENDED_REQUEST_COUNT}–200 requests for stable p95/p99 estimates
+            Run {CLI_RECOMMENDED_REQUEST_COUNT}–200 requests for stabler p95/p99 estimates
           </li>
           <li>Paste into CI/CD (GitHub Actions, GitLab CI, etc.)</li>
-          <li>Tests fail if p95 &gt; 500ms or p99 &gt; 1000ms (adjust with --assert-p95)</li>
+          <li>
+            Add your own gates: <code>--assert-p95=500</code> (exit 1 only when asserts fail)
+          </li>
           {!endpoints.some((ep) => ep.headers) && (
             <li>
               Private APIs need <code>-H</code> flags or the web Authorization tab before CI is

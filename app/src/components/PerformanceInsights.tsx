@@ -29,32 +29,27 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
 
   const signals: Signal[] = [];
 
-  if (avgSuccessRate < 0.5) {
+  if (avgSuccessRate < 50) {
     return [
       {
         severity: 'err',
         code: '2xx',
-        detail: '0%',
-        note: 'No successful responses — fix Authorization / headers, re-run',
+        detail: `${avgSuccessRate.toFixed(0)}%`,
+        note:
+          avgSuccessRate < 1
+            ? 'No successful responses: fix Authorization / headers, re-run'
+            : 'Mostly failing: percentiles reflect error responses',
         rank: 0,
       },
     ];
   }
 
-  if (avgSuccessRate < 50) {
-    signals.push({
-      severity: 'err',
-      code: '2xx',
-      detail: `${avgSuccessRate.toFixed(0)}%`,
-      note: 'Mostly failing — percentiles reflect error responses',
-      rank: 0,
-    });
-  } else if (avgSuccessRate < 95) {
+  if (avgSuccessRate < 95) {
     signals.push({
       severity: 'err',
       code: '2xx',
       detail: `${avgSuccessRate.toFixed(1)}%`,
-      note: 'Low success rate — check auth, headers, status codes',
+      note: 'Low success rate: check auth, headers, status codes',
       rank: 1,
     });
   } else if (avgSuccessRate < 99.5) {
@@ -85,7 +80,7 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
         severity: 'err',
         code: 'p95',
         detail: formatLatency(avgP95),
-        note: 'Over 500ms — tail is hurting UX',
+        note: 'Over 500ms vs default heuristic: tune --assert-p95 for your API',
         rank: 0,
       });
     } else if (avgP95 > 200) {
@@ -93,7 +88,7 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
         severity: 'warn',
         code: 'p95',
         detail: formatLatency(avgP95),
-        note: 'Over 200ms — track before deploy',
+        note: 'Over 200ms vs default heuristic: may be fine for your API',
         rank: 2,
       });
     }
@@ -104,7 +99,7 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
         severity: spread >= 5 ? 'warn' : 'ok',
         code: 'spread',
         detail: `${formatLatency(avgP50)} → ${formatLatency(avgP95)}`,
-        note: `${spread.toFixed(1)}× gap — slow tail, not slow median`,
+        note: `${spread.toFixed(1)}× gap: slow tail, not slow median`,
         rank: 3,
       });
     }
@@ -114,7 +109,7 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
         severity: 'warn',
         code: 'p99',
         detail: formatLatency(avgP99),
-        note: `+${formatLatency(avgP99 - avgP95)} above p95 — rare outliers`,
+        note: `+${formatLatency(avgP99 - avgP95)} above p95: rare outliers`,
         rank: 3,
       });
     }
@@ -126,7 +121,7 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
       severity: 'ok',
       code: 'slowest',
       detail: formatLatency(slowest.p95),
-      note: `${slowest.name || slowest.endpoint} — highest p95 this run`,
+      note: `${slowest.name || slowest.endpoint}: highest p95 this run`,
       rank: 4,
     });
   }
@@ -136,7 +131,7 @@ function buildSignals(results: AnalyticsResult[]): Signal[] {
       severity: 'ok',
       code: 'clear',
       detail: formatLatency(avgP95),
-      note: 'p95 under 200ms, no flags',
+      note: 'Below 200ms heuristic: set your own --assert-* in CI',
       rank: 5,
     });
   }

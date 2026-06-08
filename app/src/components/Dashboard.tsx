@@ -225,7 +225,7 @@ export default function Dashboard({ initialSlug }: DashboardProps) {
           name: 'HTTPBin Example (Public API)',
         },
       ],
-      50
+      WEB_DEFAULT_REQUEST_COUNT
     );
   };
 
@@ -354,9 +354,9 @@ export default function Dashboard({ initialSlug }: DashboardProps) {
             <section className="dashboard-header">
               <div className="dashboard-eyebrow">// composer</div>
               <h1 className="dashboard-title font-display">
-                Fire real HTTP.
+                Sequential HTTP runs.
                 <br />
-                Read the <span style={{ color: 'var(--primary)' }}>truth</span>.
+                Read <span style={{ color: 'var(--primary)' }}>p50 / p95 / p99</span>.
               </h1>
               <p className="dashboard-sub">
                 Add endpoints, run sequential requests, get p50 / p95 / p99.

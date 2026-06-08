@@ -2,7 +2,7 @@ name: Keep alive
 
 on:
   schedule:
-    # Every 5 minutes — keeps Render free tier from sleeping (15 min idle timeout)
+    # Every 5 minutes. Keeps Render free tier from sleeping (15 min idle timeout)
     - cron: "*/5 * * * *"
   workflow_dispatch:
 

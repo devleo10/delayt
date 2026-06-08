@@ -2,7 +2,7 @@
   "name": "delayt-monorepo",
   "private": true,
   "version": "1.0.0",
-  "description": "Delayt — API latency testing with percentile analysis",
+  "description": "Delayt: API latency testing with percentile analysis",
   "workspaces": [
     "packages/shared",
     "packages/cli",

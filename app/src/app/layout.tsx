@@ -21,9 +21,9 @@ import '@/LandingPage.css';
 import '@/DocsPage.css';
 
 export const metadata: Metadata = {
-  title: 'delayt — API latency percentile testing',
+  title: 'delayt · API latency percentile testing',
   description:
-    'Fire real HTTP at your endpoints and get p50, p95, p99 latency. No averages. No vibes.',
+    'Sequential HTTP latency testing: p50, p95, and p99 percentiles. Web app for quick runs; CLI for CI.',
 };
 
 export default function RootLayout({

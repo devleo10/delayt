@@ -1,5 +1,5 @@
 'use client';
-import { GITHUB_REPO_URL } from '@/config';
+import { APP_VERSION, GITHUB_REPO_URL } from '@/config';
 
 interface TopNavProps {
   variant?: 'landing' | 'app' | 'docs';
@@ -19,7 +19,7 @@ const TopNav: React.FC<TopNavProps> = ({
   const brand = (
     <div className="topnav-brand">
       <span className="topnav-name">delayt</span>
-      <span className="topnav-version">v1.0.3</span>
+      <span className="topnav-version">v{APP_VERSION}</span>
     </div>
   );
 

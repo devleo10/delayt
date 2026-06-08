@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { GITHUB_REPO_URL } from '@/config';
+import { APP_VERSION, GITHUB_REPO_URL } from '@/config';
 import SiteCredit from '@/components/SiteCredit';
 
 const TOC = [
@@ -222,16 +222,16 @@ npx @delayt/cli run \\
   --assert-p95=500 \\
   --output json -q`}</code></pre>
             <p>
-              Load tools can do performance gates too, but they need more wiring. Delayt is meant
-              to be the check you add in five minutes and keep forever.
+              Load tools can do performance gates too, but they need more wiring. Delayt fits a
+              quick staging smoke check you can keep in the pipeline.
             </p>
           </section>
 
           <section className="docs-section" id="percentiles">
             <h2>Why percentiles, not averages</h2>
             <p>
-              An average can look great while a fraction of users suffer slow responses. Percentiles
-              tell you what latency most users see and what the slow tail looks like.
+              An average can look great while a fraction of requests are slow. Percentiles describe
+              the median, the tail, and the worst outliers in your sample.
             </p>
             <div className="docs-table-wrap">
               <table className="docs-table">
@@ -252,7 +252,7 @@ npx @delayt/cli run \\
                   </tr>
                   <tr>
                     <td><code>p99</code></td>
-                    <td>Worst-case tail for most users. Catches spikes and cold starts.</td>
+                    <td>Slowest 1% of requests in the sample. Catches spikes and cold starts.</td>
                   </tr>
                 </tbody>
               </table>
@@ -300,7 +300,7 @@ npm run dev`}</code></pre>
                   <p>
                     Paste a URL, choose the HTTP method (GET, POST, PUT, PATCH, DELETE), and set the
                     request count (1–20 per endpoint on the web app). You can add up to 10 endpoints
-                    in a single run. For 50+ requests, use the CLI — see the hint under the stepper or
+                    in a single run. For 50+ requests, use the CLI. See the hint under the stepper or
                     the CLI panel after a run.
                   </p>
                 </div>
@@ -495,7 +495,7 @@ npm run dev`}</code></pre>
 
             <h3 id="cli-count">Request count</h3>
             <p>
-              Default is <strong>50</strong> requests. Web runs max at 20 — use the CLI for fuller
+              Default is <strong>50</strong> requests. Web runs max at 20. Use the CLI for fuller
               samples and stabler p95/p99.
             </p>
             <pre className="docs-code"><code>{`# Quick smoke (15 requests)
@@ -523,13 +523,13 @@ npx @delayt/cli run -u https://api.example.com/health -n 200`}</code></pre>
   -H "X-API-Key: YOUR_KEY" \\
   -n 50`}</code></pre>
             <p>
-              If Success % is low, the run still finished — you are probably missing auth. See{' '}
+              If Success % is low, the run still finished. You are probably missing auth. See{' '}
               <a href="#auth">Auth &amp; headers</a>.
             </p>
 
             <h3 id="cli-params">Query params &amp; POST body</h3>
             <p>
-              Put query strings in the URL. There is no separate params flag yet — mirror what you
+              Put query strings in the URL. There is no separate params flag yet. Mirror what you
               use in the web composer Parameters tab.
             </p>
             <pre className="docs-code"><code>{`# GET with query params
@@ -546,7 +546,7 @@ npx @delayt/cli run \\
             <h3 id="cli-assert">Assertions &amp; thresholds</h3>
             <p>
               Exit code <code>1</code> when a percentile exceeds your budget. Pick thresholds for
-              <em>your</em> API — do not copy <code>500ms</code> from the web export if the target
+              <em>your</em> API. Do not copy <code>500ms</code> from the web export if the target
               is slower or noisy.
             </p>
             <pre className="docs-code"><code>{`npx @delayt/cli run \\
@@ -606,7 +606,7 @@ delayt run -u https://api.example.com/health -n 50`}</code></pre>
 
           <footer className="docs-footer">
             <span className="docs-footer-copy">
-              Delayt v1.0 · MIT · <SiteCredit />
+              Delayt v{APP_VERSION} · MIT · <SiteCredit />
             </span>
             <div className="docs-footer-links">
               <button type="button" className="docs-footer-link" onClick={() => router.push('/')}>
