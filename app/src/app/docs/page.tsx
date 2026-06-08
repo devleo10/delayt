@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import { APP_VERSION, GITHUB_REPO_URL, SITE_URL } from '@/config';
 import SiteCredit from '@/components/SiteCredit';
+import TopNav from '@/components/TopNav';
 
 const TOC = [
   { id: 'purpose', label: 'Purpose' },
@@ -56,24 +57,12 @@ export default function DocsPage() {
 
   return (
     <div className="docs">
-      <header className="docs-topbar">
-        <nav className="docs-topbar-inner">
-          <button
-            type="button"
-            className="docs-topbar-link"
-            onClick={() => router.push('/')}
-          >
-            ← home
-          </button>
-          <button
-            type="button"
-            className="docs-topbar-link"
-            onClick={() => router.push('/app')}
-          >
-            open app →
-          </button>
-        </nav>
-      </header>
+      <TopNav
+        variant="docs"
+        onNavigate={(path) => router.push(path)}
+        onOpenApp={() => router.push('/app')}
+        onGoHome={() => router.push('/')}
+      />
 
       <div className="docs-shell">
         <aside className="docs-sidebar">

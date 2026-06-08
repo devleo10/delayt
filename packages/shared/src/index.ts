@@ -179,18 +179,84 @@ export interface RunRequestValidation {
 
 const VALID_HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
+const LOCALHOST_HOSTNAMES = new Set(['localhost', 'localhost.localdomain']);
+
+export interface TargetUrlCheck {
+  allowed: boolean;
+  reason?: string;
+}
+
+/** Add http(s):// when the user omits a scheme (e.g. api.example.com/health). */
+export function normalizeTargetUrl(input: string): string {
+  const trimmed = input.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  const host = trimmed.split('/')[0]?.split(':')[0]?.replace(/^\[|\]$/g, '').toLowerCase();
+  const isLocal =
+    LOCALHOST_HOSTNAMES.has(host) || host === '127.0.0.1' || host === '::1';
+  return `${isLocal ? 'http' : 'https'}://${trimmed}`;
+}
+
+function isPrivateOrLocalHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
+
+  if (LOCALHOST_HOSTNAMES.has(host) || host.endsWith('.localhost')) return true;
+  if (host === '::1' || host === '0.0.0.0') return true;
+
+  const parts = host.split('.').map((p) => Number(p));
+  if (parts.length === 4 && parts.every((p) => Number.isInteger(p) && p >= 0 && p <= 255)) {
+    const [a, b] = parts;
+    if (a === 127 || a === 10 || a === 0) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 169 && b === 254) return true;
+  }
+
+  return false;
+}
+
+export function checkTargetUrl(
+  urlString: string,
+  options: { blockPrivateTargets?: boolean } = {}
+): TargetUrlCheck {
+  let parsed: URL;
+
+  try {
+    parsed = new URL(normalizeTargetUrl(urlString));
+  } catch {
+    return { allowed: false, reason: `Invalid URL: ${urlString}` };
+  }
+
+  const scheme = parsed.protocol.toLowerCase();
+  if (scheme !== 'http:' && scheme !== 'https:') {
+    return { allowed: false, reason: 'Only http and https URLs are allowed' };
+  }
+
+  if (options.blockPrivateTargets && isPrivateOrLocalHost(parsed.hostname)) {
+    return {
+      allowed: false,
+      reason:
+        'localhost and private network URLs cannot be tested from the hosted app. Use a public URL (staging, tunnel, or deploy), or run Delayt locally with npm run dev.',
+    };
+  }
+
+  return { allowed: true };
+}
+
 export function validateRunRequest(
   body: { endpoints?: EndpointConfig[]; requestCount?: number },
   options: {
     maxRequestCount?: number;
     defaultRequestCount?: number;
     maxEndpoints?: number;
+    blockPrivateTargets?: boolean;
   } = {}
 ): RunRequestValidation {
   const {
     maxRequestCount = 200,
     defaultRequestCount = 50,
     maxEndpoints = 10,
+    blockPrivateTargets = false,
   } = options;
 
   const { endpoints, requestCount = defaultRequestCount } = body;
@@ -215,10 +281,9 @@ export function validateRunRequest(
       return { valid: false, message: 'Each endpoint must have a URL' };
     }
 
-    try {
-      new URL(ep.url);
-    } catch {
-      return { valid: false, message: `Invalid URL: ${ep.url}` };
+    const targetCheck = checkTargetUrl(ep.url, { blockPrivateTargets });
+    if (!targetCheck.allowed) {
+      return { valid: false, message: targetCheck.reason };
     }
 
     if (!VALID_HTTP_METHODS.includes(ep.method)) {

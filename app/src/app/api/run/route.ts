@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { EndpointConfig, validateRunRequest } from '@delayt/shared';
+import { EndpointConfig, normalizeTargetUrl, validateRunRequest } from '@delayt/shared';
+import { shouldBlockPrivateTargets } from '@/lib/targetPolicy';
 import { createAndStartRun } from '@/lib/runner';
 import {
   checkRateLimit,
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
     {
       maxRequestCount: webMax,
       defaultRequestCount: getServerWebDefaultRequestCount(),
+      blockPrivateTargets: shouldBlockPrivateTargets(),
     }
   );
 
@@ -73,16 +75,20 @@ export async function POST(request: NextRequest) {
   }
 
   const count = clampWebRequestCount(requestCount);
+  const normalizedEndpoints = endpoints!.map((ep) => ({
+    ...ep,
+    url: normalizeTargetUrl(ep.url),
+  }));
 
   try {
-    const { runId, slug } = await createAndStartRun(endpoints!, count);
+    const { runId, slug } = await createAndStartRun(normalizedEndpoints, count);
 
     return NextResponse.json({
       success: true,
       runId,
       slug,
       shareUrl: `/r/${slug}`,
-      message: `Started test run for ${endpoints!.length} endpoint(s) with ${count} requests each`,
+      message: `Started test run for ${normalizedEndpoints.length} endpoint(s) with ${count} requests each`,
     });
   } catch (error) {
     console.error('Error starting test run:', error);

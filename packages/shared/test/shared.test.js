@@ -6,6 +6,8 @@ const {
   computePercentiles,
   buildAnalyticsResult,
   validateRunRequest,
+  checkTargetUrl,
+  normalizeTargetUrl,
 } = require('../dist/index.js');
 
 describe('computePercentiles', () => {
@@ -62,5 +64,36 @@ describe('validateRunRequest', () => {
     );
     assert.equal(v.valid, true);
     assert.equal(v.count, 15);
+  });
+
+  it('rejects localhost when blockPrivateTargets is enabled', () => {
+    const v = validateRunRequest(
+      {
+        endpoints: [{ url: 'http://localhost:5000', method: 'GET' }],
+        requestCount: 15,
+      },
+      { maxRequestCount: 20, blockPrivateTargets: true }
+    );
+    assert.equal(v.valid, false);
+    assert.match(v.message, /localhost/i);
+  });
+});
+
+describe('checkTargetUrl', () => {
+  it('normalizes bare hostnames', () => {
+    assert.equal(normalizeTargetUrl('api.example.com/health'), 'https://api.example.com/health');
+    assert.equal(normalizeTargetUrl('localhost:5000'), 'http://localhost:5000');
+  });
+
+  it('blocks private targets when configured', () => {
+    const check = checkTargetUrl('http://127.0.0.1:5000', { blockPrivateTargets: true });
+    assert.equal(check.allowed, false);
+  });
+
+  it('allows public URLs when blocking is enabled', () => {
+    const check = checkTargetUrl('https://api.example.com/health', {
+      blockPrivateTargets: true,
+    });
+    assert.equal(check.allowed, true);
   });
 });

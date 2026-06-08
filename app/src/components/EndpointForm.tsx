@@ -1,6 +1,12 @@
 'use client';
 import React, { useState } from 'react';
-import { HttpMethod, EndpointConfig } from '@delayt/shared';
+import {
+  HttpMethod,
+  EndpointConfig,
+  checkTargetUrl,
+  normalizeTargetUrl,
+} from '@delayt/shared';
+import { shouldBlockPrivateTargetsClient } from '@/lib/targetPolicy';
 import {
   CLI_RECOMMENDED_REQUEST_COUNT,
   WEB_DEFAULT_REQUEST_COUNT,
@@ -54,7 +60,7 @@ function countFilled(items: KeyValueItem[]): number {
 }
 
 function buildUrlWithParams(baseUrl: string, params: KeyValueItem[]): string {
-  const url = new URL(baseUrl);
+  const url = new URL(normalizeTargetUrl(baseUrl));
   params
     .filter((p) => p.key.trim())
     .forEach((p) => url.searchParams.set(p.key.trim(), p.value.trim()));
@@ -173,9 +179,16 @@ const EndpointForm: React.FC<EndpointFormProps> = ({
       let finalUrl: string;
       try {
         finalUrl = buildUrlWithParams(ep.url.trim(), ep.queryParams);
-        new URL(finalUrl);
       } catch {
         setError(`Invalid URL: ${ep.url}`);
+        return;
+      }
+
+      const targetCheck = checkTargetUrl(finalUrl, {
+        blockPrivateTargets: shouldBlockPrivateTargetsClient(),
+      });
+      if (!targetCheck.allowed) {
+        setError(targetCheck.reason || `URL not allowed: ${ep.url}`);
         return;
       }
 
